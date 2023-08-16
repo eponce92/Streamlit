@@ -24,6 +24,19 @@ redundancies = [
     st.sidebar.number_input(f"Redundancy Level for Station {i + 1}", value=1, min_value=1) for i in range(num_stations)
 ]
 
+buffer_options = [
+    st.sidebar.checkbox(f"Set Conveyance {i + 1} to {i + 2} as Buffer?", value=False)
+    for i in range(num_stations)
+]
+buffer_units = [
+    st.sidebar.number_input(f"Buffer Units for Conveyance {i + 1} to {i + 2}", value=0, min_value=0) if is_buffer else 0
+    for i, is_buffer in enumerate(buffer_options)
+]
+buffer_budgets = [
+    st.sidebar.number_input(f"Buffer Budget for Conveyance {i + 1} to {i + 2} ($)", value=0.00, min_value=0.00, format="%.2f") if is_buffer else 0.00
+    for i, is_buffer in enumerate(buffer_options)
+]
+
 # Calculation Functions
 def calculate_total_cycle_time(cycle_times, redundancies):
     return sum(cycle_time / redundancy for cycle_time, redundancy in zip(cycle_times, redundancies))
@@ -35,7 +48,8 @@ def calculate_total_output(total_cycle_time):
     return int((SHIFT_LENGTH_HOURS * SECONDS_PER_HOUR * NUM_SHIFTS_PER_DAY) / total_cycle_time)
 
 # Graph Creation Function
-def create_graph(cycle_times, budgets, conveyance_budgets, redundancies):
+def create_graph(cycle_times, budgets, conveyance_budgets, redundancies, buffer_options, buffer_units, buffer_budgets):
+    
     dot_string = 'digraph {rankdir=TB;'  # Vertical orientation
     dot_string += '"Line Input" -> C1;'
     for i in range(num_stations):
@@ -44,7 +58,9 @@ def create_graph(cycle_times, budgets, conveyance_budgets, redundancies):
             label = f'"Station {i + 1} ({r + 1})\\n{cycle_times[i]}s\\n${budgets[i]:,.2f}"'  # Updated label with newline escape sequences
             dot_string += f'S{i + 1}_R{r + 1} [label={label}];'
             dot_string += f'S{i + 1}_R{r + 1} -> C{i + 2};'
-        conveyance_label = f'"Conveyance {i + 1}\\n${conveyance_budgets[i]:,.2f}"'  # Conveyance budget
+        conveyance_label = f'"Conveyance {i + 1}\\n${conveyance_budgets[i]:,.2f}"'
+        if buffer_options[i]:
+            conveyance_label = f'"Buffer {i + 1} ({buffer_units[i]} units)\\n${buffer_budgets[i]:,.2f}"'  # Buffer label
         dot_string += f'C{i + 1} [shape=rectangle, label={conveyance_label}];'
     dot_string += f'C{num_stations + 1} [shape=rectangle, label="Conveyance {num_stations + 1}"];'
     dot_string += '"Line Output" [shape=ellipse];'
