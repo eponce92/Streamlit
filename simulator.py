@@ -4,8 +4,13 @@ def create_ascii_representation(stations, groups):
     ascii_lines = ["[Line Input]"]
     
     for group in groups:
-        group_stations = " --+ ".join([f"[Station {i+1}  {stations[i]['cycle_time']}s ${stations[i]['budget']/1000:.2f}k]" for i in group])
-        ascii_lines.append(group_stations + " --+")
+        group_stations = []
+        max_length = max(len(f"[Station {i+1}  {stations[i]['cycle_time']}s ${stations[i]['budget']/1000:.2f}k]") for i in group)
+        for i in group:
+            station_info = f"[Station {i+1}  {stations[i]['cycle_time']}s ${stations[i]['budget']/1000:.2f}k]"
+            group_stations.append(station_info.ljust(max_length))
+        group_representation = " --+\n".join(group_stations) + " --+"
+        ascii_lines.append(group_representation)
     
     ascii_lines.append("[Line Output]")
 
