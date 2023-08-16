@@ -1,32 +1,31 @@
 import streamlit as st
 def create_ascii_representation(stations, connections):
-    ascii_representation = ""
-    parallel_connection = False
-    
+    ascii_lines = []
+    current_line = ""
+    max_station_length = max(len(f"[Station {i+1}  {s['cycle_time']}s ${s['budget']/1000:.2f}k]") for i, s in enumerate(stations))
+
     for i, connection in enumerate(connections):
-        station_info = f"[Station {i+1}  {stations[i]['cycle_time']}s ${stations[i]['budget']/1000:.2f}k]"
-        ascii_representation += station_info
-        
+        station_info = f"[Station {i+1}  {stations[i]['cycle_time']}s ${stations[i]['budget']/1000:.2f}k]".ljust(max_station_length)
+
         if connection['type'] == 'series':
-            if parallel_connection:
-                ascii_representation += " ----------------------------+\n"
-                parallel_connection = False
-            ascii_representation += " --> "
+            current_line += station_info + " --> "
         elif connection['type'] == 'parallel':
-            parallel_connection = True
-            ascii_representation += " --+\n" + " " * len(station_info) + "|                                                  |\n"
+            current_line += station_info + " --+"
+            ascii_lines.append(current_line)
+            ascii_lines.append(" " * (len(current_line) - 1) + "|")
+            current_line = " " * (len(current_line) - 1) + "+--"
 
     # Add last station
     i = len(stations) - 1
-    station_info = f"[Station {i+1}  {stations[i]['cycle_time']}s ${stations[i]['budget']/1000:.2f}k]"
-    ascii_representation += station_info
+    station_info = f"[Station {i+1}  {stations[i]['cycle_time']}s ${stations[i]['budget']/1000:.2f}k]".ljust(max_station_length)
+    current_line += station_info
+    ascii_lines.append(current_line)
 
-    if parallel_connection:
-        ascii_representation += " ----------------------------+"
+    # Add final output line
+    ascii_lines.append(" " * (len(current_line) - 1) + "+--> [Final Output]")
 
-    ascii_representation += "\n" + " " * len(station_info) + "+--> [Final Output]"
+    return "\n".join(ascii_lines)
 
-    return ascii_representation
 
 
 
