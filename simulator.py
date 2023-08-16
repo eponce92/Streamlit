@@ -1,29 +1,33 @@
 import streamlit as st
 def create_ascii_representation(stations, connections):
     ascii_representation = ""
-    lines = []
-    max_station_length = max(len(f"[Station {i+1}  {s['cycle_time']}s ${s['budget']/1000:.2f}k]") for i, s in enumerate(stations))
-
-    # Build the lines for series and parallel connections
+    parallel_connection = False
+    
     for i, connection in enumerate(connections):
-        station_info = f"[Station {i+1}  {stations[i]['cycle_time']}s ${stations[i]['budget']/1000:.2f}k]".ljust(max_station_length)
-        next_station_info = f"[Station {i+2}  {stations[i+1]['cycle_time']}s ${stations[i+1]['budget']/1000:.2f}k]".ljust(max_station_length)
-
+        station_info = f"[Station {i+1}  {stations[i]['cycle_time']}s ${stations[i]['budget']/1000:.2f}k]"
+        ascii_representation += station_info
+        
         if connection['type'] == 'series':
-            lines.append(station_info + " --> " + next_station_info)
+            if parallel_connection:
+                ascii_representation += " ----------------------------+\n"
+                parallel_connection = False
+            ascii_representation += " --> "
         elif connection['type'] == 'parallel':
-            lines.append(station_info + " --+")
-            lines.append(" " * len(station_info) + "|")
-            lines.append(" " * len(station_info) + "|  " + next_station_info + " --+")
-            lines.append(" " * len(station_info) + "|")
-    
-    # Add final output line
-    lines.append(" " * max_station_length + "+--> [Final Output]")
+            parallel_connection = True
+            ascii_representation += " --+\n" + " " * len(station_info) + "|                                                  |\n"
 
-    # Combine the lines into the final representation
-    ascii_representation = "\n".join(lines)
-    
+    # Add last station
+    i = len(stations) - 1
+    station_info = f"[Station {i+1}  {stations[i]['cycle_time']}s ${stations[i]['budget']/1000:.2f}k]"
+    ascii_representation += station_info
+
+    if parallel_connection:
+        ascii_representation += " ----------------------------+"
+
+    ascii_representation += "\n" + " " * len(station_info) + "+--> [Final Output]"
+
     return ascii_representation
+
 
 
 
