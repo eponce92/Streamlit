@@ -83,5 +83,6 @@ st.write(f"Total Budget: ${total_budget:,.2f}")
 st.write(f"Total Output: {total_output:,} pills per day")
 
 # Display Graphical Representation
-graph_dot_string = create_graph(cycle_times, budgets, conveyance_budgets, redundancies)
+graph_dot_string = create_graph(cycle_times, budgets, conveyance_budgets, redundancies, buffer_options, buffer_units, buffer_budgets)
+
 st.graphviz_chart(graph_dot_string)
