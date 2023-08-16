@@ -45,11 +45,25 @@ for i in range(num_stations):
 
 
 # Calculation Functions
-def calculate_total_cycle_time(cycle_times, redundancies):
-    return sum(cycle_time / redundancy for cycle_time, redundancy in zip(cycle_times, redundancies))
+def calculate_buffer_impact(cycle_times, redundancies, buffer_options, buffer_units):
+    buffer_impacts = []
+    for i in range(len(cycle_times) - 1):
+        upstream_cycle_time = cycle_times[i] / redundancies[i]
+        downstream_cycle_time = cycle_times[i + 1] / redundancies[i + 1]
+        if buffer_options[i] and downstream_cycle_time > upstream_cycle_time:
+            # Buffer impact on cycle time
+            impact = ((downstream_cycle_time - upstream_cycle_time) * buffer_units[i]) / downstream_cycle_time
+        else:
+            impact = 0
+        buffer_impacts.append(impact)
+    return buffer_impacts
 
-def calculate_total_budget(budgets, conveyance_budgets, redundancies):
-    return sum(budget * redundancy for budget, redundancy in zip(budgets, redundancies)) + sum(conveyance_budgets)
+def calculate_total_cycle_time(cycle_times, redundancies, buffer_impacts):
+    return sum(cycle_time / redundancy for cycle_time, redundancy in zip(cycle_times, redundancies)) + sum(buffer_impacts)
+
+def calculate_total_budget(budgets, conveyance_budgets, buffer_budgets, redundancies):
+    return sum(budget * redundancy for budget, redundancy in zip(budgets, redundancies)) + sum(conveyance_budgets) + sum(buffer_budgets)
+
 
 def calculate_total_output(total_cycle_time):
     return int((SHIFT_LENGTH_HOURS * SECONDS_PER_HOUR * NUM_SHIFTS_PER_DAY) / total_cycle_time)
@@ -79,15 +93,19 @@ def create_graph(cycle_times, budgets, conveyance_budgets, redundancies, buffer_
 
 
 
-# Display Results
-total_cycle_time = calculate_total_cycle_time(cycle_times, redundancies)
-total_budget = calculate_total_budget(budgets, conveyance_budgets, redundancies)
+# Calculate buffer impact on cycle time
+buffer_impacts = calculate_buffer_impact(cycle_times, redundancies, buffer_options, buffer_units)
+
+# Updated calculations
+total_cycle_time = calculate_total_cycle_time(cycle_times, redundancies, buffer_impacts)
+total_budget = calculate_total_budget(budgets, conveyance_budgets, buffer_budgets, redundancies)
 total_output = calculate_total_output(total_cycle_time)
 
 st.subheader("Results")
 st.write(f"Total Cycle Time: {total_cycle_time:.2f} seconds")
 st.write(f"Total Budget: ${total_budget:,.2f}")
 st.write(f"Total Output: {total_output:,} pills per day")
+
 
 # Display Graphical Representation
 graph_dot_string = create_graph(cycle_times, budgets, conveyance_budgets, redundancies, buffer_options, buffer_units, buffer_budgets)
