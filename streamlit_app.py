@@ -20,7 +20,7 @@ def calculate_additional_budget(daily_output, target_daily_output, total_budget)
     return round(number_of_additional_lines), additional_budget_required
 
 # Layout
-st.title("Manufacturing Line Comparison Tool")
+st.title("Manufacturing Line Comparison Tool (for Ehsan :)")
 st.write("Compare two different manufacturing line options by modifying the values below.")
 
 # Input for Option 1
