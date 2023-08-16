@@ -1,27 +1,25 @@
 import streamlit as st
-import graphviz
 
 # Constants
 SHIFT_LENGTH_HOURS = 12
 NUM_SHIFTS_PER_DAY = 2
 SECONDS_PER_HOUR = 3600
 
-def create_graphviz_chart(stations):
-    dot = gv.Digraph()
-    dot.node('Line Input')
+def create_dot_string(stations):
+    dot = "digraph {\n"
+    dot += '    "Line Input" -> '
     
-    prev_node = 'Line Input'
+    prev_node = '"Line Input"'
     for i, station in enumerate(stations):
         redundancy = station['redundancy']
-        label = f"Station {i+1} ({redundancy}x)\n{station['cycle_time']}s\n${station['budget']/1000:.2f}k"
-        node_name = f"Station {i+1}"
-        dot.node(node_name, label=label)
-        dot.edge(prev_node, node_name)
+        label = f"Station {i+1} ({redundancy}x)\\n{station['cycle_time']}s\\n${station['budget']/1000:.2f}k"
+        node_name = f'"Station {i+1}"'
+        dot += f'{node_name} [label="{label}"];\n    {prev_node} -> {node_name};\n'
         prev_node = node_name
 
-    dot.node('Line Output')
-    dot.edge(prev_node, 'Line Output')
-
+    dot += f'    {prev_node} -> "Line Output";\n'
+    dot += '    "Line Output"\n'
+    dot += "}"
     return dot
 
 def calculate_line_metrics(stations):
@@ -63,5 +61,5 @@ st.write("Total Output (per day):", int(daily_output), "pills")
 
 # Display Graphviz chart
 st.subheader("Manufacturing Line Representation")
-graph = create_graphviz_chart(stations)
-st.graphviz_chart(graph)
+dot_string = create_dot_string(stations)
+st.graphviz_chart(dot_string)
