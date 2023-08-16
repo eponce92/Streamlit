@@ -1,22 +1,28 @@
 import streamlit as st
+import graphviz as gv
 
 # Constants
 SHIFT_LENGTH_HOURS = 12
 NUM_SHIFTS_PER_DAY = 2
 SECONDS_PER_HOUR = 3600
 
-def create_flow_chart(stations):
-    flow_chart = "Line Input --> "
+def create_graphviz_chart(stations):
+    dot = gv.Digraph()
+    dot.node('Line Input')
+    
+    prev_node = 'Line Input'
     for i, station in enumerate(stations):
         redundancy = station['redundancy']
-        if redundancy > 1:
-            flow_chart += f"[Station {i+1} ({redundancy}x)  {station['cycle_time']}s ${station['budget']/1000:.2f}k] --+ "
-            flow_chart += " -- ".join(["|"] * (redundancy - 1))
-            flow_chart += " --> "
-        else:
-            flow_chart += f"[Station {i+1}  {station['cycle_time']}s ${station['budget']/1000:.2f}k] --> "
-    flow_chart += "Line Output"
-    return flow_chart
+        label = f"Station {i+1} ({redundancy}x)\n{station['cycle_time']}s\n${station['budget']/1000:.2f}k"
+        node_name = f"Station {i+1}"
+        dot.node(node_name, label=label)
+        dot.edge(prev_node, node_name)
+        prev_node = node_name
+
+    dot.node('Line Output')
+    dot.edge(prev_node, 'Line Output')
+
+    return dot
 
 def calculate_line_metrics(stations):
     total_cycle_time = 0
@@ -55,7 +61,7 @@ st.write("Total Cycle Time:", total_cycle_time, "seconds")
 st.write("Total Budget: $", "{:,.2f}".format(total_budget))
 st.write("Total Output (per day):", int(daily_output), "pills")
 
-# Display flow chart
+# Display Graphviz chart
 st.subheader("Manufacturing Line Representation")
-flow_chart = create_flow_chart(stations)
-st.text(flow_chart)
+graph = create_graphviz_chart(stations)
+st.graphviz_chart(graph)
