@@ -59,3 +59,9 @@ st.write(f"Total Output: {total_output:,} pills per day")
 st.subheader("Graphical Representation")
 graph_dot_string = create_graph(cycle_times, budgets, redundancies)
 st.graphviz_chart(graph_dot_string)
+
+# Debug Section
+if st.checkbox("Show Debug Information"):
+    st.subheader("Debug Information")
+    st.write("Graphviz Dot String:")
+    st.text(graph_dot_string)
