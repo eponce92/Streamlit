@@ -6,7 +6,7 @@ NUM_SHIFTS_PER_DAY = 2
 SECONDS_PER_HOUR = 3600
 
 # User Inputs Section
-st.title("Manufacturing Line Simulation")
+st.title("Rani Manufacturing Line Simulation")
 st.sidebar.header("User Inputs")
 num_stations = st.sidebar.number_input("Number of Stations", value=2, min_value=1)
 cycle_times = [
