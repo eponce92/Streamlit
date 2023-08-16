@@ -1,18 +1,18 @@
 import streamlit as st
 
 def create_ascii_representation(stations, groups):
-    ascii_lines = ["[Line Input]"]
-    
-    for group in groups:
-        group_stations = []
-        max_length = max(len(f"[Station {i+1}  {stations[i]['cycle_time']}s ${stations[i]['budget']/1000:.2f}k]") for i in group)
-        for i in group:
-            station_info = f"[Station {i+1}  {stations[i]['cycle_time']}s ${stations[i]['budget']/1000:.2f}k]"
-            group_stations.append(station_info.ljust(max_length))
-        group_representation = " --+\n".join(group_stations) + " --+"
-        ascii_lines.append(group_representation)
-    
-    ascii_lines.append("[Line Output]")
+    ascii_lines = ["[Line Input] --> [Station 1] --+"]
+    max_station_length = max(len(f"[Station {i+1}  {stations[i]['cycle_time']}s ${stations[i]['budget']/1000:.2f}k]") for i in range(len(stations)))
+
+    for i, group in enumerate(groups[1:], start=1):  # Skip the first group (Station 1)
+        for station_idx in group:
+            station_info = f"|--> [Station {station_idx+1}  {stations[station_idx]['cycle_time']}s ${stations[station_idx]['budget']/1000:.2f}k]"
+            station_info = station_info.center(max_station_length + 10)
+            ascii_lines.append(station_info)
+        if i < len(groups) - 1:
+            ascii_lines[-1] += " --+"
+
+    ascii_lines.append("+--> [Station 4] --> [Line Output]")
 
     return "\n".join(ascii_lines)
 
