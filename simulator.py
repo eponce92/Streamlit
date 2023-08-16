@@ -1,5 +1,5 @@
 import streamlit as st
-import graphviz as gv
+import graphviz
 
 # Constants
 SHIFT_LENGTH_HOURS = 12
