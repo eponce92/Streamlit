@@ -42,14 +42,17 @@ def create_graph(cycle_times, budgets, redundancies):
 
 # Display Results
 total_cycle_time = calculate_total_cycle_time(cycle_times, redundancies)
-total_budget = calculate_total_budget(budgets, redundancies)
-total_output = calculate_total_output(total_cycle_time)
+if total_cycle_time == 0:
+    st.error("Total Cycle Time cannot be zero. Please enter valid Cycle Time values.")
+else:
+    total_budget = calculate_total_budget(budgets, redundancies)
+    total_output = calculate_total_output(total_cycle_time)
 
-st.subheader("Results")
-st.write(f"Total Cycle Time: {total_cycle_time:.2f} seconds")
-st.write(f"Total Budget: ${total_budget:,.2f}")
-st.write(f"Total Output: {total_output:,} pills per day")
+    st.subheader("Results")
+    st.write(f"Total Cycle Time: {total_cycle_time:.2f} seconds")
+    st.write(f"Total Budget: ${total_budget:,.2f}")
+    st.write(f"Total Output: {total_output:,} pills per day")
 
-st.subheader("Graphical Representation")
-graph_dot_string = create_graph(cycle_times, budgets, redundancies)
-st.graphviz_chart(graph_dot_string)
+    st.subheader("Graphical Representation")
+    graph_dot_string = create_graph(cycle_times, budgets, redundancies)
+    st.graphviz_chart(graph_dot_string)
