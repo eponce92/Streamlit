@@ -1,4 +1,4 @@
-import streamlit as sthttps://github.com/eponce92/Streamlit/blob/main/simulator.py
+import streamlit as st
 
 def create_ascii_representation(stations, groups):
     ascii_lines = ["[Line Input]"]
