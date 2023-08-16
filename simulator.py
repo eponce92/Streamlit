@@ -16,6 +16,10 @@ budgets = [
     st.sidebar.number_input(f"Budget for Station {i + 1} ($)", value=40000.00, min_value=0.00, format="%.2f")
     for i in range(num_stations)
 ]
+conveyance_budgets = [
+    st.sidebar.number_input(f"Conveyance Budget for Station {i + 1} to {i + 2} ($)", value=1000.00, min_value=0.00, format="%.2f")
+    for i in range(num_stations)
+]
 redundancies = [
     st.sidebar.number_input(f"Redundancy Level for Station {i + 1}", value=1, min_value=1) for i in range(num_stations)
 ]
@@ -24,24 +28,25 @@ redundancies = [
 def calculate_total_cycle_time(cycle_times, redundancies):
     return sum(cycle_time / redundancy for cycle_time, redundancy in zip(cycle_times, redundancies))
 
-def calculate_total_budget(budgets, redundancies):
-    return sum(budget * redundancy for budget, redundancy in zip(budgets, redundancies))
+def calculate_total_budget(budgets, conveyance_budgets, redundancies):
+    return sum(budget * redundancy for budget, redundancy in zip(budgets, redundancies)) + sum(conveyance_budgets)
 
 def calculate_total_output(total_cycle_time):
     return int((SHIFT_LENGTH_HOURS * SECONDS_PER_HOUR * NUM_SHIFTS_PER_DAY) / total_cycle_time)
 
 # Graph Creation Function
-def create_graph(cycle_times, budgets, redundancies):
-    dot_string = 'digraph {rankdir=TB;'
+def create_graph(cycle_times, budgets, conveyance_budgets, redundancies):
+    dot_string = 'digraph {rankdir=TB;'  # Vertical orientation
     dot_string += '"Line Input" -> C1;'
     for i in range(num_stations):
         for r in range(redundancies[i]):
             dot_string += f'C{i + 1} -> S{i + 1}_R{r + 1};'
-            label = f'"Station {i + 1}  {cycle_times[i]}s ${budgets[i]:,.2f}"'
+            label = f'<<center>Station {i + 1} ({r + 1})<br/>{cycle_times[i]}s<br/>${budgets[i]:,.2f}</center>>'  # Updated label
             dot_string += f'S{i + 1}_R{r + 1} [label={label}];'
             dot_string += f'S{i + 1}_R{r + 1} -> C{i + 2};'
-        dot_string += f'C{i + 1} [shape=rectangle, label="Conveyance {i + 1}"];'
-    dot_string += f'C{num_stations + 1} [shape=rectangle, label="Conveyance {num_stations + 1}"];' # Corrected this line
+        conveyance_label = f'"Conveyance {i + 1}<br/>${conveyance_budgets[i]:,.2f}"'  # Conveyance budget
+        dot_string += f'C{i + 1} [shape=rectangle, label={conveyance_label}];'
+    dot_string += f'C{num_stations + 1} [shape=rectangle, label="Conveyance {num_stations + 1}"];'
     dot_string += '"Line Output" [shape=ellipse];'
     dot_string += f'C{num_stations + 1} -> "Line Output";'
     dot_string += '}'
@@ -49,7 +54,7 @@ def create_graph(cycle_times, budgets, redundancies):
 
 # Display Results
 total_cycle_time = calculate_total_cycle_time(cycle_times, redundancies)
-total_budget = calculate_total_budget(budgets, redundancies)
+total_budget = calculate_total_budget(budgets, conveyance_budgets, redundancies)
 total_output = calculate_total_output(total_cycle_time)
 
 st.subheader("Results")
@@ -58,5 +63,5 @@ st.write(f"Total Budget: ${total_budget:,.2f}")
 st.write(f"Total Output: {total_output:,} pills per day")
 
 # Display Graphical Representation
-graph_dot_string = create_graph(cycle_times, budgets, redundancies)
+graph_dot_string = create_graph(cycle_times, budgets, conveyance_budgets, redundancies)
 st.graphviz_chart(graph_dot_string)
