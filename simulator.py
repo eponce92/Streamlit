@@ -24,24 +24,24 @@ redundancies = [
     st.sidebar.number_input(f"Redundancy Level for Station {i + 1}", value=1, min_value=1) for i in range(num_stations)
 ]
 
-
 buffer_options = []
 buffer_units = []
 buffer_budgets = []
 for i in range(num_stations):
     st.sidebar.subheader(f"Conveyance {i + 1} to {i + 2} Settings")
-    is_buffer = st.sidebar.checkbox(f"Set as Buffer?", value=False)
+    is_buffer = st.sidebar.checkbox(f"Set as Buffer for Conveyance {i + 1} to {i + 2}?", value=False)
     buffer_options.append(is_buffer)
 
     if is_buffer:
-        units = st.sidebar.number_input(f"Buffer Units", value=0, min_value=0)
-        budget = st.sidebar.number_input(f"Buffer Budget ($)", value=40000.00, min_value=0.00, format="%.2f")
+        units = st.sidebar.number_input(f"Buffer Units for Conveyance {i + 1} to {i + 2}", value=0, min_value=0)
+        budget = st.sidebar.number_input(f"Buffer Budget for Conveyance {i + 1} to {i + 2} ($)", value=40000.00, min_value=0.00, format="%.2f")
         buffer_units.append(units)
         buffer_budgets.append(budget)
     else:
-        budget = st.sidebar.number_input(f"Conveyance Budget ($)", value=40000.00, min_value=0.00, format="%.2f")
+        budget = st.sidebar.number_input(f"Conveyance Budget for Conveyance {i + 1} to {i + 2} ($)", value=40000.00, min_value=0.00, format="%.2f")
         buffer_units.append(0)
         buffer_budgets.append(budget)
+
 
 
 # Calculation Functions
