@@ -1,29 +1,39 @@
 import streamlit as st
 
-def create_ascii_representation(stations, groups):
-    # Build the representation for the first and last group (in series)
-    ascii_lines = [f"[Station 1  {stations[0]['cycle_time']}s ${stations[0]['budget']/1000:.2f}k] --+"]
-    ascii_lines.append(f"+--> [Station {len(stations)}  {stations[-1]['cycle_time']}s ${stations[-1]['budget']/1000:.2f}k] --> [Final Output]")
+# Constants
+SHIFT_LENGTH_HOURS = 12
+NUM_SHIFTS_PER_DAY = 2
+SECONDS_PER_HOUR = 3600
 
-    # Build the representation for the middle group (in parallel)
-    middle_lines = [f"+--> [Station {i+1}  {stations[i]['cycle_time']}s ${stations[i]['budget']/1000:.2f}k] --+" for i in groups[1]]
-    middle_space = " " * len(ascii_lines[0])
+def create_flow_chart(stations):
+    flow_chart = "Line Input --> "
+    for i, station in enumerate(stations):
+        redundancy = station['redundancy']
+        if redundancy > 1:
+            flow_chart += f"[Station {i+1} ({redundancy}x)  {station['cycle_time']}s ${station['budget']/1000:.2f}k] --+ "
+            flow_chart += " -- ".join(["|"] * (redundancy - 1))
+            flow_chart += " --> "
+        else:
+            flow_chart += f"[Station {i+1}  {station['cycle_time']}s ${station['budget']/1000:.2f}k] --> "
+    flow_chart += "Line Output"
+    return flow_chart
 
-    # Insert the middle lines into the main representation
-    for line in middle_lines:
-        ascii_lines.insert(1, middle_space + line)
-
-    return "\n".join(ascii_lines)
-
-def calculate_cycle_time_and_budget(stations, groups):
+def calculate_line_metrics(stations):
     total_cycle_time = 0
-    total_budget = sum(station['budget'] for station in stations)
+    total_budget = 0
+    for station in stations:
+        redundancy = station['redundancy']
+        cycle_time = station['cycle_time']
+        budget = station['budget']
+        total_cycle_time += cycle_time / redundancy
+        total_budget += budget * redundancy
     
-    for group in groups:
-        parallel_cycle_times = [stations[i]['cycle_time'] for i in group]
-        total_cycle_time += max(parallel_cycle_times)
-    
-    return total_cycle_time, total_budget
+    # Calculate daily output
+    shift_length_seconds = SHIFT_LENGTH_HOURS * SECONDS_PER_HOUR
+    pills_per_shift = shift_length_seconds / total_cycle_time
+    daily_output = pills_per_shift * NUM_SHIFTS_PER_DAY
+
+    return total_cycle_time, total_budget, daily_output
 
 # Main application
 st.title("Manufacturing Line Simulator")
@@ -35,24 +45,17 @@ for i in range(num_stations):
     st.subheader(f"Station {i+1}")
     cycle_time = st.number_input(f"Cycle Time for Station {i+1} (seconds):", min_value=1, value=60, format="%d")
     budget = st.number_input(f"Budget for Station {i+1} ($):", min_value=0, value=100000, format="%d")
-    stations.append({'cycle_time': cycle_time, 'budget': budget})
-
-# Define groups
-num_groups = st.number_input("Number of Groups:", min_value=1, value=2, format="%d")
-groups = []
-for i in range(num_groups):
-    st.subheader(f"Group {i+1}")
-    group_stations = st.multiselect(f"Select stations for Group {i+1}:", options=[f"Station {j+1}" for j in range(num_stations)])
-    group_indices = [int(station.split()[-1]) - 1 for station in group_stations]
-    groups.append(group_indices)
+    redundancy = st.number_input(f"Redundancy for Station {i+1} (number of parallel units):", min_value=1, value=1, format="%d")
+    stations.append({'cycle_time': cycle_time, 'budget': budget, 'redundancy': redundancy})
 
 # Calculate and display results
-total_cycle_time, total_budget = calculate_cycle_time_and_budget(stations, groups)
+total_cycle_time, total_budget, daily_output = calculate_line_metrics(stations)
 st.subheader("Results")
 st.write("Total Cycle Time:", total_cycle_time, "seconds")
 st.write("Total Budget: $", "{:,.2f}".format(total_budget))
+st.write("Total Output (per day):", int(daily_output), "pills")
 
-# Display ASCII representation
+# Display flow chart
 st.subheader("Manufacturing Line Representation")
-ascii_representation = create_ascii_representation(stations, groups)
-st.text(ascii_representation)
+flow_chart = create_flow_chart(stations)
+st.text(flow_chart)
