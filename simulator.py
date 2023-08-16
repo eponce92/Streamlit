@@ -111,3 +111,59 @@ st.write(f"Total Output: {total_output:,} pills per day")
 graph_dot_string = create_graph(cycle_times, budgets, conveyance_budgets, redundancies, buffer_options, buffer_units, buffer_budgets)
 
 st.graphviz_chart(graph_dot_string)
+
+# Documentation Part
+
+st.header("Documentation")
+
+st.subheader("Modeling Overview")
+st.write("""
+This application simulates a manufacturing line with multiple stations, conveyances, and optional buffers. 
+It takes into account cycle times, budgets, redundancies, and buffer properties to calculate the total cycle time, total budget, 
+and total output per day. Below are the details of how these calculations are performed.
+""")
+
+st.subheader("Cycle Time")
+st.write("""
+The cycle time for each station is divided by the redundancy level for that station. 
+For conveyances that are set as buffers, additional calculations are performed to consider the buffer's impact on the cycle time.
+The total cycle time is the sum of all these individual cycle times.
+""")
+st.latex(r"""
+\text{{Total Cycle Time}} = \sum \left( \frac{{\text{{Cycle Time}}_i}}{{\text{{Redundancy}}_i}} \right) + \text{{Buffer Impact}}
+""")
+
+st.subheader("Buffer Impact on Cycle Time")
+st.write("""
+The buffer's impact on cycle time depends on the upstream and downstream stations. 
+- If the downstream station's cycle time (including redundancy) is slower than the upstream station, the buffer can mitigate the impact by holding excess units.
+- If the buffer fills up, the upstream station will have to wait, effectively increasing the cycle time.
+- If the buffer is never full, the upstream station can work at its full speed, and the buffer's cycle time impact will be minimal.
+""")
+
+st.subheader("Total Budget")
+st.write("""
+The total budget is calculated by multiplying the budget for each station by its redundancy level and adding the conveyance or buffer budgets.
+""")
+st.latex(r"""
+\text{{Total Budget}} = \sum \left( \text{{Budget}}_i \times \text{{Redundancy}}_i \right) + \sum \text{{Conveyance Budget}}_i + \sum \text{{Buffer Budget}}_i
+""")
+
+st.subheader("Total Output")
+st.write("""
+The total output is calculated based on the total cycle time, considering the shift length, number of shifts per day, and seconds per hour.
+""")
+st.latex(r"""
+\text{{Total Output}} = \frac{{\text{{SHIFT\_LENGTH\_HOURS}} \times \text{{SECONDS\_PER\_HOUR}} \times \text{{NUM\_SHIFTS\_PER\_DAY}}}}{{\text{{total cycle time}}}}
+""")
+
+st.subheader("Graphical Representation")
+st.write("""
+The graphical representation illustrates the manufacturing line, showing stations, conveyances, buffers, and redundancy levels. 
+- Stations with redundancy are represented by parallel branches.
+- Conveyances are represented as rectangles, and buffers are labeled with unit capacity.
+- Line Input and Line Output are shown at the beginning and end of the line, respectively.
+""")
+
+st.write("For further details or custom inquiries, please contact the developer.")
+
