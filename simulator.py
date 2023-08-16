@@ -1,5 +1,33 @@
 import streamlit as st
+# Function to create ASCII representation
+def create_ascii_representation(stations, connections):
+    ascii_representation = ""
+    parallel_lines = []
+    
+    for i, connection in enumerate(connections):
+        station_info = f"[Station {i+1}  {stations[i]['cycle_time']}s ${stations[i]['budget']/1000:.2f}k]"
+        ascii_representation += station_info
+        
+        if connection['type'] == 'series':
+            ascii_representation += " --> "
+        elif connection['type'] == 'parallel':
+            parallel_lines.append(f"[Station {i+2}  {stations[i+1]['cycle_time']}s ${stations[i+1]['budget']/1000:.2f}k]")
+            ascii_representation += " --+\n"
+    
+    # Add last station for series connection
+    if connections[-1]['type'] == 'series':
+        i = len(stations) - 1
+        station_info = f"[Station {i+1}  {stations[i]['cycle_time']}s ${stations[i]['budget']/1000:.2f}k]"
+        ascii_representation += station_info
 
+    # Add parallel connections
+    for line in parallel_lines:
+        ascii_representation += " " * (len(station_info) - 2) + "|  \n"
+        ascii_representation += line + " ----------------------------+\n"
+
+    ascii_representation += " " * (len(station_info) - 2) + "|  \n" + " " * (len(station_info) - 2) + "+--> [Final Output]"
+    
+    return ascii_representation
 # Function to calculate cycle time and budget
 def calculate_cycle_time_and_budget(stations, connections):
     total_cycle_time = 0
@@ -39,3 +67,15 @@ total_cycle_time, total_budget = calculate_cycle_time_and_budget(stations, conne
 st.subheader("Results")
 st.write("Total Cycle Time:", total_cycle_time, "seconds")
 st.write("Total Budget: $", "{:,.2f}".format(total_budget))
+
+
+# Calculate and display results
+total_cycle_time, total_budget = calculate_cycle_time_and_budget(stations, connections)
+st.subheader("Results")
+st.write("Total Cycle Time:", total_cycle_time, "seconds")
+st.write("Total Budget: $", "{:,.2f}".format(total_budget))
+
+# Display ASCII representation
+st.subheader("Manufacturing Line Representation")
+ascii_representation = create_ascii_representation(stations, connections)
+st.text(ascii_representation)
