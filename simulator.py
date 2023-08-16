@@ -32,7 +32,7 @@ def calculate_total_output(total_cycle_time):
 
 # Graph Creation Function
 def create_graph(cycle_times, budgets, redundancies):
-    dot_string = 'digraph {rankdir=LR;'
+    dot_string = 'digraph {rankdir=TB;'
     dot_string += '"Line Input" -> C1;'
     for i in range(num_stations):
         for r in range(redundancies[i]):
@@ -41,10 +41,12 @@ def create_graph(cycle_times, budgets, redundancies):
             dot_string += f'S{i + 1}_R{r + 1} [label={label}];'
             dot_string += f'S{i + 1}_R{r + 1} -> C{i + 2};'
         dot_string += f'C{i + 1} [shape=rectangle, label="Conveyance {i + 1}"];'
+    dot_string += f'C{num_stations + 1} [shape=rectangle, label="Conveyance {num_stations + 1}"];' # Corrected this line
     dot_string += '"Line Output" [shape=ellipse];'
     dot_string += f'C{num_stations + 1} -> "Line Output";'
     dot_string += '}'
     return dot_string
+
 
 # Display Results
 total_cycle_time = calculate_total_cycle_time(cycle_times, redundancies)
