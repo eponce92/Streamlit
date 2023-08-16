@@ -6,9 +6,12 @@ def create_graph(num_stations):
     for i in range(1, num_stations + 1):
         dot_string += f'S{i} [label="Station {i}"];'
         dot_string += f'C{i} [shape=rectangle, label="Conveyance {i}"];'
-        dot_string += f'C{i} -> S{i} -> C{i+1};'
+        dot_string += f'C{i} -> S{i};'
+        if i < num_stations:
+            dot_string += f'S{i} -> C{i+1};'
+        else:
+            dot_string += f'S{i} -> "Line Output";'
     dot_string += '"Line Output" [shape=ellipse];'
-    dot_string += f'C{num_stations} -> "Line Output";'
     dot_string += '}'
     return dot_string
 
