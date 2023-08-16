@@ -32,22 +32,22 @@ def calculate_total_output(total_cycle_time):
 
 # Graph Creation Function
 def create_graph(cycle_times, budgets, redundancies):
-    dot = gv.Digraph(format='png')
-    dot.attr(rankdir='LR')
-    dot.node("Line Input")
+    graph = gv.Digraph(format='png')
+    graph.attr(rankdir='LR')
+    graph.node("Line Input")
     for i in range(num_stations):
         for r in range(redundancies[i]):
-            dot.node(f"S{i+1}_R{r+1}", label=f"Station {i+1}\\nCycle Time: {cycle_times[i]}s\\nBudget: ${budgets[i]:,.2f}")
+            graph.node(f"S{i+1}_R{r+1}", label=f"Station {i+1}\\nCycle Time: {cycle_times[i]}s\\nBudget: ${budgets[i]:,.2f}")
             if r == 0:
                 if i == 0:
-                    dot.edge("Line Input", f"S{i+1}_R{r+1}")
+                    graph.edge("Line Input", f"S{i+1}_R{r+1}")
                 else:
-                    dot.edge(f"S{i}_R{redundancies[i-1]}", f"S{i+1}_R{r+1}")
+                    graph.edge(f"S{i}_R{redundancies[i-1]}", f"S{i+1}_R{r+1}")
             else:
-                dot.edge(f"S{i+1}_R{r}", f"S{i+1}_R{r+1}")
-    dot.node("Line Output")
-    dot.edge(f"S{num_stations}_R{redundancies[-1]}", "Line Output")
-    return dot
+                graph.edge(f"S{i+1}_R{r}", f"S{i+1}_R{r+1}")
+    graph.node("Line Output")
+    graph.edge(f"S{num_stations}_R{redundancies[-1]}", "Line Output")
+    return graph
 
 # Display Results
 total_cycle_time = calculate_total_cycle_time(cycle_times, redundancies)
@@ -61,4 +61,4 @@ st.write(f"Total Output: {total_output:,} pills per day")
 
 st.subheader("Graphical Representation")
 graph = create_graph(cycle_times, budgets, redundancies)
-st.graphviz_chart(str(graph))
+st.graphviz_chart(graph)
