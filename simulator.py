@@ -41,16 +41,17 @@ def create_graph(cycle_times, budgets, conveyance_budgets, redundancies):
     for i in range(num_stations):
         for r in range(redundancies[i]):
             dot_string += f'C{i + 1} -> S{i + 1}_R{r + 1};'
-            label = f'<<center>Station {i + 1} ({r + 1})<br/>{cycle_times[i]}s<br/>${budgets[i]:,.2f}</center>>'  # Updated label
+            label = f'"Station {i + 1} ({r + 1})\\n{cycle_times[i]}s\\n${budgets[i]:,.2f}"'  # Updated label with newline escape sequences
             dot_string += f'S{i + 1}_R{r + 1} [label={label}];'
             dot_string += f'S{i + 1}_R{r + 1} -> C{i + 2};'
-        conveyance_label = f'"Conveyance {i + 1}<br/>${conveyance_budgets[i]:,.2f}"'  # Conveyance budget
+        conveyance_label = f'"Conveyance {i + 1}\\n${conveyance_budgets[i]:,.2f}"'  # Conveyance budget
         dot_string += f'C{i + 1} [shape=rectangle, label={conveyance_label}];'
     dot_string += f'C{num_stations + 1} [shape=rectangle, label="Conveyance {num_stations + 1}"];'
     dot_string += '"Line Output" [shape=ellipse];'
     dot_string += f'C{num_stations + 1} -> "Line Output";'
     dot_string += '}'
     return dot_string
+
 
 # Display Results
 total_cycle_time = calculate_total_cycle_time(cycle_times, redundancies)
