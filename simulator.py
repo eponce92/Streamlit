@@ -31,19 +31,20 @@ def calculate_total_output(total_cycle_time):
 
 # Graph Creation Function
 def create_graph(cycle_times, budgets, redundancies):
-    dot_string = 'digraph {rankdir=LR; "Line Input"'
+    dot_string = 'digraph {rankdir=LR; "Line Input" [shape=ellipse]'
     for i in range(num_stations):
-        prev_node = f"S{i}_R0" if i > 0 else '"Line Input"'
         for r in range(redundancies[i]):
-            node_label = f'"Station {i+1}  {cycle_times[i]}s ${budgets[i]:,.2f}"'
-            dot_string += f'-> {node_label}'
-            prev_node = node_label
-        if i < num_stations - 1:
-            dot_string += '-> {'
-            for r in range(redundancies[i + 1]):
-                dot_string += f'"S{i+2}_R{r}" '
-            dot_string = dot_string[:-1] + '}'
-    dot_string += '-> "Line Output";}'
+            dot_string += f'[label="Station {i+1}  {cycle_times[i]}s ${budgets[i]:,.2f}"] "S{i+1}_R{r+1}"'
+        if i > 0:
+            for r1 in range(redundancies[i-1]):
+                for r2 in range(redundancies[i]):
+                    dot_string += f'"S{i}_R{r1+1}" -> "S{i+1}_R{r2+1}"'
+        else:
+            for r2 in range(redundancies[i]):
+                dot_string += f'"Line Input" -> "S{i+1}_R{r2+1}"'
+    for r in range(redundancies[-1]):
+        dot_string += f'"S{num_stations}_R{r+1}" -> "Line Output"'
+    dot_string += ' "Line Output" [shape=ellipse]}'
     return dot_string
 
 # Display Results
