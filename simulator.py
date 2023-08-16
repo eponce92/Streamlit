@@ -49,24 +49,27 @@ def calculate_total_output(total_cycle_time):
 
 # Graph Creation Function
 def create_graph(cycle_times, budgets, conveyance_budgets, redundancies, buffer_options, buffer_units, buffer_budgets):
-    
     dot_string = 'digraph {rankdir=TB;'  # Vertical orientation
     dot_string += '"Line Input" -> C1;'
     for i in range(num_stations):
         for r in range(redundancies[i]):
             dot_string += f'C{i + 1} -> S{i + 1}_R{r + 1};'
-            label = f'"Station {i + 1} ({r + 1})\\n{cycle_times[i]}s\\n${budgets[i]:,.2f}"'  # Updated label with newline escape sequences
+            label = f'"Station {i + 1} ({r + 1})\\n{cycle_times[i]}s\\n${budgets[i]:,.2f}"'  # Station label
             dot_string += f'S{i + 1}_R{r + 1} [label={label}];'
             dot_string += f'S{i + 1}_R{r + 1} -> C{i + 2};'
+        
+        # Conveyance or Buffer label
         conveyance_label = f'"Conveyance {i + 1}\\n${conveyance_budgets[i]:,.2f}"'
         if buffer_options[i]:
             conveyance_label = f'"Buffer {i + 1} ({buffer_units[i]} units)\\n${buffer_budgets[i]:,.2f}"'  # Buffer label
-    dot_string += f'C{i + 1} [shape=rectangle, label={conveyance_label}];'
+        dot_string += f'C{i + 1} [shape=rectangle, label={conveyance_label}];'
+    
     dot_string += f'C{num_stations + 1} [shape=rectangle, label="Conveyance {num_stations + 1}"];'
     dot_string += '"Line Output" [shape=ellipse];'
     dot_string += f'C{num_stations + 1} -> "Line Output";'
     dot_string += '}'
     return dot_string
+
 
 
 # Display Results
