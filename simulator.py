@@ -39,10 +39,13 @@ def create_graph(cycle_times, budgets, redundancies):
         for r in range(redundancies[i]):
             label = f'"Station {i+1}  {cycle_times[i]}s ${budgets[i]:,.2f}"'
             dot_string += f'S{i+1}_R{r+1} [label={label}];'
+            conveyance_node = f'C{i+1}'
             if i < num_stations - 1:
+                dot_string += f'S{i+1}_R{r+1} -> {conveyance_node};'
                 next_nodes = " ".join(f'S{i+2}_R{r2+1}' for r2 in range(redundancies[i+1]))
-                dot_string += f'S{i+1}_R{r+1} -> {{{next_nodes}}};'
-    dot_string += f'S{num_stations}_R1 -> "Line Output"; "Line Output" [shape=ellipse];}}'
+                dot_string += f'{conveyance_node} -> {{{next_nodes}}};'
+                dot_string += f'{conveyance_node} [shape=rectangle, label="Conveyance {i+1}"];'
+    dot_string += f'S{num_stations}_R1 -> "Line Output"; "Line Output" [shape=ellipse];}'
     return dot_string
 
 # Display Results
