@@ -8,12 +8,12 @@ SECONDS_PER_HOUR = 3600
 # User Inputs Section
 st.title("Manufacturing Line Simulation")
 st.sidebar.header("User Inputs")
-num_stations = st.sidebar.number_input("Number of Stations", value=1, min_value=1)
+num_stations = st.sidebar.number_input("Number of Stations", value=2, min_value=1)
 cycle_times = [
-    st.sidebar.number_input(f"Cycle Time for Station {i+1} (seconds)", value=0, min_value=0) for i in range(num_stations)
+    st.sidebar.number_input(f"Cycle Time for Station {i+1} (seconds)", value=60, min_value=1) for i in range(num_stations)
 ]
 budgets = [
-    st.sidebar.number_input(f"Budget for Station {i+1} ($)", value=0.00, min_value=0.00, format="%.2f") for i in range(num_stations)
+    st.sidebar.number_input(f"Budget for Station {i+1} ($)", value=40000.00, min_value=0.00, format="%.2f") for i in range(num_stations)
 ]
 redundancies = [
     st.sidebar.number_input(f"Redundancy Level for Station {i+1}", value=1, min_value=1) for i in range(num_stations)
@@ -42,17 +42,14 @@ def create_graph(cycle_times, budgets, redundancies):
 
 # Display Results
 total_cycle_time = calculate_total_cycle_time(cycle_times, redundancies)
-if total_cycle_time == 0:
-    st.error("Total Cycle Time cannot be zero. Please enter valid Cycle Time values.")
-else:
-    total_budget = calculate_total_budget(budgets, redundancies)
-    total_output = calculate_total_output(total_cycle_time)
+total_budget = calculate_total_budget(budgets, redundancies)
+total_output = calculate_total_output(total_cycle_time)
 
-    st.subheader("Results")
-    st.write(f"Total Cycle Time: {total_cycle_time:.2f} seconds")
-    st.write(f"Total Budget: ${total_budget:,.2f}")
-    st.write(f"Total Output: {total_output:,} pills per day")
+st.subheader("Results")
+st.write(f"Total Cycle Time: {total_cycle_time:.2f} seconds")
+st.write(f"Total Budget: ${total_budget:,.2f}")
+st.write(f"Total Output: {total_output:,} pills per day")
 
-    st.subheader("Graphical Representation")
-    graph_dot_string = create_graph(cycle_times, budgets, redundancies)
-    st.graphviz_chart(graph_dot_string)
+st.subheader("Graphical Representation")
+graph_dot_string = create_graph(cycle_times, budgets, redundancies)
+st.graphviz_chart(graph_dot_string)
