@@ -64,3 +64,7 @@ if st.checkbox("Show Debug Information"):
     st.subheader("Debug Information")
     st.write("Graphviz Dot String:")
     st.text(graph_dot_string)
+    st.subheader("Manual Graph Rendering")
+    manual_dot_string = st.text_area("Enter Graphviz Dot String:")
+    if manual_dot_string:
+        st.graphviz_chart(manual_dot_string)
