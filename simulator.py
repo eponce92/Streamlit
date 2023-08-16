@@ -33,10 +33,16 @@ def calculate_total_output(total_cycle_time):
 def create_graph(cycle_times, budgets, redundancies):
     dot_string = 'digraph {rankdir=LR; "Line Input"'
     for i in range(num_stations):
+        prev_node = f"S{i}_R0" if i > 0 else '"Line Input"'
         for r in range(redundancies[i]):
-            dot_string += f'-> "S{i+1}_R{r+1} [label=\\"Station {i+1}\\nCycle Time: {cycle_times[i]}s\\nBudget: ${budgets[i]:,.2f}\\"]"'
-            if r > 0:
-                dot_string += f'-> "S{i+1}_R{r+1} [label=\\"\\"]"'
+            node_label = f'"Station {i+1}  {cycle_times[i]}s ${budgets[i]:,.2f}"'
+            dot_string += f'-> {node_label}'
+            prev_node = node_label
+        if i < num_stations - 1:
+            dot_string += '-> {'
+            for r in range(redundancies[i + 1]):
+                dot_string += f'"S{i+2}_R{r}" '
+            dot_string = dot_string[:-1] + '}'
     dot_string += '-> "Line Output";}'
     return dot_string
 
