@@ -74,3 +74,37 @@ else:
 number_of_additional_lines, additional_budget_required = calculate_additional_budget(daily_output, target_daily_output, total_budget_option)
 st.write("Number of Additional Lines Required:", number_of_additional_lines)
 st.write("Additional Budget Required:", additional_budget_required)
+
+
+# Legend and Explanation Section
+st.subheader("Legend and Calculations Explanation")
+
+# Daily Output Calculation
+st.markdown("**Daily Output Calculation:**")
+st.latex(r"\text{{Shift Length (seconds)}} = 12 \text{{ hours}} \times 60 \text{{ minutes}} \times 60 \text{{ seconds}}")
+st.latex(r"\text{{Pills per Shift per Machine}} = \frac{{\text{{Shift Length}}}}{{\text{{Cycle Time per Machine}}}}")
+st.latex(r"\text{{Pills per Shift for Entire Line}} = \frac{{\text{{Pills per Shift per Machine}}}}{{\text{{Number of Stations}}}}")
+st.latex(r"\text{{Daily Output}} = \text{{Pills per Shift for Entire Line}} \times 2 \text{{ (shifts per day)}}")
+
+# Budget per Station Calculation
+st.markdown("**Budget per Station Calculation:**")
+st.latex(r"\text{{Budget per Station}} = \frac{{\text{{Total Budget}}}}{{\text{{Number of Stations}}}}")
+
+# Cycle Time Calculation
+st.markdown("**Cycle Time Calculation:**")
+st.latex(r"\text{{Cycle Time per Station}} = \text{{Cycle Time per Machine}}")
+st.latex(r"\text{{Cycle Time for Entire Process}} = \text{{Cycle Time per Station}} \times \text{{Number of Stations}}")
+
+# Additional Budget for Production Goals
+st.markdown("**Additional Budget for Production Goals:**")
+st.latex(r"\text{{Number of Additional Lines}} = \frac{{\text{{Target Daily Output}} - \text{{Current Daily Output}}}}{{\text{{Current Daily Output}}}}")
+st.latex(r"\text{{Additional Budget Required}} = \text{{Number of Additional Lines}} \times \text{{Total Budget for One Line}}")
+
+# Assumptions
+st.markdown("**Assumptions:**")
+st.markdown("""
+- The manufacturing line consists of stations set up in series.
+- The cycle time accumulates across the stations.
+- The budget is divided evenly across all stations.
+""")
+
