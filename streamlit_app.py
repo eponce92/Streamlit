@@ -19,15 +19,15 @@ st.write("Compare two different manufacturing line options by modifying the valu
 
 # Input for Option 1
 st.sidebar.subheader("Option 1")
-cycle_time_per_machine_1 = st.sidebar.number_input("Cycle Time per Machine (seconds):", min_value=1, value=60)
-number_of_stations_1 = st.sidebar.number_input("Number of Stations:", min_value=1, value=14)
-total_budget_1 = st.sidebar.number_input("Total Budget ($):", min_value=0, value=800000)
+cycle_time_per_machine_1 = st.sidebar.number_input("Cycle Time per Machine (seconds):", min_value=1, value=60, key='cycle1')
+number_of_stations_1 = st.sidebar.number_input("Number of Stations:", min_value=1, value=14, key='stations1')
+total_budget_1 = st.sidebar.number_input("Total Budget ($):", min_value=0, value=800000, key='budget1')
 
 # Input for Option 2
 st.sidebar.subheader("Option 2")
-cycle_time_per_machine_2 = st.sidebar.number_input("Cycle Time per Machine (seconds):", min_value=1, value=60)
-number_of_stations_2 = st.sidebar.number_input("Number of Stations:", min_value=1, value=14)
-total_budget_2 = st.sidebar.number_input("Total Budget ($):", min_value=0, value=800000)
+cycle_time_per_machine_2 = st.sidebar.number_input("Cycle Time per Machine (seconds):", min_value=1, value=60, key='cycle2')
+number_of_stations_2 = st.sidebar.number_input("Number of Stations:", min_value=1, value=14, key='stations2')
+total_budget_2 = st.sidebar.number_input("Total Budget ($):", min_value=0, value=800000, key='budget2')
 
 # Calculations for Option 1
 daily_output_1, budget_per_station_1, cycle_time_per_station_1, cycle_time_entire_process_1 = calculate_values(cycle_time_per_machine_1, number_of_stations_1, total_budget_1)
@@ -37,7 +37,7 @@ daily_output_2, budget_per_station_2, cycle_time_per_station_2, cycle_time_entir
 
 # Display results
 st.subheader("Option 1 vs Option 2")
-cols = st.beta_columns(2)
+cols = st.columns(2)
 
 with cols[0]:
     st.markdown("**Option 1**")
