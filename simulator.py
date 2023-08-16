@@ -61,7 +61,7 @@ def create_graph(cycle_times, budgets, conveyance_budgets, redundancies, buffer_
         conveyance_label = f'"Conveyance {i + 1}\\n${conveyance_budgets[i]:,.2f}"'
         if buffer_options[i]:
             conveyance_label = f'"Buffer {i + 1} ({buffer_units[i]} units)\\n${buffer_budgets[i]:,.2f}"'  # Buffer label
-        dot_string += f'C{i + 1} [shape=rectangle, label={conveyance_label}];'
+    dot_string += f'C{i + 1} [shape=rectangle, label={conveyance_label}];'
     dot_string += f'C{num_stations + 1} [shape=rectangle, label="Conveyance {num_stations + 1}"];'
     dot_string += '"Line Output" [shape=ellipse];'
     dot_string += f'C{num_stations + 1} -> "Line Output";'
