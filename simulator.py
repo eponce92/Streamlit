@@ -49,6 +49,7 @@ def create_graph(cycle_times, budgets, redundancies):
     return dot_string
 
 
+
 # Display Results
 total_cycle_time = calculate_total_cycle_time(cycle_times, redundancies)
 total_budget = calculate_total_budget(budgets, redundancies)
