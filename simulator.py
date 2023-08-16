@@ -1,5 +1,4 @@
 import streamlit as st
-import graphviz as gv
 
 # Constants
 SHIFT_LENGTH_HOURS = 12
@@ -32,22 +31,14 @@ def calculate_total_output(total_cycle_time):
 
 # Graph Creation Function
 def create_graph(cycle_times, budgets, redundancies):
-    graph = gv.Digraph(format='png')
-    graph.attr(rankdir='LR')
-    graph.node("Line Input")
+    dot_string = 'digraph {rankdir=LR; "Line Input"'
     for i in range(num_stations):
         for r in range(redundancies[i]):
-            graph.node(f"S{i+1}_R{r+1}", label=f"Station {i+1}\\nCycle Time: {cycle_times[i]}s\\nBudget: ${budgets[i]:,.2f}")
-            if r == 0:
-                if i == 0:
-                    graph.edge("Line Input", f"S{i+1}_R{r+1}")
-                else:
-                    graph.edge(f"S{i}_R{redundancies[i-1]}", f"S{i+1}_R{r+1}")
-            else:
-                graph.edge(f"S{i+1}_R{r}", f"S{i+1}_R{r+1}")
-    graph.node("Line Output")
-    graph.edge(f"S{num_stations}_R{redundancies[-1]}", "Line Output")
-    return graph
+            dot_string += f'-> "S{i+1}_R{r+1} [label=\\"Station {i+1}\\nCycle Time: {cycle_times[i]}s\\nBudget: ${budgets[i]:,.2f}\\"]"'
+            if r > 0:
+                dot_string += f'-> "S{i+1}_R{r+1} [label=\\"\\"]"'
+    dot_string += '-> "Line Output";}'
+    return dot_string
 
 # Display Results
 total_cycle_time = calculate_total_cycle_time(cycle_times, redundancies)
@@ -60,5 +51,5 @@ st.write(f"Total Budget: ${total_budget:,.2f}")
 st.write(f"Total Output: {total_output:,} pills per day")
 
 st.subheader("Graphical Representation")
-graph = create_graph(cycle_times, budgets, redundancies)
-st.graphviz_chart(graph)
+graph_dot_string = create_graph(cycle_times, budgets, redundancies)
+st.graphviz_chart(graph_dot_string)
