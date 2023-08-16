@@ -45,8 +45,9 @@ def create_graph(cycle_times, budgets, redundancies):
                 next_nodes = " ".join(f'S{i+2}_R{r2+1}' for r2 in range(redundancies[i+1]))
                 dot_string += f'{conveyance_node} -> {{{next_nodes}}};'
                 dot_string += f'{conveyance_node} [shape=rectangle, label="Conveyance {i+1}"];'
-    dot_string += f'S{num_stations}_R1 -> "Line Output"; "Line Output" [shape=ellipse];}'
+    dot_string += f'S{num_stations}_R1 -> "Line Output"; "Line Output" [shape=ellipse];'
     return dot_string
+
 
 # Display Results
 total_cycle_time = calculate_total_cycle_time(cycle_times, redundancies)
