@@ -1,8 +1,7 @@
 import streamlit as st
-# Function to create ASCII representation
 def create_ascii_representation(stations, connections):
     ascii_representation = ""
-    parallel_connection = False
+    parallel_station = None
     
     for i, connection in enumerate(connections):
         station_info = f"[Station {i+1}  {stations[i]['cycle_time']}s ${stations[i]['budget']/1000:.2f}k]"
@@ -11,23 +10,24 @@ def create_ascii_representation(stations, connections):
         if connection['type'] == 'series':
             ascii_representation += " --> "
         elif connection['type'] == 'parallel':
-            parallel_connection = True
-            ascii_representation += " --+\n"
-
-            # Add parallel station
-            next_station_info = f"[Station {i+2}  {stations[i+1]['cycle_time']}s ${stations[i+1]['budget']/1000:.2f}k]"
-            ascii_representation += " " * len(station_info) + "|  \n"
-            ascii_representation += next_station_info + " ----------------------------+\n"
-
-    # Add last station for series connection if not parallel
-    if not parallel_connection:
+            parallel_station = f"[Station {i+2}  {stations[i+1]['cycle_time']}s ${stations[i+1]['budget']/1000:.2f}k]"
+            ascii_representation += " --+\n" + " " * len(station_info) + "|                                                  |\n"
+    
+    # Add last station for series connection
+    if connections[-1]['type'] == 'series':
         i = len(stations) - 1
         station_info = f"[Station {i+1}  {stations[i]['cycle_time']}s ${stations[i]['budget']/1000:.2f}k]"
         ascii_representation += station_info
 
-    ascii_representation += " " * len(station_info) + "|  \n" + " " * len(station_info) + "+--> [Final Output]"
-    
+    # Add parallel connections
+    if parallel_station:
+        ascii_representation += " " * len(station_info) + "+--> [Final Output]\n"
+        ascii_representation += parallel_station + " ----------------------------+"
+
+    ascii_representation += "\n" + " " * len(station_info) + "+--> [Final Output]"
+
     return ascii_representation
+
 
 
 # Function to calculate cycle time and budget
