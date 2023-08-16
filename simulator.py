@@ -6,19 +6,21 @@ NUM_SHIFTS_PER_DAY = 2
 SECONDS_PER_HOUR = 3600
 
 def create_dot_string(stations):
-    dot = "digraph {\n"
-    dot += '    "Line Input" -> '
+    dot = "digraph {\n    rankdir=LR;\n" # LR to make the graph left-to-right
+    dot += '    "Line Input";\n'
     
     prev_node = '"Line Input"'
     for i, station in enumerate(stations):
         redundancy = station['redundancy']
-        label = f"Station {i+1} ({redundancy}x)\\n{station['cycle_time']}s\\n${station['budget']/1000:.2f}k"
-        node_name = f'"Station {i+1}"'
-        dot += f'{node_name} [label="{label}"];\n    {prev_node} -> {node_name};\n'
-        prev_node = node_name
+        label = f"Station {i+1}\\n{station['cycle_time']}s\\n${station['budget']/1000:.2f}k"
+        for r in range(redundancy):
+            node_name = f'"Station {i+1}.{r+1}"'
+            dot += f'    {node_name} [label="{label}"];\n'
+            dot += f'    {prev_node} -> {node_name};\n'
+            prev_node = node_name
 
     dot += f'    {prev_node} -> "Line Output";\n'
-    dot += '    "Line Output"\n'
+    dot += '    "Line Output";\n'
     dot += "}"
     return dot
 
