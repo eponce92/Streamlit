@@ -20,6 +20,12 @@ redundancies = [
     st.sidebar.number_input(f"Redundancy Level for Station {i + 1}", value=1, min_value=1) for i in range(num_stations)
 ]
 
+# User Inputs for Buffers
+st.sidebar.header("Buffer Inputs")
+buffers = [
+    st.sidebar.number_input(f"Buffer Size between Station {i} and {i+1}", value=0, min_value=0) for i in range(num_stations - 1)
+]
+
 # Calculation Functions
 def calculate_total_cycle_time(cycle_times, redundancies):
     return sum(cycle_time / redundancy for cycle_time, redundancy in zip(cycle_times, redundancies))
@@ -31,7 +37,7 @@ def calculate_total_output(total_cycle_time):
     return int((SHIFT_LENGTH_HOURS * SECONDS_PER_HOUR * NUM_SHIFTS_PER_DAY) / total_cycle_time)
 
 # Graph Creation Function
-def create_graph(cycle_times, budgets, redundancies):
+def create_graph(cycle_times, budgets, redundancies, buffers):
     dot_string = 'digraph {rankdir=TB;'
     dot_string += '"Line Input" -> C1;'
     for i in range(num_stations):
@@ -40,8 +46,8 @@ def create_graph(cycle_times, budgets, redundancies):
             label = f'"Station {i + 1}  {cycle_times[i]}s ${budgets[i]:,.2f}"'
             dot_string += f'S{i + 1}_R{r + 1} [label={label}];'
             dot_string += f'S{i + 1}_R{r + 1} -> C{i + 2};'
-        dot_string += f'C{i + 1} [shape=rectangle, label="Conveyance {i + 1}"];'
-    dot_string += f'C{num_stations + 1} [shape=rectangle, label="Conveyance {num_stations + 1}"];' # Corrected this line
+        dot_string += f'C{i + 1} [shape=rectangle, label="Conveyance {i + 1} (Buffer: {buffers[i]} units)"];' if i < num_stations - 1 else ''
+    dot_string += f'C{num_stations + 1} [shape=rectangle, label="Conveyance {num_stations + 1}"];'
     dot_string += '"Line Output" [shape=ellipse];'
     dot_string += f'C{num_stations + 1} -> "Line Output";'
     dot_string += '}'
@@ -59,5 +65,5 @@ st.write(f"Total Budget: ${total_budget:,.2f}")
 st.write(f"Total Output: {total_output:,} pills per day")
 
 # Display Graphical Representation
-graph_dot_string = create_graph(cycle_times, budgets, redundancies)
+graph_dot_string = create_graph(cycle_times, budgets, redundancies, buffers)
 st.graphviz_chart(graph_dot_string)
