@@ -1,67 +1,64 @@
 import streamlit as st
+import graphviz as gv
 
 # Constants
 SHIFT_LENGTH_HOURS = 12
 NUM_SHIFTS_PER_DAY = 2
 SECONDS_PER_HOUR = 3600
 
-def create_dot_string(stations):
-    dot = "digraph {\n    rankdir=LR;\n" # LR to make the graph left-to-right
-    dot += '    "Line Input";\n'
-    
-    prev_node = '"Line Input"'
-    for i, station in enumerate(stations):
-        redundancy = station['redundancy']
-        label = f"Station {i+1}\\n{station['cycle_time']}s\\n${station['budget']/1000:.2f}k"
-        for r in range(redundancy):
-            node_name = f'"Station {i+1}.{r+1}"'
-            dot += f'    {node_name} [label="{label}"];\n'
-            dot += f'    {prev_node} -> {node_name};\n'
-            prev_node = node_name
+# User Inputs Section
+st.title("Manufacturing Line Simulation")
+st.sidebar.header("User Inputs")
+num_stations = st.sidebar.number_input("Number of Stations", value=1, min_value=1)
+cycle_times = [
+    st.sidebar.number_input(f"Cycle Time for Station {i+1} (seconds)", value=0, min_value=0) for i in range(num_stations)
+]
+budgets = [
+    st.sidebar.number_input(f"Budget for Station {i+1} ($)", value=0.00, min_value=0.00, format="%.2f") for i in range(num_stations)
+]
+redundancies = [
+    st.sidebar.number_input(f"Redundancy Level for Station {i+1}", value=1, min_value=1) for i in range(num_stations)
+]
 
-    dot += f'    {prev_node} -> "Line Output";\n'
-    dot += '    "Line Output";\n'
-    dot += "}"
+# Calculation Functions
+def calculate_total_cycle_time(cycle_times, redundancies):
+    return sum(cycle_time / redundancy for cycle_time, redundancy in zip(cycle_times, redundancies))
+
+def calculate_total_budget(budgets, redundancies):
+    return sum(budget * redundancy for budget, redundancy in zip(budgets, redundancies))
+
+def calculate_total_output(total_cycle_time):
+    return int((SHIFT_LENGTH_HOURS * SECONDS_PER_HOUR * NUM_SHIFTS_PER_DAY) / total_cycle_time)
+
+# Graph Creation Function
+def create_graph(cycle_times, budgets, redundancies):
+    dot = gv.Digraph(format='png')
+    dot.attr(rankdir='LR')
+    dot.node("Line Input")
+    for i in range(num_stations):
+        for r in range(redundancies[i]):
+            dot.node(f"S{i+1}_R{r+1}", label=f"Station {i+1}\\nCycle Time: {cycle_times[i]}s\\nBudget: ${budgets[i]:,.2f}")
+            if r == 0:
+                if i == 0:
+                    dot.edge("Line Input", f"S{i+1}_R{r+1}")
+                else:
+                    dot.edge(f"S{i}_R{redundancies[i-1]}", f"S{i+1}_R{r+1}")
+            else:
+                dot.edge(f"S{i+1}_R{r}", f"S{i+1}_R{r+1}")
+    dot.node("Line Output")
+    dot.edge(f"S{num_stations}_R{redundancies[-1]}", "Line Output")
     return dot
 
-def calculate_line_metrics(stations):
-    total_cycle_time = 0
-    total_budget = 0
-    for station in stations:
-        redundancy = station['redundancy']
-        cycle_time = station['cycle_time']
-        budget = station['budget']
-        total_cycle_time += cycle_time / redundancy
-        total_budget += budget * redundancy
-    
-    # Calculate daily output
-    shift_length_seconds = SHIFT_LENGTH_HOURS * SECONDS_PER_HOUR
-    pills_per_shift = shift_length_seconds / total_cycle_time
-    daily_output = pills_per_shift * NUM_SHIFTS_PER_DAY
+# Display Results
+total_cycle_time = calculate_total_cycle_time(cycle_times, redundancies)
+total_budget = calculate_total_budget(budgets, redundancies)
+total_output = calculate_total_output(total_cycle_time)
 
-    return total_cycle_time, total_budget, daily_output
-
-# Main application
-st.title("Manufacturing Line Simulator")
-
-# Define stations
-num_stations = st.number_input("Number of Stations:", min_value=1, value=3, format="%d")
-stations = []
-for i in range(num_stations):
-    st.subheader(f"Station {i+1}")
-    cycle_time = st.number_input(f"Cycle Time for Station {i+1} (seconds):", min_value=1, value=60, format="%d")
-    budget = st.number_input(f"Budget for Station {i+1} ($):", min_value=0, value=100000, format="%d")
-    redundancy = st.number_input(f"Redundancy for Station {i+1} (number of parallel units):", min_value=1, value=1, format="%d")
-    stations.append({'cycle_time': cycle_time, 'budget': budget, 'redundancy': redundancy})
-
-# Calculate and display results
-total_cycle_time, total_budget, daily_output = calculate_line_metrics(stations)
 st.subheader("Results")
-st.write("Total Cycle Time:", total_cycle_time, "seconds")
-st.write("Total Budget: $", "{:,.2f}".format(total_budget))
-st.write("Total Output (per day):", int(daily_output), "pills")
+st.write(f"Total Cycle Time: {total_cycle_time:.2f} seconds")
+st.write(f"Total Budget: ${total_budget:,.2f}")
+st.write(f"Total Output: {total_output:,} pills per day")
 
-# Display Graphviz chart
-st.subheader("Manufacturing Line Representation")
-dot_string = create_dot_string(stations)
-st.graphviz_chart(dot_string)
+st.subheader("Graphical Representation")
+graph = create_graph(cycle_times, budgets, redundancies)
+st.graphviz_chart(str(graph))
