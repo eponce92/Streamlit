@@ -23,10 +23,13 @@ def total_reflectance(layers, lambda_, n_substrate):
         r = (r + r_i * cmath.exp(2j * phi_i)) / (1 + r * r_i * cmath.exp(2j * phi_i))
     return abs(r)**2
 
-def plot_spectrum(file_path, n_substrate, lambda_min, lambda_max):
-    data = pd.read_excel(file_path)
+def plot_spectrum(data, n_substrate, lambda_min, lambda_max):
+    if isinstance(data, pd.DataFrame):
+        layers = data
+    else:
+        layers = pd.read_excel(data)
     wavelengths = np.linspace(lambda_min, lambda_max, 1000)
-    reflectance = [total_reflectance(data, lambda_, n_substrate) for lambda_ in wavelengths]
+    reflectance = [total_reflectance(layers, lambda_, n_substrate) for lambda_ in wavelengths]
     fig = plt.figure(figsize=(10, 6))
     plt.plot(wavelengths, reflectance, color='blue')
     plt.title('Espectro de reflectancia de la multicapa')
