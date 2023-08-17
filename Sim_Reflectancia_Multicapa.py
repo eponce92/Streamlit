@@ -106,9 +106,10 @@ log_scale = st.checkbox('Usar escala logarítmica para reflectancia')
 if st.button('Graficar Espectro'):
     wavelengths, reflectance = plot_spectrum(data, n_substrate, lambda_min, lambda_max, log_scale)  # Unpack returned values
     st.subheader("Resultados Clave:")
-    st.write(f"Pico de Reflectancia: {max(reflectance)} en {wavelengths[np.argmax(reflectance)]} nm")
-    st.write(f"Reflectancia Mínima: {min(reflectance)} en {wavelengths[np.argmin(reflectance)]} nm")
-    st.write(f"Reflectancia Promedio: {np.mean(reflectance)}")
+    st.markdown(f"**Pico de Reflectancia:** {max(reflectance):.2f} en {wavelengths[np.argmax(reflectance)]:.2f} nm")
+    st.markdown(f"**Reflectancia Mínima:** {min(reflectance):.2f} en {wavelengths[np.argmin(reflectance)]:.2f} nm")
+    st.markdown(f"**Reflectancia Promedio:** {np.mean(reflectance):.2f}")
+
 
 # Documentation section
 st.markdown("---")
