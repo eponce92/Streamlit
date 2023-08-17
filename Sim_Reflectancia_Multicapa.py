@@ -14,28 +14,25 @@ def phase_shift(n, d, lambda_):
 
 # Function to calculate the total reflectance of a multilayer stack
 def total_reflectance(layers, lambda_, n_substrate):
-    # ... (same as original code) ...
+    n_values = [1.0] + list(layers['Refractive index n']) + [n_substrate]
+    d_values = [np.inf] + list(layers['Thickness (nm)']) + [np.inf]
+    r = fresnel_coefficient(n_values[0], n_values[1])
+    for i in range(1, len(n_values) - 1):
+        r_i = fresnel_coefficient(n_values[i], n_values[i + 1])
+        phi_i = phase_shift(n_values[i], d_values[i], lambda_)
+        r = (r + r_i * cmath.exp(2j * phi_i)) / (1 + r * r_i * cmath.exp(2j * phi_i))
+    return abs(r)**2
 
 def plot_spectrum(file_path, n_substrate, lambda_min, lambda_max):
     data = pd.read_excel(file_path)
-
-    # Define the range of wavelengths
     wavelengths = np.linspace(lambda_min, lambda_max, 1000)
-
-    # Calculate the reflectance spectrum
     reflectance = [total_reflectance(data, lambda_, n_substrate) for lambda_ in wavelengths]
-
-    # Create a Figure instance
     fig = plt.figure(figsize=(10, 6))
-
-    # Plot the reflectance spectrum
     plt.plot(wavelengths, reflectance, color='blue')
     plt.title('Espectro de reflectancia de la multicapa')
     plt.xlabel('Longitud de onda (nm)')
     plt.ylabel('Reflectancia')
     plt.grid(True)
-
-    # Show plot with Streamlit
     st.pyplot(fig)
 
 # Streamlit UI
