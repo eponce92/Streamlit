@@ -111,7 +111,8 @@ if option == 'Agregar capas manualmente':
 st.markdown("---")
 
 st.subheader("Parámetros:")
-n_substrate = st.number_input('Índice de refracción del sustrato:', min_value=1.0, value=1.5)
+n_substrate_key = 'n_substrate_' + option  # Make a unique key based on the selected option
+n_substrate = st.number_input('Índice de refracción del sustrato:', min_value=1.0, value=1.5, key=n_substrate_key)
 lambda_min, lambda_max = st.slider('Rango de longitudes de onda (nm):', min_value=200.0, max_value=2000.0, value=(400.0, 800.0))
 log_scale = st.checkbox('Usar escala logarítmica para reflectancia')
 
