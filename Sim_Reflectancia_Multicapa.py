@@ -53,16 +53,16 @@ def display_spectrum(data, n_substrate, lambda_min, lambda_max, log_scale):
 st.markdown("""
     <style>
         .reportview-container {
-            background: #f0f0f5;
+            background: #F0F0F0;
         }
         .sidebar .sidebar-content {
-            background: #f0f0f5;
+            background: #F0F0F0;
         }
         h1, h2 {
-            color: #333366;
+            color: #333333;
         }
         h3 {
-            color: #666699;
+            color: #555555;
         }
     </style>
     """, unsafe_allow_html=True)
