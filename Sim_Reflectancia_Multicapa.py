@@ -65,17 +65,16 @@ if option == 'Subir archivo':
     file_path = st.file_uploader('', type=['xlsx', 'xls'])
     if file_path:
         data = pd.read_excel(file_path)
-else:
+if option == 'Agregar capas manualmente':
     st.subheader('Agregar capas manualmente:')
     layers = []
-    with st.beta_expander('Capas de la multicapa:'):
+    with st.expander('Capas de la multicapa:'):
         for i in range(st.session_state.get('num_layers', 1)):
-            with st.beta_container():
-                st.markdown(f"### Capa {i+1}")
-                material = st.text_input('Material:', key=f'material_{i}')
-                n = st.number_input('Índice de refracción:', key=f'n_{i}')
-                thickness = st.number_input('Espesor (nm):', key=f'thickness_{i}')
-                layers.append({'Material': material, 'Refractive index n': n, 'Thickness (nm)': thickness})
+            st.markdown(f"### Capa {i+1}")
+            material = st.text_input('Material:', key=f'material_{i}')
+            n = st.number_input('Índice de refracción:', key=f'n_{i}')
+            thickness = st.number_input('Espesor (nm):', key=f'thickness_{i}')
+            layers.append({'Material': material, 'Refractive index n': n, 'Thickness (nm)': thickness})
         if st.button('Agregar capa'):
             st.session_state.num_layers = st.session_state.get('num_layers', 1) + 1
     data = pd.DataFrame(layers)
