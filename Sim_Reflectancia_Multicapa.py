@@ -24,10 +24,12 @@ def total_reflectance(layers, lambda_, n_substrate):
         r = (r + r_i * cmath.exp(2j * phi_i)) / (1 + r * r_i * cmath.exp(2j * phi_i))
     return abs(r)**2
 
-# Modified plot_spectrum function
 def plot_spectrum(data, n_substrate, lambda_min, lambda_max, log_scale):
     wavelengths = np.linspace(lambda_min, lambda_max, 1000)
     reflectance = [total_reflectance(data, lambda_, n_substrate) for lambda_ in wavelengths]
+    
+    if log_scale:
+        reflectance = np.log10(reflectance)  # Apply the log transformation here
 
     # Create a DataFrame for Plotly
     plot_data = pd.DataFrame({
@@ -42,10 +44,6 @@ def plot_spectrum(data, n_substrate, lambda_min, lambda_max, log_scale):
         yaxis_title='Reflectancia (log)' if log_scale else 'Reflectancia',
         showlegend=False
     )
-
-    # Add annotations for peak and minimum reflectance
-    fig.add_annotation(x=wavelengths[np.argmax(reflectance)], y=max(reflectance), text="Pico de Reflectancia", showarrow=True, arrowhead=2)
-    fig.add_annotation(x=wavelengths[np.argmin(reflectance)], y=min(reflectance), text="Reflectancia Mínima", showarrow=True, arrowhead=2)
 
     st.plotly_chart(fig, use_container_width=True)
     return wavelengths, reflectance  # Return these values
