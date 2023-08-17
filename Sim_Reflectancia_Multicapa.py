@@ -93,33 +93,46 @@ if st.button('Graficar Espectro'):
 st.markdown("---")
 st.header("Documentación")
 
-st.subheader("Instrucciones para usar el programa")
-st.write("""
-1. **Seleccionar una opción**: Puede subir un archivo Excel con las capas de la multicapa o agregar las capas manualmente.
-2. **Subir archivo Excel**: Si selecciona "Subir archivo", debe cargar un archivo Excel con las columnas 'Material', 'Índice de refracción n', y 'Espesor (nm)'.
-3. **Agregar capas manualmente**: Si selecciona "Agregar capas manualmente", debe ingresar los detalles de cada capa y hacer clic en "Agregar capa" para agregar más capas.
-4. **Parámetros**: Ingrese el índice de refracción del sustrato y el rango de longitudes de onda.
-5. **Graficar Espectro**: Haga clic en este botón para visualizar el espectro de reflectancia de la multicapa.
-""")
 
 st.subheader("Cómo funciona la simulación")
 st.write("""
 La simulación utiliza la teoría de las ondas de luz y la ecuación de Fresnel para calcular la reflectancia en cada interfaz de la multicapa. Considera la interferencia de las ondas reflejadas en cada interfaz y el desplazamiento de fase debido al recorrido óptico dentro de cada capa.
 
 Las fórmulas clave son:
+""")
 
+# Coeficiente de reflexión de Fresnel
+st.markdown("""
 - Coeficiente de reflexión de Fresnel:
-  \[
-  r = \frac{{n_1 - n_2}}{{n_1 + n_2}}
-  \]
+  <div>
+    \( r = \frac{{n_1 - n_2}}{{n_1 + n_2}} \)
+  </div>
+""", unsafe_allow_html=True)
 
+# Desplazamiento de fase en una capa
+st.markdown("""
 - Desplazamiento de fase en una capa:
-  \[
-  \phi = \frac{{2\pi n d}}{{\lambda}}
-  \]
+  <div>
+    \( \phi = \frac{{2\pi n d}}{{\lambda}} \)
+  </div>
+""", unsafe_allow_html=True)
 
+# Reflectancia total de la multicapa
+st.markdown("""
 - Reflectancia total de la multicapa:
   Se calcula iterativamente, tomando en cuenta la reflectancia de Fresnel en cada interfaz y la interferencia de las ondas reflejadas.
 
 La multicapa está depositada sobre un sustrato de vidrio con un índice de refracción especificado, y la luz incide normalmente sobre la multicapa.
 """)
+
+# Include MathJax to render the LaTeX
+st.markdown("""
+<script type="text/javascript">
+    (function () {
+        var script = document.createElement("script");
+        script.type = "text/javascript";
+        script.src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML";
+        document.getElementsByTagName("head")[0].appendChild(script);
+    })();
+</script>
+""", unsafe_allow_html=True)
