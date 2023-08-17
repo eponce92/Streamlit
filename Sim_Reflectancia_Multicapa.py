@@ -5,15 +5,12 @@ import matplotlib.pyplot as plt
 import streamlit as st
 import plotly.express as px
 
-# Function to calculate the Fresnel reflection coefficient at an interface
 def fresnel_coefficient(n1, n2):
     return (n1 - n2) / (n1 + n2)
 
-# Function to calculate the phase shift due to a single layer
 def phase_shift(n, d, lambda_):
     return 2 * np.pi * n * d / lambda_
 
-# Function to calculate the total reflectance of a multilayer stack
 def total_reflectance(layers, lambda_, n_substrate):
     n_values = [1.0] + list(layers['Refractive index n']) + [n_substrate]
     d_values = [np.inf] + list(layers['Thickness (nm)']) + [np.inf]
@@ -23,28 +20,19 @@ def total_reflectance(layers, lambda_, n_substrate):
         phi_i = phase_shift(n_values[i], d_values[i], lambda_)
         r = (r + r_i * cmath.exp(2j * phi_i)) / (1 + r * r_i * cmath.exp(2j * phi_i))
     return abs(r)**2
-    
-def display_spectrum(data, n_substrate, lambda_min, lambda_max, log_scale):
-    wavelengths, reflectance = plot_spectrum(data, n_substrate, lambda_min, lambda_max, log_scale)
-    st.subheader("Resultados Clave:")
-    st.markdown(f"**Pico de Reflectancia:** {max(reflectance):.2f} en {wavelengths[np.argmax(reflectance)]:.2f} nm")
-    st.markdown(f"**Reflectancia Mínima:** {min(reflectance):.2f} en {wavelengths[np.argmin(reflectance)]:.2f} nm")
-    st.markdown(f"**Reflectancia Promedio:** {np.mean(reflectance):.2f}")
-    
+
 def plot_spectrum(data, n_substrate, lambda_min, lambda_max, log_scale):
     wavelengths = np.linspace(lambda_min, lambda_max, 1000)
     reflectance = [total_reflectance(data, lambda_, n_substrate) for lambda_ in wavelengths]
     
     if log_scale:
-        reflectance = np.log10(reflectance)  # Apply the log transformation here
+        reflectance = np.log10(reflectance)
 
-    # Create a DataFrame for Plotly
     plot_data = pd.DataFrame({
         'Wavelength (nm)': wavelengths,
         'Reflectance': reflectance
     })
 
-    # Create the Plotly figure
     fig = px.line(plot_data, x='Wavelength (nm)', y='Reflectance', title='Espectro de reflectancia de la multicapa')
     fig.update_layout(
         xaxis_title='Longitud de onda (nm)',
@@ -53,10 +41,15 @@ def plot_spectrum(data, n_substrate, lambda_min, lambda_max, log_scale):
     )
 
     st.plotly_chart(fig, use_container_width=True)
-    return wavelengths, reflectance  # Return these values
+    return wavelengths, reflectance
 
+def display_spectrum(data, n_substrate, lambda_min, lambda_max, log_scale):
+    wavelengths, reflectance = plot_spectrum(data, n_substrate, lambda_min, lambda_max, log_scale)
+    st.subheader("Resultados Clave:")
+    st.markdown(f"**Pico de Reflectancia:** {max(reflectance):.2f} en {wavelengths[np.argmax(reflectance)]:.2f} nm")
+    st.markdown(f"**Reflectancia Mínima:** {min(reflectance):.2f} en {wavelengths[np.argmin(reflectance)]:.2f} nm")
+    st.markdown(f"**Reflectancia Promedio:** {np.mean(reflectance):.2f}")
 
-# Custom styling
 st.markdown("""
     <style>
         .reportview-container {
@@ -74,7 +67,6 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# Streamlit UI
 st.title('Espectro de Reflectancia de la Multicapa')
 
 option = st.selectbox('Seleccione una opción:', ['Subir archivo', 'Agregar capas manualmente'])
@@ -89,6 +81,7 @@ if option == 'Subir archivo':
         st.session_state.data_uploaded = data
     if 'data_uploaded' in st.session_state:
         data = st.session_state.data_uploaded
+        st.subheader("Parámetros:")
         n_substrate = st.number_input('Índice de refracción del sustrato:', min_value=1.0, value=1.5)
         lambda_min, lambda_max = st.slider('Rango de longitudes de onda (nm):', min_value=200.0, max_value=2000.0, value=(400.0, 800.0))
         log_scale = st.checkbox('Usar escala logarítmica para reflectancia')
@@ -107,18 +100,15 @@ if option == 'Agregar capas manualmente':
         if st.button('Agregar capa'):
             st.session_state.num_layers = st.session_state.get('num_layers', 1) + 1
     data = pd.DataFrame(layers)
+    st.subheader("Parámetros:")
+    n_substrate_key = 'n_substrate_' + option
+    n_substrate = st.number_input('Índice de refracción del sustrato:', min_value=1.0, value=1.5, key=n_substrate_key)
+    lambda_range_key = 'lambda_range_' + option
+    lambda_min, lambda_max = st.slider('Rango de longitudes de onda (nm):', min_value=200.0, max_value=2000.0, value=(400.0, 800.0), key=lambda_range_key)
+    log_scale = st.checkbox('Usar escala logarítmica para reflectancia')
+    if st.button('Graficar Espectro'):
+        display_spectrum(data, n_substrate, lambda_min, lambda_max, log_scale)
 
-st.markdown("---")
-
-st.subheader("Parámetros:")
-n_substrate_key = 'n_substrate_' + option  # Make a unique key based on the selected option
-n_substrate = st.number_input('Índice de refracción del sustrato:', min_value=1.0, value=1.5, key=n_substrate_key)
-lambda_min, lambda_max = st.slider('Rango de longitudes de onda (nm):', min_value=200.0, max_value=2000.0, value=(400.0, 800.0))
-log_scale = st.checkbox('Usar escala logarítmica para reflectancia')
-
-# After plotting (inside the if block)
-if st.button('Graficar Espectro'):
-    display_spectrum(data, n_substrate, lambda_min, lambda_max, log_scale)
     wavelengths, reflectance = plot_spectrum(data, n_substrate, lambda_min, lambda_max, log_scale)  # Unpack returned values
     st.subheader("Resultados Clave:")
     st.markdown(f"**Pico de Reflectancia:** {max(reflectance):.2f} en {wavelengths[np.argmax(reflectance)]:.2f} nm")
