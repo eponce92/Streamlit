@@ -89,50 +89,35 @@ lambda_max = st.number_input('Longitud de onda máxima (nm):', min_value=400.0, 
 if st.button('Graficar Espectro'):
     plot_spectrum(data, n_substrate, lambda_min, lambda_max)
 
-# Documentation Section
+# Documentation section
 st.markdown("---")
-st.header("Documentación")
-
-
-st.subheader("Cómo funciona la simulación")
-st.write("""
-La simulación utiliza la teoría de las ondas de luz y la ecuación de Fresnel para calcular la reflectancia en cada interfaz de la multicapa. Considera la interferencia de las ondas reflejadas en cada interfaz y el desplazamiento de fase debido al recorrido óptico dentro de cada capa.
-
-Las fórmulas clave son:
+st.markdown("## Instrucciones para el uso del programa")
+st.markdown("""
+1. **Seleccione una opción**: Puede elegir entre subir un archivo Excel con las capas predefinidas o agregar capas manualmente.
+2. **Subir archivo Excel**: Si elige subir un archivo, asegúrese de que tenga las columnas 'Material', 'Refractive index n' y 'Thickness (nm)'.
+3. **Agregar capas manualmente**: Si elige agregar capas manualmente, complete los campos para cada capa y haga clic en 'Agregar capa' para agregar más capas.
+4. **Parámetros**: Ingrese el índice de refracción del sustrato y el rango de longitudes de onda.
+5. **Graficar Espectro**: Haga clic en este botón para calcular y visualizar el espectro de reflectancia.
 """)
 
-# Coeficiente de reflexión de Fresnel
+st.markdown("## Explicación de la matemática y simulación")
 st.markdown("""
-- Coeficiente de reflexión de Fresnel:
-  <div>
-    \( r = \frac{{n_1 - n_2}}{{n_1 + n_2}} \)
-  </div>
-""", unsafe_allow_html=True)
+La simulación utiliza la teoría de las ondas de luz y la ecuación de Fresnel para calcular la reflectancia en cada interfaz de una estructura multicapa. Aquí hay una breve explicación de los cálculos:
 
-# Desplazamiento de fase en una capa
-st.markdown("""
-- Desplazamiento de fase en una capa:
-  <div>
-    \( \phi = \frac{{2\pi n d}}{{\lambda}} \)
-  </div>
-""", unsafe_allow_html=True)
+### Coeficiente de Reflexión de Fresnel
+El coeficiente de reflexión de Fresnel en cada interfaz se calcula usando la fórmula:
+\[ r = \frac{{n_1 - n_2}}{{n_1 + n_2}} \]
 
-# Reflectancia total de la multicapa
-st.markdown("""
-- Reflectancia total de la multicapa:
-  Se calcula iterativamente, tomando en cuenta la reflectancia de Fresnel en cada interfaz y la interferencia de las ondas reflejadas.
+### Desplazamiento de Fase
+El desplazamiento de fase en cada capa se calcula usando la fórmula:
+\[ \phi = \frac{{2\pi n d}}{{\lambda}} \]
 
-La multicapa está depositada sobre un sustrato de vidrio con un índice de refracción especificado, y la luz incide normalmente sobre la multicapa.
+### Reflectancia Total
+La reflectancia total de la multicapa se calcula considerando tanto la reflectancia de Fresnel en cada interfaz como la interferencia de las ondas reflejadas. La fórmula recursiva es:
+\[ r = \frac{{r + r_i \cdot e^{2j\phi_i}}}{{1 + r \cdot r_i \cdot e^{2j\phi_i}}} \]
+
+Donde \( r_i \) es el coeficiente de reflexión de Fresnel en la interfaz actual y \( \phi_i \) es el desplazamiento de fase en la capa actual.
+
+La reflectancia final se obtiene tomando el valor absoluto al cuadrado del coeficiente de reflexión total:
+\[ R = |r|^2 \]
 """)
-
-# Include MathJax to render the LaTeX
-st.markdown("""
-<script type="text/javascript">
-    (function () {
-        var script = document.createElement("script");
-        script.type = "text/javascript";
-        script.src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML";
-        document.getElementsByTagName("head")[0].appendChild(script);
-    })();
-</script>
-""", unsafe_allow_html=True)
