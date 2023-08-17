@@ -62,9 +62,9 @@ st.markdown("---")
 
 if option == 'Subir archivo':
     st.subheader("Subir archivo Excel:")
-    file_path = st.file_uploader('', type=['xlsx', 'xls'])
-    if file_path:
-        data = pd.read_excel(file_path)
+    uploaded_file = st.file_uploader('', type=['xlsx', 'xls'])
+    if uploaded_file:
+        data = pd.read_excel(uploaded_file)
 if option == 'Agregar capas manualmente':
     st.subheader('Agregar capas manualmente:')
     layers = []
