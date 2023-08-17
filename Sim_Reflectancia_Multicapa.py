@@ -28,11 +28,13 @@ def plot_spectrum(data, n_substrate, lambda_min, lambda_max, log_scale):
     if log_scale:
         reflectance = np.log10(reflectance)
 
+    # Create a DataFrame for Plotly
     plot_data = pd.DataFrame({
         'Wavelength (nm)': wavelengths,
         'Reflectance': reflectance
     })
 
+    # Create the Plotly figure
     fig = px.line(plot_data, x='Wavelength (nm)', y='Reflectance', title='Espectro de reflectancia de la multicapa')
     fig.update_layout(
         xaxis_title='Longitud de onda (nm)',
@@ -40,8 +42,13 @@ def plot_spectrum(data, n_substrate, lambda_min, lambda_max, log_scale):
         showlegend=False
     )
 
+    # Add annotations for peak and minimum reflectance
+    fig.add_annotation(x=wavelengths[np.argmax(reflectance)], y=max(reflectance), text="Pico de Reflectancia", showarrow=True, arrowhead=2)
+    fig.add_annotation(x=wavelengths[np.argmin(reflectance)], y=min(reflectance), text="Reflectancia Mínima", showarrow=True, arrowhead=2)
+
     st.plotly_chart(fig, use_container_width=True)
-    return wavelengths, reflectance
+    return wavelengths, reflectance  # Return these values
+
 
 def display_spectrum(data, n_substrate, lambda_min, lambda_max, log_scale):
     wavelengths, reflectance = plot_spectrum(data, n_substrate, lambda_min, lambda_max, log_scale)
