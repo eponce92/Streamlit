@@ -30,13 +30,16 @@ def plot_spectrum(data, n_substrate, lambda_min, lambda_max):
         layers = pd.read_excel(data)
     wavelengths = np.linspace(lambda_min, lambda_max, 1000)
     reflectance = [total_reflectance(layers, lambda_, n_substrate) for lambda_ in wavelengths]
-    fig = plt.figure(figsize=(10, 6))
-    plt.plot(wavelengths, reflectance, color='blue')
-    plt.title('Espectro de reflectancia de la multicapa')
-    plt.xlabel('Longitud de onda (nm)')
-    plt.ylabel('Reflectancia')
-    plt.grid(True)
-    st.pyplot(fig)
+    
+    # Create a DataFrame for the line chart
+    chart_data = pd.DataFrame({
+        'Longitud de onda (nm)': wavelengths,
+        'Reflectancia': reflectance
+    })
+    
+    # Plot the line chart using Streamlit's built-in line_chart function
+    st.line_chart(chart_data, x='Longitud de onda (nm)', y='Reflectancia', use_container_width=True)
+
 
 # Custom styling
 st.markdown("""
