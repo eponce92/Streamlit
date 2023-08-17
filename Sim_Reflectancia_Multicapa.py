@@ -50,22 +50,43 @@ def display_spectrum(data, n_substrate, lambda_min, lambda_max, log_scale):
     st.markdown(f"**Reflectancia Mínima:** {min(reflectance):.2f} en {wavelengths[np.argmin(reflectance)]:.2f} nm")
     st.markdown(f"**Reflectancia Promedio:** {np.mean(reflectance):.2f}")
 
-st.markdown("""
-    <style>
-        .reportview-container {
-            background: #F0F0F0;
-        }
-        .sidebar .sidebar-content {
-            background: #F0F0F0;
-        }
-        h1, h2 {
-            color: #333333;
-        }
-        h3 {
-            color: #555555;
-        }
-    </style>
-    """, unsafe_allow_html=True)
+# Custom styling based on user choice
+theme_choice = st.sidebar.selectbox('Choose Theme:', ['Light', 'Dark'])
+
+if theme_choice == 'Light':
+    st.markdown("""
+        <style>
+            .reportview-container {
+                background: #F0F0F0;
+            }
+            .sidebar .sidebar-content {
+                background: #F0F0F0;
+            }
+            h1, h2 {
+                color: #333333;
+            }
+            h3 {
+                color: #555555;
+            }
+        </style>
+        """, unsafe_allow_html=True)
+else:
+    st.markdown("""
+        <style>
+            .reportview-container {
+                background: #333333;
+            }
+            .sidebar .sidebar-content {
+                background: #333333;
+            }
+            h1, h2 {
+                color: #F0F0F0;
+            }
+            h3 {
+                color: #AAAAAA;
+            }
+        </style>
+        """, unsafe_allow_html=True)
 
 st.title('Espectro de Reflectancia de la Multicapa')
 
