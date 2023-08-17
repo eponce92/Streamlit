@@ -3,6 +3,7 @@ import pandas as pd
 import cmath
 import matplotlib.pyplot as plt
 import streamlit as st
+import plotly.express as px
 
 # Function to calculate the Fresnel reflection coefficient at an interface
 def fresnel_coefficient(n1, n2):
@@ -23,22 +24,27 @@ def total_reflectance(layers, lambda_, n_substrate):
         r = (r + r_i * cmath.exp(2j * phi_i)) / (1 + r * r_i * cmath.exp(2j * phi_i))
     return abs(r)**2
 
-def plot_spectrum(data, n_substrate, lambda_min, lambda_max):
-    if isinstance(data, pd.DataFrame):
-        layers = data
-    else:
-        layers = pd.read_excel(data)
+def plot_spectrum(data, n_substrate, lambda_min, lambda_max, log_scale):
     wavelengths = np.linspace(lambda_min, lambda_max, 1000)
-    reflectance = [total_reflectance(layers, lambda_, n_substrate) for lambda_ in wavelengths]
-    
-    # Create a DataFrame for the line chart
-    chart_data = pd.DataFrame({
-        'Longitud de onda (nm)': wavelengths,
-        'Reflectancia': reflectance
+    reflectance = [total_reflectance(data, lambda_, n_substrate) for lambda_ in wavelengths]
+    if log_scale:
+        reflectance = np.log10(reflectance)
+
+    # Create a DataFrame for Plotly
+    plot_data = pd.DataFrame({
+        'Wavelength (nm)': wavelengths,
+        'Reflectance': reflectance
     })
-    
-    # Plot the line chart using Streamlit's built-in line_chart function, using the full width of the container
-    st.line_chart(chart_data, x='Longitud de onda (nm)', y='Reflectancia', use_container_width=True)
+
+    # Create the Plotly figure
+    fig = px.line(plot_data, x='Wavelength (nm)', y='Reflectance', title='Espectro de reflectancia de la multicapa')
+    fig.update_layout(
+        xaxis_title='Longitud de onda (nm)',
+        yaxis_title='Reflectancia (log)' if log_scale else 'Reflectancia',
+        showlegend=False
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
 
 
 
@@ -90,11 +96,11 @@ st.markdown("---")
 
 st.subheader("Parámetros:")
 n_substrate = st.number_input('Índice de refracción del sustrato:', min_value=1.0, value=1.5)
-lambda_min = st.number_input('Longitud de onda mínima (nm):', min_value=400.0, value=400.0)
-lambda_max = st.number_input('Longitud de onda máxima (nm):', min_value=400.0, value=800.0)
+lambda_min, lambda_max = st.slider('Rango de longitudes de onda (nm):', min_value=200.0, max_value=2000.0, value=(400.0, 800.0))
+log_scale = st.checkbox('Usar escala logarítmica para reflectancia')
 
 if st.button('Graficar Espectro'):
-    plot_spectrum(data, n_substrate, lambda_min, lambda_max)
+    plot_spectrum(data, n_substrate, lambda_min, lambda_max, log_scale)
 
 # Documentation section
 st.markdown("---")
