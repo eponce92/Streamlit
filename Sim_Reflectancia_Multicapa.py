@@ -23,7 +23,14 @@ def total_reflectance(layers, lambda_, n_substrate):
         phi_i = phase_shift(n_values[i], d_values[i], lambda_)
         r = (r + r_i * cmath.exp(2j * phi_i)) / (1 + r * r_i * cmath.exp(2j * phi_i))
     return abs(r)**2
-
+    
+def display_spectrum(data, n_substrate, lambda_min, lambda_max, log_scale):
+    wavelengths, reflectance = plot_spectrum(data, n_substrate, lambda_min, lambda_max, log_scale)
+    st.subheader("Resultados Clave:")
+    st.markdown(f"**Pico de Reflectancia:** {max(reflectance):.2f} en {wavelengths[np.argmax(reflectance)]:.2f} nm")
+    st.markdown(f"**Reflectancia Mínima:** {min(reflectance):.2f} en {wavelengths[np.argmin(reflectance)]:.2f} nm")
+    st.markdown(f"**Reflectancia Promedio:** {np.mean(reflectance):.2f}")
+    
 def plot_spectrum(data, n_substrate, lambda_min, lambda_max, log_scale):
     wavelengths = np.linspace(lambda_min, lambda_max, 1000)
     reflectance = [total_reflectance(data, lambda_, n_substrate) for lambda_ in wavelengths]
@@ -79,6 +86,14 @@ if option == 'Subir archivo':
     uploaded_file = st.file_uploader('', type=['xlsx', 'xls'])
     if uploaded_file:
         data = pd.read_excel(uploaded_file)
+        st.session_state.data_uploaded = data
+    if 'data_uploaded' in st.session_state:
+        data = st.session_state.data_uploaded
+        n_substrate = st.number_input('Índice de refracción del sustrato:', min_value=1.0, value=1.5)
+        lambda_min, lambda_max = st.slider('Rango de longitudes de onda (nm):', min_value=200.0, max_value=2000.0, value=(400.0, 800.0))
+        log_scale = st.checkbox('Usar escala logarítmica para reflectancia')
+        display_spectrum(data, n_substrate, lambda_min, lambda_max, log_scale)
+
 if option == 'Agregar capas manualmente':
     st.subheader('Agregar capas manualmente:')
     layers = []
@@ -102,6 +117,7 @@ log_scale = st.checkbox('Usar escala logarítmica para reflectancia')
 
 # After plotting (inside the if block)
 if st.button('Graficar Espectro'):
+    display_spectrum(data, n_substrate, lambda_min, lambda_max, log_scale)
     wavelengths, reflectance = plot_spectrum(data, n_substrate, lambda_min, lambda_max, log_scale)  # Unpack returned values
     st.subheader("Resultados Clave:")
     st.markdown(f"**Pico de Reflectancia:** {max(reflectance):.2f} en {wavelengths[np.argmax(reflectance)]:.2f} nm")
