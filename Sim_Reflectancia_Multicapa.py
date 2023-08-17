@@ -37,8 +37,9 @@ def plot_spectrum(data, n_substrate, lambda_min, lambda_max):
         'Reflectancia': reflectance
     })
     
-    # Plot the line chart using Streamlit's built-in line_chart function
+    # Plot the line chart using Streamlit's built-in line_chart function, using the full width of the container
     st.line_chart(chart_data, x='Longitud de onda (nm)', y='Reflectancia', use_container_width=True)
+
 
 
 # Custom styling
