@@ -27,8 +27,6 @@ def total_reflectance(layers, lambda_, n_substrate):
 def plot_spectrum(data, n_substrate, lambda_min, lambda_max, log_scale):
     wavelengths = np.linspace(lambda_min, lambda_max, 1000)
     reflectance = [total_reflectance(data, lambda_, n_substrate) for lambda_ in wavelengths]
-    if log_scale:
-        reflectance = np.log10(reflectance)
 
     # Create a DataFrame for Plotly
     plot_data = pd.DataFrame({
@@ -43,6 +41,10 @@ def plot_spectrum(data, n_substrate, lambda_min, lambda_max, log_scale):
         yaxis_title='Reflectancia (log)' if log_scale else 'Reflectancia',
         showlegend=False
     )
+
+    # Add annotations for peak and minimum reflectance
+    fig.add_annotation(x=wavelengths[np.argmax(reflectance)], y=max(reflectance), text="Pico de Reflectancia", showarrow=True, arrowhead=2)
+    fig.add_annotation(x=wavelengths[np.argmin(reflectance)], y=min(reflectance), text="Reflectancia Mínima", showarrow=True, arrowhead=2)
 
     st.plotly_chart(fig, use_container_width=True)
 
@@ -101,6 +103,10 @@ log_scale = st.checkbox('Usar escala logarítmica para reflectancia')
 
 if st.button('Graficar Espectro'):
     plot_spectrum(data, n_substrate, lambda_min, lambda_max, log_scale)
+    st.subheader("Resultados Clave:")
+    st.write(f"Pico de Reflectancia: {max(reflectance)} en {wavelengths[np.argmax(reflectance)]} nm")
+    st.write(f"Reflectancia Mínima: {min(reflectance)} en {wavelengths[np.argmin(reflectance)]} nm")
+    st.write(f"Reflectancia Promedio: {np.mean(reflectance)}")
 
 # Documentation section
 st.markdown("---")
