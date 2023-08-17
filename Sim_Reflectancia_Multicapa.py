@@ -101,19 +101,23 @@ st.markdown("""
 """)
 
 st.header("Explicación de la matemática y simulación")
-st.subheader("Coeficiente de Reflexión de Fresnel")
-st.write("El coeficiente de reflexión de Fresnel en cada interfaz se calcula usando la fórmula:")
-st.latex(r"r = \frac{{n_1 - n_2}}{{n_1 + n_2}}")
+st.markdown("""
+La simulación utiliza la teoría de las ondas de luz y la ecuación de Fresnel para calcular la reflectancia en cada interfaz de una estructura multicapa. Aquí hay una breve explicación de los cálculos:
 
-st.subheader("Desplazamiento de Fase")
-st.write("El desplazamiento de fase en cada capa se calcula usando la fórmula:")
-st.latex(r"\phi = \frac{{2\pi n d}}{{\lambda}}")
+### Coeficiente de Reflexión de Fresnel
+El coeficiente de reflexión de Fresnel en cada interfaz se calcula usando la fórmula:
+\( r = \frac{{n_1 - n_2}}{{n_1 + n_2}} \)
 
-st.subheader("Reflectancia Total")
-st.write("""
+### Desplazamiento de Fase
+El desplazamiento de fase en cada capa se calcula usando la fórmula:
+\( \phi = \frac{{2\pi n d}}{{\lambda}} \)
+
+### Reflectancia Total
 La reflectancia total de la multicapa se calcula considerando tanto la reflectancia de Fresnel en cada interfaz como la interferencia de las ondas reflejadas. La fórmula recursiva es:
-""")
-st.latex(r"r = \frac{{r + r_i \cdot e^{2j\phi_i}}}{{1 + r \cdot r_i \cdot e^{2j\phi_i}}}")
-st.write("Donde \( r_i \) es el coeficiente de reflexión de Fresnel en la interfaz actual y \( \phi_i \) es el desplazamiento de fase en la capa actual.")
-st.write("La reflectancia final se obtiene tomando el valor absoluto al cuadrado del coeficiente de reflexión total:")
-st.latex(r"R = |r|^2")
+\( r = \frac{{r + r_i \cdot e^{2j\phi_i}}}{{1 + r \cdot r_i \cdot e^{2j\phi_i}}} \)
+
+Donde \( r_i \) es el coeficiente de reflexión de Fresnel en la interfaz actual y \( \phi_i \) es el desplazamiento de fase en la capa actual.
+
+La reflectancia final se obtiene tomando el valor absoluto al cuadrado del coeficiente de reflexión total:
+\( R = |r|^2 \)
+""", unsafe_allow_html=True)
