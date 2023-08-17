@@ -35,27 +35,54 @@ def plot_spectrum(file_path, n_substrate, lambda_min, lambda_max):
     plt.grid(True)
     st.pyplot(fig)
 
+# Custom styling
+st.markdown("""
+    <style>
+        .reportview-container {
+            background: #f0f0f5;
+        }
+        .sidebar .sidebar-content {
+            background: #f0f0f5;
+        }
+        h1, h2 {
+            color: #333366;
+        }
+        h3 {
+            color: #666699;
+        }
+    </style>
+    """, unsafe_allow_html=True)
+
 # Streamlit UI
 st.title('Espectro de Reflectancia de la Multicapa')
 
 option = st.selectbox('Seleccione una opción:', ['Subir archivo', 'Agregar capas manualmente'])
 
+st.markdown("---")
+
 if option == 'Subir archivo':
-    file_path = st.file_uploader('Seleccione el archivo Excel:', type=['xlsx', 'xls'])
+    st.subheader("Subir archivo Excel:")
+    file_path = st.file_uploader('', type=['xlsx', 'xls'])
     if file_path:
         data = pd.read_excel(file_path)
 else:
+    st.subheader('Agregar capas manualmente:')
     layers = []
-    st.subheader('Capas de la multicapa:')
-    for i in range(st.session_state.get('num_layers', 1)):
-        material = st.text_input(f'Material {i+1}:', key=f'material_{i}')
-        n = st.number_input(f'Índice de refracción {i+1}:', key=f'n_{i}')
-        thickness = st.number_input(f'Espesor (nm) {i+1}:', key=f'thickness_{i}')
-        layers.append({'Material': material, 'Refractive index n': n, 'Thickness (nm)': thickness})
-    if st.button('Agregar capa'):
-        st.session_state.num_layers = st.session_state.get('num_layers', 1) + 1
+    with st.beta_expander('Capas de la multicapa:'):
+        for i in range(st.session_state.get('num_layers', 1)):
+            with st.beta_container():
+                st.markdown(f"### Capa {i+1}")
+                material = st.text_input('Material:', key=f'material_{i}')
+                n = st.number_input('Índice de refracción:', key=f'n_{i}')
+                thickness = st.number_input('Espesor (nm):', key=f'thickness_{i}')
+                layers.append({'Material': material, 'Refractive index n': n, 'Thickness (nm)': thickness})
+        if st.button('Agregar capa'):
+            st.session_state.num_layers = st.session_state.get('num_layers', 1) + 1
     data = pd.DataFrame(layers)
 
+st.markdown("---")
+
+st.subheader("Parámetros:")
 n_substrate = st.number_input('Índice de refracción del sustrato:', min_value=1.0, value=1.5)
 lambda_min = st.number_input('Longitud de onda mínima (nm):', min_value=400.0, value=400.0)
 lambda_max = st.number_input('Longitud de onda máxima (nm):', min_value=400.0, value=800.0)
