@@ -48,7 +48,7 @@ def plot_spectrum(data, n_substrate, lambda_min, lambda_max, log_scale):
     fig.add_annotation(x=wavelengths[np.argmin(reflectance)], y=min(reflectance), text="Reflectancia Mínima", showarrow=True, arrowhead=2)
 
     st.plotly_chart(fig, use_container_width=True)
-return wavelengths, reflectance  # Return these values
+    return wavelengths, reflectance  # Return these values
 
 
 # Custom styling
