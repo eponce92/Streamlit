@@ -88,3 +88,38 @@ lambda_max = st.number_input('Longitud de onda máxima (nm):', min_value=400.0, 
 
 if st.button('Graficar Espectro'):
     plot_spectrum(data, n_substrate, lambda_min, lambda_max)
+
+# Documentation Section
+st.markdown("---")
+st.header("Documentación")
+
+st.subheader("Instrucciones para usar el programa")
+st.write("""
+1. **Seleccionar una opción**: Puede subir un archivo Excel con las capas de la multicapa o agregar las capas manualmente.
+2. **Subir archivo Excel**: Si selecciona "Subir archivo", debe cargar un archivo Excel con las columnas 'Material', 'Índice de refracción n', y 'Espesor (nm)'.
+3. **Agregar capas manualmente**: Si selecciona "Agregar capas manualmente", debe ingresar los detalles de cada capa y hacer clic en "Agregar capa" para agregar más capas.
+4. **Parámetros**: Ingrese el índice de refracción del sustrato y el rango de longitudes de onda.
+5. **Graficar Espectro**: Haga clic en este botón para visualizar el espectro de reflectancia de la multicapa.
+""")
+
+st.subheader("Cómo funciona la simulación")
+st.write("""
+La simulación utiliza la teoría de las ondas de luz y la ecuación de Fresnel para calcular la reflectancia en cada interfaz de la multicapa. Considera la interferencia de las ondas reflejadas en cada interfaz y el desplazamiento de fase debido al recorrido óptico dentro de cada capa.
+
+Las fórmulas clave son:
+
+- Coeficiente de reflexión de Fresnel:
+  \[
+  r = \frac{{n_1 - n_2}}{{n_1 + n_2}}
+  \]
+
+- Desplazamiento de fase en una capa:
+  \[
+  \phi = \frac{{2\pi n d}}{{\lambda}}
+  \]
+
+- Reflectancia total de la multicapa:
+  Se calcula iterativamente, tomando en cuenta la reflectancia de Fresnel en cada interfaz y la interferencia de las ondas reflejadas.
+
+La multicapa está depositada sobre un sustrato de vidrio con un índice de refracción especificado, y la luz incide normalmente sobre la multicapa.
+""")
