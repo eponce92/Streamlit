@@ -24,6 +24,7 @@ def total_reflectance(layers, lambda_, n_substrate):
         r = (r + r_i * cmath.exp(2j * phi_i)) / (1 + r * r_i * cmath.exp(2j * phi_i))
     return abs(r)**2
 
+# Modified plot_spectrum function
 def plot_spectrum(data, n_substrate, lambda_min, lambda_max, log_scale):
     wavelengths = np.linspace(lambda_min, lambda_max, 1000)
     reflectance = [total_reflectance(data, lambda_, n_substrate) for lambda_ in wavelengths]
@@ -47,7 +48,7 @@ def plot_spectrum(data, n_substrate, lambda_min, lambda_max, log_scale):
     fig.add_annotation(x=wavelengths[np.argmin(reflectance)], y=min(reflectance), text="Reflectancia Mínima", showarrow=True, arrowhead=2)
 
     st.plotly_chart(fig, use_container_width=True)
-
+return wavelengths, reflectance  # Return these values
 
 
 # Custom styling
@@ -101,8 +102,9 @@ n_substrate = st.number_input('Índice de refracción del sustrato:', min_value=
 lambda_min, lambda_max = st.slider('Rango de longitudes de onda (nm):', min_value=200.0, max_value=2000.0, value=(400.0, 800.0))
 log_scale = st.checkbox('Usar escala logarítmica para reflectancia')
 
+# After plotting (inside the if block)
 if st.button('Graficar Espectro'):
-    plot_spectrum(data, n_substrate, lambda_min, lambda_max, log_scale)
+    wavelengths, reflectance = plot_spectrum(data, n_substrate, lambda_min, lambda_max, log_scale)  # Unpack returned values
     st.subheader("Resultados Clave:")
     st.write(f"Pico de Reflectancia: {max(reflectance)} en {wavelengths[np.argmax(reflectance)]} nm")
     st.write(f"Reflectancia Mínima: {min(reflectance)} en {wavelengths[np.argmin(reflectance)]} nm")
