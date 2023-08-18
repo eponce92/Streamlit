@@ -5,18 +5,29 @@ import matplotlib.pyplot as plt
 import streamlit as st
 import plotly.express as px
 
-def fresnel_coefficient(n1, n2):
-    return (n1 - n2) / (n1 + n2)
+# Fresnel coefficients for oblique incidence
+def fresnel_coefficients_oblique(n1, n2, theta1, polarization="s"):
+    theta2 = cmath.asin(n1 * cmath.sin(theta1) / n2)  # Snell's law
+    if polarization == "s":
+        r = (n1 * cmath.cos(theta1) - n2 * cmath.cos(theta2)) / (n1 * cmath.cos(theta1) + n2 * cmath.cos(theta2))
+        t = 2 * n1 * cmath.cos(theta1) / (n1 * cmath.cos(theta1) + n2 * cmath.cos(theta2))
+    else:  # p-polarized
+        r = (n2 * cmath.cos(theta1) - n1 * cmath.cos(theta2)) / (n2 * cmath.cos(theta1) + n1 * cmath.cos(theta2))
+        t = 2 * n1 * cmath.cos(theta1) / (n2 * cmath.cos(theta1) + n1 * cmath.cos(theta2))
+    return r, t
 
+# Phase shift function
 def phase_shift(n, d, lambda_):
     return 2 * np.pi * n * d / lambda_
 
-def total_reflectance(layers, lambda_, n_substrate):
+# Total reflectance for oblique incidence
+def total_reflectance_oblique(layers, lambda_, n_substrate, theta_incidence=0, polarization="s"):
     n_values = [1.0] + list(layers['Refractive index n']) + [n_substrate]
     d_values = [np.inf] + list(layers['Thickness (nm)']) + [np.inf]
-    r = fresnel_coefficient(n_values[0], n_values[1])
+    r, _ = fresnel_coefficients_oblique(n_values[0], n_values[1], theta_incidence, polarization)
     for i in range(1, len(n_values) - 1):
-        r_i = fresnel_coefficient(n_values[i], n_values[i + 1])
+        theta_i = cmath.asin(n_values[i - 1] * cmath.sin(theta_incidence) / n_values[i])  # Snell's law
+        r_i, _ = fresnel_coefficients_oblique(n_values[i], n_values[i + 1], theta_i, polarization)
         phi_i = phase_shift(n_values[i], d_values[i], lambda_)
         r = (r + r_i * cmath.exp(2j * phi_i)) / (1 + r * r_i * cmath.exp(2j * phi_i))
     return abs(r)**2
