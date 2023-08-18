@@ -4,6 +4,7 @@ import cmath
 import matplotlib.pyplot as plt
 import streamlit as st
 import plotly.express as px
+from cmath import sqrt
 
 # Fresnel coefficients for oblique incidence
 def fresnel_coefficients_oblique(n1, n2, theta1, polarization="s"):
