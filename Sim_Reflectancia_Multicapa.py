@@ -35,7 +35,8 @@ def total_reflectance_oblique(layers, lambda_, n_substrate, theta_incidence=0, p
 
 def plot_spectrum(data, n_substrate, lambda_min, lambda_max, log_scale):
     wavelengths = np.linspace(lambda_min, lambda_max, 1000)
-    reflectance = [total_reflectance(data, lambda_, n_substrate) for lambda_ in wavelengths]
+    reflectance = [total_reflectance_oblique(data, lambda_, n_substrate) for lambda_ in wavelengths]
+
     
     if log_scale:
         reflectance = np.log10(reflectance)
