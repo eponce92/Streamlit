@@ -4,18 +4,16 @@ import cmath
 import matplotlib.pyplot as plt
 import streamlit as st
 import plotly.express as px
-from cmath import sqrt
+from cmath import asin, cos, sin
 
 # Fresnel coefficients for oblique incidence
 def fresnel_coefficients_oblique(n1, n2, theta1, polarization="s"):
-    theta2 = cmath.asin(n1 * cmath.sin(theta1) / n2)  # Snell's law
+    theta2 = asin(n1 * sin(theta1) / n2)  # Snell's law
     if polarization == "s":
-        r = (n1 * cmath.cos(theta1) - n2 * cmath.cos(theta2)) / (n1 * cmath.cos(theta1) + n2 * cmath.cos(theta2))
-        t = 2 * n1 * cmath.cos(theta1) / (n1 * cmath.cos(theta1) + n2 * cmath.cos(theta2))
+        r = (n1 * cos(theta1) - n2 * cos(theta2)) / (n1 * cos(theta1) + n2 * cos(theta2))
     else:  # p-polarized
-        r = (n2 * cmath.cos(theta1) - n1 * cmath.cos(theta2)) / (n2 * cmath.cos(theta1) + n1 * cmath.cos(theta2))
-        t = 2 * n1 * cmath.cos(theta1) / (n2 * cmath.cos(theta1) + n1 * cmath.cos(theta2))
-    return r, t
+        r = (n2 * cos(theta1) - n1 * cos(theta2)) / (n2 * cos(theta1) + n1 * cos(theta2))
+    return r
 
 # Phase shift function
 def phase_shift(n, d, lambda_):
@@ -23,19 +21,20 @@ def phase_shift(n, d, lambda_):
 
 # Total reflectance for oblique incidence
 def total_reflectance_oblique(layers, lambda_, n_substrate, theta_incidence=0, polarization="s"):
+    theta_incidence = np.deg2rad(theta_incidence)  # Convert to radians
     n_values = [1.0] + list(layers['Refractive index n']) + [n_substrate]
     d_values = [np.inf] + list(layers['Thickness (nm)']) + [np.inf]
-    r, _ = fresnel_coefficients_oblique(n_values[0], n_values[1], theta_incidence, polarization)
+    r = fresnel_coefficients_oblique(n_values[0], n_values[1], theta_incidence, polarization)
     for i in range(1, len(n_values) - 1):
-        theta_i = cmath.asin(n_values[i - 1] * cmath.sin(theta_incidence) / n_values[i])  # Snell's law
-        r_i, _ = fresnel_coefficients_oblique(n_values[i], n_values[i + 1], theta_i, polarization)
+        theta_i = asin(n_values[i - 1] * sin(theta_incidence) / n_values[i])  # Snell's law
+        r_i = fresnel_coefficients_oblique(n_values[i], n_values[i + 1], theta_i, polarization)
         phi_i = phase_shift(n_values[i], d_values[i], lambda_)
         r = (r + r_i * cmath.exp(2j * phi_i)) / (1 + r * r_i * cmath.exp(2j * phi_i))
     return abs(r)**2
-
+    
 def plot_spectrum(data, n_substrate, lambda_min, lambda_max, log_scale):
     wavelengths = np.linspace(lambda_min, lambda_max, 1000)
-    reflectance = [total_reflectance_oblique(data, lambda_, n_substrate) for lambda_ in wavelengths]
+    reflectance = [total_reflectance_oblique(data, lambda_, n_substrate, theta_incidence, polarization) for lambda_ in wavelengths] 
 
     
     if log_scale:
@@ -124,6 +123,8 @@ if option == 'Subir archivo':
         data = st.session_state.data_uploaded
         st.subheader("Parámetros:")
         n_substrate = st.number_input('Índice de refracción del sustrato:', min_value=1.0, value=1.5)
+        theta_incidence = st.number_input('Ángulo de incidencia (grados):', min_value=0.0, max_value=90.0, value=0.0)  # Add this line
+        polarization = st.selectbox('Polarización:', ['s', 'p'])  # Add this line
         lambda_min, lambda_max = st.slider('Rango de longitudes de onda (nm):', min_value=200.0, max_value=2000.0, value=(400.0, 800.0))
         log_scale = st.checkbox('Usar escala logarítmica para reflectancia')
         display_spectrum(data, n_substrate, lambda_min, lambda_max, log_scale)
@@ -142,10 +143,10 @@ if option == 'Agregar capas manualmente':
             st.session_state.num_layers = st.session_state.get('num_layers', 1) + 1
     data = pd.DataFrame(layers)
     st.subheader("Parámetros:")
-    n_substrate_key = 'n_substrate_' + option
-    n_substrate = st.number_input('Índice de refracción del sustrato:', min_value=1.0, value=1.5, key=n_substrate_key)
-    lambda_range_key = 'lambda_range_' + option
-    lambda_min, lambda_max = st.slider('Rango de longitudes de onda (nm):', min_value=200.0, max_value=2000.0, value=(400.0, 800.0), key=lambda_range_key)
+    n_substrate = st.number_input('Índice de refracción del sustrato:', min_value=1.0, value=1.5)
+    theta_incidence = st.number_input('Ángulo de incidencia (grados):', min_value=0.0, max_value=90.0, value=0.0)  # Add this line
+    polarization = st.selectbox('Polarización:', ['s', 'p'])  # Add this line
+    lambda_min, lambda_max = st.slider('Rango de longitudes de onda (nm):', min_value=200.0, max_value=2000.0, value=(400.0, 800.0)))
     log_scale = st.checkbox('Usar escala logarítmica para reflectancia')
     if st.button('Graficar Espectro'):
         display_spectrum(data, n_substrate, lambda_min, lambda_max, log_scale)
