@@ -146,7 +146,8 @@ if option == 'Agregar capas manualmente':
     n_substrate = st.number_input('Índice de refracción del sustrato:', min_value=1.0, value=1.5)
     theta_incidence = st.number_input('Ángulo de incidencia (grados):', min_value=0.0, max_value=90.0, value=0.0)  # Add this line
     polarization = st.selectbox('Polarización:', ['s', 'p'])  # Add this line
-    lambda_min, lambda_max = st.slider('Rango de longitudes de onda (nm):', min_value=200.0, max_value=2000.0, value=(400.0, 800.0)))
+    lambda_min, lambda_max = st.slider('Rango de longitudes de onda (nm):', min_value=200.0, max_value=2000.0, value=(400.0, 800.0))
+
     log_scale = st.checkbox('Usar escala logarítmica para reflectancia')
     if st.button('Graficar Espectro'):
         display_spectrum(data, n_substrate, lambda_min, lambda_max, log_scale)
