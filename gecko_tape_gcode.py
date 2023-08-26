@@ -31,7 +31,7 @@ The work is inspired by the research titled "APPLYING DRY ADHESIVES TO THE REAL 
 
 2. **G-code Generation**:
     - The program calculates the necessary movements for the CNC machine.
-    - It ensures synchronized movement in both the X and Z axes to maintain the specified angle of approach, based on the formula \( x = d \times \tan(\theta) \) where \( x \) is the X-axis movement, \( d \) is the depth, and \( \theta \) is the angle of approach.
+    - It ensures synchronized movement in both the X and Z axes to maintain the specified angle of approach, based on the formula based on the formula \( x = d \times \tan(\theta) \) is the X-axis movement, \( d \) is the depth, and \( \theta \) is the angle of approach.
     - After cutting each groove, the tool retracts at the same angle it entered.
 
 3. **Visualization**:
