@@ -29,7 +29,8 @@ def plot_gcode(x_values, z_values, title, x_range=None, y_range=None):
 st.title("G-code Generator for Groove Cutting")
 
 # Organize layout with columns
-col1, col2, col3 = st.beta_columns(3)
+col1, col2, col3 = st.columns(3)
+
 
 with col1:
     angle = st.slider("Angle of Approach (degrees from vertical, 0-90)", 0, 90, 45)
