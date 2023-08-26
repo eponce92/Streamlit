@@ -3,6 +3,9 @@ import numpy as np
 import plotly.graph_objects as go
 import base64
 
+# Set the page layout to wide mode
+st.set_page_config(layout="wide")
+
 def generate_gcode(angle, spacing, depth, pattern_length, feed_rate):
     num_grooves = int(pattern_length / spacing)
     x_move = depth * np.tan(np.radians(angle))
