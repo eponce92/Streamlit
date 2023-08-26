@@ -5,7 +5,8 @@ import base64
 
 def generate_gcode(angle, spacing, depth, pattern_length, feed_rate):
     num_grooves = int(pattern_length / spacing)
-    x_move = depth * np.tan(np.radians(90 - angle))
+    x_move = depth * np.tan(np.radians(angle))
+
     gcode = ["G90 ; Set to absolute positioning",
              "G92 X0 Z0 ; Set current position as zero"]
     current_x = 0
