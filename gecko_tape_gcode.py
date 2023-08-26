@@ -31,7 +31,12 @@ The work is inspired by the research titled "APPLYING DRY ADHESIVES TO THE REAL 
 
 2. **G-code Generation**:
     - The program calculates the necessary movements for the CNC machine.
-    - It ensures synchronized movement in both the X and Z axes to maintain the specified angle of approach, based on the formula based on the formula \( x = d \times \tan(\theta) \) is the X-axis movement, \( d \) is the depth, and \( \theta \) is the angle of approach.
+    - It ensures synchronized movement in both the X and Z axes to maintain the specified angle of approach. Based on the formula: 
+    \( x = d \times \tan(\theta) \)
+    where:
+    \( x \) is the X-axis movement,
+    \( d \) is the depth, and
+    \( \theta \) is the angle of approach.
     - After cutting each groove, the tool retracts at the same angle it entered.
 
 3. **Visualization**:
@@ -45,12 +50,34 @@ The work is inspired by the research titled "APPLYING DRY ADHESIVES TO THE REAL 
 
 **Use the sliders and input boxes below to customize the G-code parameters and visualize the cutting path.**
 """)
-st.markdown("based on the formula \( x = d \times \tan(\theta) \)")
 
 # Display the attached picture from the thesis for better representation
 st.image("https://raw.githubusercontent.com/eponce92/Streamlit/main/gecko_tape.png", caption="Representation of the machined shape", width=300)
 
+# Define the necessary functions
 
+def generate_gcode(angle, spacing, depth, pattern_length, feed_rate):
+    num_grooves = int(pattern_length / spacing)
+    x_move = depth * np.tan(np.radians(angle))
+    gcode = ["G90 ; Set to absolute positioning",
+             "G92 X0 Z0 ; Set current position as zero"]
+    current_x = 0
+
+    for i in range(num_grooves):
+        gcode.append(f"; Cut groove {i+1}")
+        gcode.append(f"G1 X{current_x + x_move:.6f} Z{-depth:.6f} F{feed_rate} ")
+        gcode.append(f"G1 X{current_x:.6f} Z0 ; Synchronized retraction")
+        current_x += spacing
+        gcode.append(f"G1 X{current_x:.6f} ; Position for next groove")
+    
+    return gcode
+
+def plot_gcode(x_values, z_values, title, x_range=None, y_range=None):
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=x_values, y=z_values, mode='lines+markers', name='Path'))
+    fig.update_layout(title=title, xaxis_title="X-axis (mm)", yaxis_title="Z-axis (mm)", 
+                      xaxis_range=x_range, yaxis_range=y_range)
+    return fig
 
 # Organize layout with columns
 col1, col2, col3 = st.columns([2,3,3])  # Adjusting column widths
