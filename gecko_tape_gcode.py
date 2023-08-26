@@ -2,6 +2,8 @@ import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 import base64
+import plotly.graph_objects as go
+
 
 def generate_gcode(angle, spacing, depth, pattern_length):
     # Calculate the number of grooves based on the pattern length and spacing
@@ -52,30 +54,24 @@ gcode_output = generate_gcode(angle, spacing, depth, pattern_length)
 st.text_area("Generated G-code:", "\n".join(gcode_output), height=250)
 
 # Plot the side view of the G-code
-x_values = [0]
-z_values = [0]
+def plot_gcode(x_values, z_values, title, x_range=None, y_range=None):
+    fig = go.Figure()
 
-current_x = 0
-current_z = 0
-for line in gcode_output:
-    if line.startswith("G1"):
-        if "X" in line:
-            x_val = float(line.split("X")[1].split()[0])
-            current_x = x_val
-        if "Z" in line:
-            z_val = float(line.split("Z")[1].split()[0])
-            current_z = z_val
-        
-        x_values.append(current_x)
-        z_values.append(current_z)
+    # Plotting the G-code path
+    fig.add_trace(go.Scatter(x=x_values, y=z_values, mode='lines+markers', name='Path'))
+    
+    # Setting titles and labels
+    fig.update_layout(title=title, xaxis_title="X-axis (mm)", yaxis_title="Z-axis (mm)", 
+                      xaxis_range=x_range, yaxis_range=y_range)
+    return fig
 
-plt.figure(figsize=(10,6))
-plt.plot(x_values, z_values, '-o')
-plt.title("Side View of the G-code Path")
-plt.xlabel("X-axis (mm)")
-plt.ylabel("Z-axis (mm)")
-plt.grid(True)
-st.pyplot(plt)
+# Full view plot
+st.plotly_chart(plot_gcode(x_values, z_values, "Side View of the G-code Path"))
+
+# Zoomed-in view of the first few grooves
+zoomed_x = x_values[:10]
+zoomed_z = z_values[:10]
+st.plotly_chart(plot_gcode(zoomed_x, zoomed_z, "Zoomed-in View of the First Few Grooves"))
 
 # Downloadable link for G-code
 b64 = base64.b64encode(get_file_content(gcode_output).encode()).decode()
