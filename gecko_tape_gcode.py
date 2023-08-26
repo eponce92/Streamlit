@@ -47,7 +47,7 @@ The work is inspired by the research titled "APPLYING DRY ADHESIVES TO THE REAL 
 """)
 
 # Display the attached picture from the thesis for better representation
-st.image("https://raw.githubusercontent.com/eponce92/Streamlit/main/gecko_tape.png", caption="Representation of the machined shape", use_column_width=True)
+st.image("https://raw.githubusercontent.com/eponce92/Streamlit/main/gecko_tape.png", caption="Representation of the machined shape", width=300))
 
 
 
