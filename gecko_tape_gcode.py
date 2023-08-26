@@ -45,6 +45,7 @@ The work is inspired by the research titled "APPLYING DRY ADHESIVES TO THE REAL 
 
 **Use the sliders and input boxes below to customize the G-code parameters and visualize the cutting path.**
 """)
+st.markdown("based on the formula \( x = d \times \tan(\theta) \)")
 
 # Display the attached picture from the thesis for better representation
 st.image("https://raw.githubusercontent.com/eponce92/Streamlit/main/gecko_tape.png", caption="Representation of the machined shape", width=300)
