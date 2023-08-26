@@ -47,7 +47,9 @@ The work is inspired by the research titled "APPLYING DRY ADHESIVES TO THE REAL 
 """)
 
 # Display the attached picture from the thesis for better representation
-st.image("YOUR_IMAGE_PATH_HERE", caption="Representation of the machined shape", use_column_width=True)
+st.image("https://raw.githubusercontent.com/eponce92/Streamlit/main/gecko_tape.png", caption="Representation of the machined shape", use_column_width=True)
+
+
 
 # Organize layout with columns
 col1, col2, col3 = st.columns([2,3,3])  # Adjusting column widths
