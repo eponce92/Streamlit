@@ -44,13 +44,18 @@ x_values = [0]
 z_values = [0]
 
 current_x = 0
+current_z = 0
 for line in gcode_output:
     if line.startswith("G1"):
-        x_val = float(line.split("X")[1].split()[0])
-        z_val = float(line.split("Z")[1].split()[0])
-        x_values.extend([current_x, x_val])
-        z_values.extend([z_val, z_val])
-        current_x = x_val
+        if "X" in line:
+            x_val = float(line.split("X")[1].split()[0])
+            current_x = x_val
+        if "Z" in line:
+            z_val = float(line.split("Z")[1].split()[0])
+            current_z = z_val
+        
+        x_values.append(current_x)
+        z_values.append(current_z)
 
 plt.figure(figsize=(10,6))
 plt.plot(x_values, z_values, '-o')
