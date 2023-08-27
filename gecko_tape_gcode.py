@@ -70,6 +70,7 @@ def generate_gcode(angle, spacing, depth, pattern_length, feed_rate, move_rate, 
         if i == 0:
             gcode.append(f"G1 X{x_move:.6f} Z{-depth:.6f} F{feed_rate}")
             gcode.append(f"G1 X0.000000 Z0.000000 F{feed_rate} ; Synchronized retraction")
+            gcode.append(f"G1 Z{retraction_distance:.6f} F{move_rate}")
         else:
             gcode.append(f"G1 X{current_x + x_move:.6f} Z{-depth:.6f} F{feed_rate}")
             gcode.append(f"G1 X{current_x:.6f} Z{retraction_distance:.6f} F{feed_rate} ; Synchronized retraction")
@@ -80,6 +81,7 @@ def generate_gcode(angle, spacing, depth, pattern_length, feed_rate, move_rate, 
             gcode.append(f"G1 X{current_x:.6f} Z{retraction_distance:.6f} F{move_rate}")
 
     return gcode
+
 
 
 
