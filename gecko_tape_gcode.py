@@ -56,7 +56,7 @@ st.image("https://raw.githubusercontent.com/eponce92/Streamlit/main/gecko_tape.p
 
 # Define the necessary functions
 
-def generate_gcode(angle, spacing, depth, pattern_length, feed_rate):
+def generate_gcode(angle, spacing, depth, pattern_length, feed_rate, move_rate, retraction_distance):
     num_grooves = int(pattern_length / spacing)
     x_move = depth * np.tan(np.radians(angle))
     gcode = ["G90 ; Set to absolute positioning",
@@ -66,9 +66,9 @@ def generate_gcode(angle, spacing, depth, pattern_length, feed_rate):
     for i in range(num_grooves):
         gcode.append(f"; Cut groove {i+1}")
         gcode.append(f"G1 X{current_x + x_move:.6f} Z{-depth:.6f} F{feed_rate} ")
-        gcode.append(f"G1 X{current_x:.6f} Z0 ; Synchronized retraction")
+        gcode.append(f"G1 X{current_x:.6f} Z{retraction_distance:.6f} F{feed_rate} ; Synchronized retraction")
         current_x += spacing
-        gcode.append(f"G1 X{current_x:.6f} ; Position for next groove")
+        gcode.append(f"G1 X{current_x:.6f} Z{retraction_distance:.6f} F{move_rate} ; Move to next groove start")
     
     return gcode
 
@@ -80,7 +80,7 @@ def plot_gcode(x_values, z_values, title, x_range=None, y_range=None):
     return fig
 
 # Organize layout with columns
-col1, col2, col3 = st.columns([2,3,3])  # Adjusting column widths
+col1, col2, col3 = st.columns([2,3,3])
 
 with col1:
     st.markdown("### Parameters Input")
@@ -88,10 +88,12 @@ with col1:
     spacing = st.number_input("Distance Between Grooves (mm)", 0.000001, 10.0, 0.061, format="%.6f")
     depth = st.number_input("Depth of Grooves (mm)", 0.000001, 10.0, 0.102, format="%.6f")
     pattern_length = st.number_input("Length of Pattern (mm)", 0.000001, 500.0, 40.0, format="%.6f")
-    feed_rate = st.number_input("Feed Rate (mm/min)", 1, 5000, 100)
+    feed_rate = st.number_input("Feed Rate (mm/min) - Cutting Speed", 1, 5000, 100)
+    move_rate = st.number_input("Move Rate (mm/min) - Travel Speed", 1, 5000, 200)
+    retraction_distance = st.number_input("Retraction Distance (mm) - Height above the material", 0.000001, 10.0, 0.200, format="%.6f")
 
     if st.button("Generate G-code"):
-        gcode_output = generate_gcode(angle, spacing, depth, pattern_length, feed_rate)
+        gcode_output = generate_gcode(angle, spacing, depth, pattern_length, feed_rate, move_rate, retraction_distance)
 
         with col2:
             st.markdown("### G-code Output")
@@ -111,8 +113,6 @@ with col1:
                 if "Z" in line:
                     z_val = float(line.split("Z")[1].split()[0])
                     current_z = z_val
-                x_values.append(current_x)
-                z_values.append(current_z)
 
         with col3:
             st.markdown("### Visualization")
