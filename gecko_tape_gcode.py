@@ -76,6 +76,7 @@ def generate_gcode(angle, spacing, depth, pattern_length, feed_rate, move_rate, 
     return gcode
 
 
+
 def plot_gcode(x_values, z_values, title, x_range=None, y_range=None):
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=x_values, y=z_values, mode='lines+markers', name='Path'))
