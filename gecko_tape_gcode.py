@@ -65,14 +65,16 @@ def generate_gcode(angle, spacing, depth, pattern_length, feed_rate, move_rate, 
 
     for i in range(num_grooves):
         gcode.append(f"; Cut groove {i+1}")
-        x_cut_end = current_x + x_move
-        gcode.append(f"G1 X{x_cut_end:.6f} F{move_rate} ")  # Move to the start position of the groove
-        gcode.append(f"G1 Z{-depth:.6f} F{feed_rate} ")  # Cut the groove
-        gcode.append(f"G1 X{current_x:.6f} Z{retraction_distance:.6f} F{feed_rate} ; Synchronized retraction")  # Retract along the cut path
+        gcode.append(f"G1 X{current_x + x_move:.6f} Z{-depth:.6f} F{feed_rate}")
+        gcode.append(f"G1 X{current_x:.6f} Z{retraction_distance:.6f} F{feed_rate} ; Synchronized retraction")
+        
+        # Move to next groove starting position
         current_x += spacing
-        gcode.append(f"G1 X{current_x:.6f} Z{retraction_distance:.6f} F{move_rate} ; Position for next groove")  # Move to the start position of the next groove
+        if i < num_grooves - 1:  # Don't move further if it's the last groove
+            gcode.append(f"G1 X{current_x:.6f} Z{retraction_distance:.6f} F{move_rate}")
 
     return gcode
+
 
 
 
