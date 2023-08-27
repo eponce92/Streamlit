@@ -104,7 +104,7 @@ with col1:
         x_values = [0]
         z_values = [0]
         current_x = 0
-        current_z = 0
+        current_z = retraction_distance
         for line in gcode_output:
             if line.startswith("G1"):
                 if "X" in line:
@@ -113,6 +113,8 @@ with col1:
                 if "Z" in line:
                     z_val = float(line.split("Z")[1].split()[0])
                     current_z = z_val
+                x_values.append(current_x)
+                z_values.append(current_z)
 
         with col3:
             st.markdown("### Visualization")
