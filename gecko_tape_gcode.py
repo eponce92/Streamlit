@@ -63,24 +63,24 @@ def generate_gcode(angle, spacing, depth, pattern_length, feed_rate, move_rate, 
              "G92 X0 Z0 ; Set current position as zero"]
     current_x = 0
 
-    for i in range(num_grooves):
-        gcode.append(f"; Cut groove {i+1}")
-        
-        # Handle the first groove separately
-        if i == 0:
-            gcode.append(f"G1 X{x_move:.6f} Z{-depth:.6f} F{feed_rate}")
-            retraction_x = -retraction_distance * np.tan(np.radians(90 - angle))
-            gcode.append(f"G1 X{retraction_x:.6f} Z{retraction_distance:.6f} F{feed_rate} ; Synchronized retraction")
-        else:
-            gcode.append(f"G1 X{current_x + x_move:.6f} Z{-depth:.6f} F{feed_rate}")
-            gcode.append(f"G1 X{current_x:.6f} Z{retraction_distance:.6f} F{feed_rate} ; Synchronized retraction")
-        
-        # Move to next groove starting position
-        current_x += spacing
-        if i < num_grooves - 1:  # Don't move further if it's the last groove
-            gcode.append(f"G1 X{current_x:.6f} Z{retraction_distance:.6f} F{move_rate}")
+    # Handle the first groove separately
+    gcode.append("; Cut groove 1")
+    gcode.append(f"G1 X{current_x + x_move:.6f} Z{-depth:.6f} F{feed_rate}")
+    gcode.append(f"G1 X{current_x:.6f} Z0 F{feed_rate} ; Synchronized retraction")
+    gcode.append(f"G1 X{current_x - retraction_distance:.6f} F{move_rate}")
+    current_x += spacing
+    gcode.append(f"G1 X{current_x:.6f} ; Position for next groove")
 
+    # Generate G-code for the remaining grooves
+    for i in range(1, num_grooves):
+        gcode.append(f"; Cut groove {i+1}")
+        gcode.append(f"G1 X{current_x + x_move:.6f} Z{-depth:.6f} F{feed_rate}")
+        gcode.append(f"G1 X{current_x:.6f} Z0 F{feed_rate} ; Synchronized retraction")
+        current_x += spacing
+        gcode.append(f"G1 X{current_x:.6f} F{move_rate} ; Position for next groove")
+    
     return gcode
+
 
 
 
