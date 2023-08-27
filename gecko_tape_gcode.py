@@ -63,14 +63,18 @@ def generate_gcode(angle, spacing, depth, pattern_length, feed_rate, move_rate, 
              "G92 X0 Z0 ; Set current position as zero"]
     current_x = 0
 
+    # Initial positioning to the start of the first groove
+    gcode.append(f"G1 X{x_move:.6f} Z0 F{move_rate}")
+
     for i in range(num_grooves):
         gcode.append(f"; Cut groove {i+1}")
         gcode.append(f"G1 X{current_x + x_move:.6f} Z{-depth:.6f} F{feed_rate} ")
         gcode.append(f"G1 X{current_x:.6f} Z{retraction_distance:.6f} F{feed_rate} ; Synchronized retraction")
         current_x += spacing
-        gcode.append(f"G1 X{current_x:.6f} Z{retraction_distance:.6f} F{move_rate} ; Move to next groove start")
+        gcode.append(f"G1 X{current_x + x_move:.6f} Z{retraction_distance:.6f} F{move_rate} ; Move to next groove starting position")
     
     return gcode
+
 
 def plot_gcode(x_values, z_values, title, x_range=None, y_range=None):
     fig = go.Figure()
