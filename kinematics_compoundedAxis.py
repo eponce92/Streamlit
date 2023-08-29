@@ -1,8 +1,12 @@
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
-
-# Kinematics functions as defined earlier.
+import math
+def forward_kinematics(A, B, theta_degrees):
+    theta = math.radians(theta_degrees)
+    X = A + B * math.cos(theta)
+    Z = B * math.sin(theta)
+    return X, Z
 
 def main():
     st.title("Compound Axis Kinematics Visualization")
