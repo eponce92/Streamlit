@@ -11,11 +11,11 @@ def forward_kinematics(A, B, theta_degrees):
 
 def create_side_view(theta_degrees, A_length, B_length):
     fig, ax = plt.subplots(figsize=(8, 6))
-    ax.arrow(0, 0, A_length, 0, head_width=0.05, head_length=0.05, fc='blue', ec='blue', width=0.03)
+    ax.arrow(0, 0.05, A_length, 0, head_width=0.05, head_length=0.05, fc='blue', ec='blue', width=0.03)
     theta = math.radians(theta_degrees)
     Bx = B_length * math.cos(theta)
     By = B_length * math.sin(theta)
-    ax.arrow(0, 0, Bx, By, head_width=0.05, head_length=0.05, fc='red', ec='red', width=0.03)
+    ax.arrow(0, 0.05, Bx, By, head_width=0.05, head_length=0.05, fc='red', ec='red', width=0.03)
     ax.set_xlim(0, 150)
     ax.set_ylim(0, 150)
     ax.set_aspect('equal', 'box')
@@ -40,18 +40,19 @@ def main():
     
     lock_x = st.checkbox("Lock X-axis")
     
-    A = st.slider("Position of A Axis (0 to A Length)", 0.0, A_length, A_length/2)
-    B = st.slider("Position of B Axis (0 to B Length)", 0.0, B_length, B_length/2)
+    A = st.slider("Position of A Axis (0 to A Length)", 0.0, A_length, A_length/2, key="A")
+    B = st.slider("Position of B Axis (0 to B Length)", 0.0, B_length, B_length/2, key="B")
     
     if lock_x:
         X_locked = forward_kinematics(A, B, theta)[0]
-        # Logic to adjust A or B when the other is moved
-        prev_A = A
-        prev_B = B
-        B = (X_locked - A) / math.cos(math.radians(theta))
-        if B > B_length or B < 0:
-            B = prev_B
-            A = X_locked - B * math.cos(math.radians(theta))
+        
+        # Logic to provide guidance to the user on adjusting the other slider
+        new_B = (X_locked - A) / math.cos(math.radians(theta))
+        if 0 <= new_B <= B_length:
+            st.write(f"To maintain X at {X_locked:.2f}, set B to: {new_B:.2f}")
+        else:
+            new_A = X_locked - B * math.cos(math.radians(theta))
+            st.write(f"To maintain X at {X_locked:.2f}, set A to: {new_A:.2f}")
     
     X, Z = forward_kinematics(A, B, theta)
     
