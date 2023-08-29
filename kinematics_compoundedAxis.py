@@ -9,15 +9,15 @@ def forward_kinematics(A, B, theta_degrees):
     Z = B * math.sin(theta)
     return X, Z
 
-def create_side_view(theta_degrees):
+def create_side_view(theta_degrees, A_length, B_length):
     fig, ax = plt.subplots(figsize=(8, 6))
-    ax.arrow(0, 0, 0.9, 0, head_width=0.05, head_length=0.05, fc='blue', ec='blue', width=0.03)
+    ax.arrow(0, 0, A_length, 0, head_width=0.05, head_length=0.05, fc='blue', ec='blue', width=0.03)
     theta = math.radians(theta_degrees)
-    Bx = 0.9 * math.cos(theta)
-    By = 0.9 * math.sin(theta)
+    Bx = B_length * math.cos(theta)
+    By = B_length * math.sin(theta)
     ax.arrow(0, 0, Bx, By, head_width=0.05, head_length=0.05, fc='red', ec='red', width=0.03)
-    ax.set_xlim(0, 2)
-    ax.set_ylim(0, 1)
+    ax.set_xlim(0, 150)
+    ax.set_ylim(0, 150)
     ax.set_aspect('equal', 'box')
     return fig
 
@@ -32,7 +32,7 @@ def main():
     theta = st.slider("Angle θ of B Axis (Degrees)", 0, 90, 45)
     
     st.write("Side View:")
-    st.pyplot(create_side_view(theta))
+    st.pyplot(create_side_view(theta, A_length, B_length))
     
     st.header("Kinematics Formulas")
     st.latex(r"X = A + B \cos(\theta)")
@@ -45,7 +45,13 @@ def main():
     
     if lock_x:
         X_locked = forward_kinematics(A, B, theta)[0]
-        A = X_locked - B * math.cos(math.radians(theta))
+        # Logic to adjust A or B when the other is moved
+        prev_A = A
+        prev_B = B
+        B = (X_locked - A) / math.cos(math.radians(theta))
+        if B > B_length or B < 0:
+            B = prev_B
+            A = X_locked - B * math.cos(math.radians(theta))
     
     X, Z = forward_kinematics(A, B, theta)
     
@@ -54,8 +60,8 @@ def main():
     
     fig, ax = plt.subplots()
     ax.scatter(X, Z, color='green')
-    ax.set_xlim(0, 100)
-    ax.set_ylim(0, 100)
+    ax.set_xlim(0, 150)
+    ax.set_ylim(0, 150)
     ax.set_xlabel("X")
     ax.set_ylabel("Z")
     st.pyplot(fig)
