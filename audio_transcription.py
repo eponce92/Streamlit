@@ -1,12 +1,14 @@
 import streamlit as st
 import openai
 from pytube import YouTube  # You can also use youtube_dl
+import re
 
-# Function to download YouTube video audio
 def download_audio(youtube_url):
     yt = YouTube(youtube_url)
+    sanitized_title = re.sub(r'[^\w\s]', '', yt.title)
+    sanitized_title = re.sub(r'\s+', '_', sanitized_title)
+    audio_file_path = f"{sanitized_title}.webm"
     stream = yt.streams.filter(only_audio=True).first()
-    audio_file_path = f"{yt.title}.webm"
     stream.download(filename=audio_file_path)
     return audio_file_path
 
