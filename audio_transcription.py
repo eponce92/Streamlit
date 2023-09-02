@@ -9,7 +9,10 @@ class SessionState(object):
             setattr(self, key, val)
 
 def _get_state():
-    return SessionState.get(messages=[])
+    if 'state' not in st.session_state:
+        st.session_state['state'] = SessionState(messages=[])
+    return st.session_state['state']
+
 
 
 # Function to download YouTube video audio
