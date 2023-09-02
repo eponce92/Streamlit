@@ -1,4 +1,3 @@
-
 import streamlit as st
 import openai
 from pytube import YouTube  # You can also use youtube_dl
@@ -95,6 +94,10 @@ def main():
                 
                 with st.chat_message("assistant"):
                     st.write(gpt_response)
+                    
+                # Force a rerun to update the chat interface
+                st.experimental_rerun()
+                
             except Exception as e:
                 st.error(f"An error occurred: {e}")
 
