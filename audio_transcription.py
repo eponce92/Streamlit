@@ -60,6 +60,12 @@ def main():
     
     st.title("YouTube Video Summarizer")
 
+    # Dropdown for GPT model selection
+    gpt_model = st.selectbox(
+        "Select GPT model:",
+        ("gpt-4-32k", "gpt-4", "gpt-3.5-turbo", "gpt-3.5-turbo-16k")
+    )
+
     # Input for OpenAI API Key
     openai_api_key = st.text_input("Enter your OpenAI API Key:", type="password")
 
@@ -72,6 +78,7 @@ def main():
             {"role": "system", "content": "You are a helpful assistant."}
         ]
 
+    
     # Button to start processing
     if st.button("Summarize"):
         if not openai_api_key or not youtube_url:
@@ -112,8 +119,8 @@ def main():
         # Add user message to message history
         state.messages.append({"role": "user", "content": user_input})
 
-        # Get GPT response
-        gpt_response = continue_chat(openai_api_key, state.messages)
+       # Get GPT response
+        gpt_response = continue_chat(openai_api_key, state.messages, gpt_model)  # Pass the selected model
 
         # Add GPT message to message history
         state.messages.append({"role": "assistant", "content": gpt_response})
