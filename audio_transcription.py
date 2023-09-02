@@ -11,7 +11,8 @@ def download_audio(youtube_url):
     return audio_file_path
 
 # Function to transcribe audio using Whisper API
-def whisper_transcribe(audio_file_path):
+def whisper_transcribe(audio_file_path, api_key):
+    openai.api_key = api_key
     audio_file = open(audio_file_path, "rb")
     transcript = openai.Audio.transcribe("whisper-1", audio_file)
     return transcript['text']
@@ -29,7 +30,8 @@ def gpt_summarize(text, api_key):
     )
     return response['choices'][0]['message']['content']
 
-# Streamlit UI
+
+# Main function for Streamlit app
 def main():
     st.title("YouTube Video Summarizer")
 
@@ -44,16 +46,16 @@ def main():
         if not openai_api_key or not youtube_url:
             st.warning("Please fill in all fields.")
         else:
-            # Download audio from YouTube video
+            # Download the video and extract audio
             audio_file_path = download_audio(youtube_url)
-
-            # Transcribe the audio using Whisper API
-            transcription = whisper_transcribe(audio_file_path)
+            
+            # Transcribe the video using Whisper API
+            transcription = whisper_transcribe(audio_file_path, openai_api_key)
 
             st.write("## Transcription")
             st.write(transcription)
 
-            # Summarize the transcription using ChatGPT API
+            # Summarize the transcription using OpenAI GPT API
             summary = gpt_summarize(transcription, openai_api_key)
 
             st.write("## Summary")
