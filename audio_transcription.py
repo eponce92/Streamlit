@@ -45,8 +45,9 @@ def main():
     # Dropdown for GPT model selection
     gpt_model = st.selectbox(
         "Select GPT model:",
-        ("gpt-3.5-turbo", "gpt-3.5-turbo-16k")  # Add your accessible models here
+        ("gpt-3.5-turbo", "gpt-3.5-turbo-16k", "gpt-4", "gpt-4-32k")  # Add your accessible models here
     )
+
 
     # Input for OpenAI API Key
     openai_api_key = st.text_input("Enter your OpenAI API Key:", type="password")
