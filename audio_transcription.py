@@ -31,6 +31,15 @@ def gpt_summarize(text, api_key):
     return response['choices'][0]['message']['content']
 
 
+# Function to continue the chat conversation
+def continue_chat(api_key, messages):
+    openai.api_key = api_key
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=messages
+    )
+    return response['choices'][0]['message']['content']
+
 # Main function for Streamlit app
 def main():
     st.title("YouTube Video Summarizer")
@@ -40,6 +49,11 @@ def main():
 
     # Input for YouTube Video URL
     youtube_url = st.text_input("Enter YouTube Video URL:")
+
+    # Initialize message history
+    messages = [
+        {"role": "system", "content": "You are a helpful assistant."}
+    ]
 
     # Button to start processing
     if st.button("Summarize"):
@@ -52,14 +66,43 @@ def main():
             # Transcribe the video using Whisper API
             transcription = whisper_transcribe(audio_file_path, openai_api_key)
 
-            st.write("## Transcription")
-            st.write(transcription)
+            with st.expander("Show Transcription"):
+                st.write(transcription)
 
             # Summarize the transcription using OpenAI GPT API
             summary = gpt_summarize(transcription, openai_api_key)
 
-            st.write("## Summary")
-            st.write(summary)
+            with st.expander("Show Summary"):
+                st.write(summary)
+            
+            # Add summary to message history
+            messages.append({"role": "assistant", "content": f"Summary: {summary}"})
+
+    # Chat Interface
+    st.write("## Continue Chatting with GPT")
+
+    # Display previous messages
+    for message in messages:
+        role = message["role"]
+        content = message["content"]
+        with st.chat_message(role):
+            st.write(content)
+
+    # User input
+    user_input = st.chat_input("Type your message")
+
+    if user_input:
+        # Add user message to message history
+        messages.append({"role": "user", "content": user_input})
+
+        # Get GPT response
+        gpt_response = continue_chat(openai_api_key, messages)
+
+        # Add GPT message to message history
+        messages.append({"role": "assistant", "content": gpt_response})
+
+        with st.chat_message("assistant"):
+            st.write(gpt_response)
 
 if __name__ == "__main__":
     main()
