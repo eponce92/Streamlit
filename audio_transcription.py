@@ -28,13 +28,19 @@ def continue_chat(api_key, messages, model):
 
 def main():
     st.title("YouTube Video Transcriber and Assistant")
+    
+    # Dropdown for GPT model selection
+    gpt_model = st.selectbox(
+        "Select GPT model:",
+        ("gpt-3.5-turbo", "gpt-3.5-turbo-16k")
+    )
 
     # Input for OpenAI API Key
     openai_api_key = st.text_input("Enter your OpenAI API Key:", type="password")
     youtube_url = st.text_input("Enter YouTube Video URL:")
 
     if 'messages' not in st.session_state:
-        st.session_state['messages'] = [{"role": "system", "content": "You are a helpful assistant that understands the context of the audio transcription to chat with the user. The user might ask you to summarize or ask questions about the content of the transcription and you should answer based on this information."}]
+        st.session_state['messages'] = [{"role": "system", "content": "You are a helpful assistant that understands the context of the audio transcription to chat with the user. The user might ask you to summarize or ask questions about the content of the transcription, and you should answer based on this information."}]
     
     chat_enabled = False  # Disable chat initially
 
@@ -77,7 +83,7 @@ def main():
                 st.session_state['messages'].append({"role": "user", "content": user_input})
 
                 # Get GPT response
-                gpt_response = continue_chat(openai_api_key, st.session_state['messages'], "gpt-3.5-turbo")  # Adjust the model as needed
+                gpt_response = continue_chat(openai_api_key, st.session_state['messages'], gpt_model)
 
                 # Add GPT message to message history
                 st.session_state['messages'].append({"role": "assistant", "content": gpt_response})
