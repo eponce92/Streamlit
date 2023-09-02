@@ -45,19 +45,15 @@ def gpt_summarize(text, api_key):
 
 
 # Function to continue the chat conversation
-def continue_chat(api_key, messages):
+def continue_chat(api_key, messages, model):
     openai.api_key = api_key
     response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
+        model=model,
         messages=messages
     )
     return response['choices'][0]['message']['content']
 
-# Main function for Streamlit app
 def main():
-    # Get the state
-    state = _get_state()
-    
     st.title("YouTube Video Summarizer")
 
     # Dropdown for GPT model selection
@@ -68,15 +64,11 @@ def main():
 
     # Input for OpenAI API Key
     openai_api_key = st.text_input("Enter your OpenAI API Key:", type="password")
-
-    # Input for YouTube Video URL
     youtube_url = st.text_input("Enter YouTube Video URL:")
 
-    # Initialize message history if empty
-    if not state.messages:
-        state.messages = [
-            {"role": "system", "content": "You are a helpful assistant."}
-        ]
+    if 'messages' not in st.session_state:
+        st.session_state['messages'] = [{"role": "system", "content": "You are a helpful assistant."}]
+
 
     
     # Button to start processing
@@ -106,7 +98,7 @@ def main():
     st.write("## Continue Chatting with GPT")
 
     # Display previous messages
-    for message in state.messages:
+    for message in st.session_state['messages']:
         role = message["role"]
         content = message["content"]
         with st.chat_message(role):
@@ -123,8 +115,8 @@ def main():
         gpt_response = continue_chat(openai_api_key, state.messages, gpt_model)  # Pass the selected model
 
         # Add GPT message to message history
-        state.messages.append({"role": "assistant", "content": gpt_response})
-
+        st.session_state['messages'].append({"role": "assistant", "content": gpt_response})
+        
         with st.chat_message("assistant"):
             st.write(gpt_response)
 
