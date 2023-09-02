@@ -30,7 +30,7 @@ def continue_chat(api_key, messages, model):
     return response['choices'][0]['message']['content']
 
 def main():
-    st.title("YouTube Video Transcriber 📹")
+    st.title("Audio Transcriber 🎙️")
 
     # Dropdown for GPT model selection
     gpt_model = st.selectbox(
@@ -38,23 +38,31 @@ def main():
         ("gpt-3.5-turbo", "gpt-3.5-turbo-16k", "gpt-4", "gpt-4-32k")  # Add your accessible models here
     )
 
-
     # Input for OpenAI API Key
     openai_api_key = st.text_input("Enter your OpenAI API Key:", type="password")
+
+    # YouTube URL or Upload File
     youtube_url = st.text_input("Enter YouTube Video URL:")
+    uploaded_file = st.file_uploader("Or upload an audio file:", type=["mp3", "wav", "webm"])
 
     if 'messages' not in st.session_state:
         st.session_state['messages'] = [{"role": "system", "content": "Use this audio transcription as context to chat with the user. The user might ask you to summarize or questions about the content of the transcription and you should answer based on this information."}]
 
     # Button to start transcription
     if st.button("Transcribe"):
-        if not openai_api_key or not youtube_url:
-            st.warning("Please fill in all fields.")
+        if not openai_api_key or (not youtube_url and not uploaded_file):
+            st.warning("Please fill in all required fields.")
         else:
             try:
-                # Download the video and extract audio
-                audio_file_path = download_audio(youtube_url)
-                
+                if youtube_url:
+                    # Download the video and extract audio
+                    audio_file_path = download_audio(youtube_url)
+                else:
+                    # Use the uploaded audio file
+                    audio_file_path = uploaded_file.name
+                    with open(audio_file_path, "wb") as f:
+                        f.write(uploaded_file.read())
+
                 # Transcribe the video using Whisper API
                 transcription = whisper_transcribe(audio_file_path, openai_api_key)
 
@@ -63,7 +71,7 @@ def main():
 
                 # Add transcription to message history
                 st.session_state['messages'].append({"role": "assistant", "content": f"Transcription: {transcription}"})
-                
+
             except Exception as e:
                 st.error(f"An error occurred: {e}")
 
@@ -91,13 +99,13 @@ def main():
 
                 # Add GPT message to message history
                 st.session_state['messages'].append({"role": "assistant", "content": gpt_response})
-                
+
                 with st.chat_message("assistant"):
                     st.write(gpt_response)
-                    
+
                 # Force a rerun to update the chat interface
                 st.experimental_rerun()
-                
+
             except Exception as e:
                 st.error(f"An error occurred: {e}")
 
