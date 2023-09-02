@@ -11,21 +11,44 @@ class SessionState(object):
 def _get_state():
     return SessionState.get(messages=[])
 
+
 # Function to download YouTube video audio
 def download_audio(youtube_url):
-    # ... (same as before)
+    yt = YouTube(youtube_url)
+    stream = yt.streams.filter(only_audio=True).first()
+    audio_file_path = f"{yt.title}.webm"
+    stream.download(filename=audio_file_path)
+    return audio_file_path
 
 # Function to transcribe audio using Whisper API
 def whisper_transcribe(audio_file_path, api_key):
-    # ... (same as before)
+    openai.api_key = api_key
+    audio_file = open(audio_file_path, "rb")
+    transcript = openai.Audio.transcribe("whisper-1", audio_file)
+    return transcript['text']
 
 # Function to summarize text using ChatGPT API
 def gpt_summarize(text, api_key):
-    # ... (same as before)
+    openai.api_key = api_key
+    messages = [
+        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "user", "content": f"Please summarize the following text: {text}"}
+    ]
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=messages
+    )
+    return response['choices'][0]['message']['content']
+
 
 # Function to continue the chat conversation
 def continue_chat(api_key, messages):
-    # ... (same as before)
+    openai.api_key = api_key
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=messages
+    )
+    return response['choices'][0]['message']['content']
 
 # Main function for Streamlit app
 def main():
@@ -48,10 +71,26 @@ def main():
 
     # Button to start processing
     if st.button("Summarize"):
-        # ... (same as before)
+        if not openai_api_key or not youtube_url:
+            st.warning("Please fill in all fields.")
+        else:
+            # Download the video and extract audio
+            audio_file_path = download_audio(youtube_url)
+            
+            # Transcribe the video using Whisper API
+            transcription = whisper_transcribe(audio_file_path, openai_api_key)
 
-        # Add summary to message history
-        state.messages.append({"role": "assistant", "content": f"Summary: {summary}"})
+            with st.expander("Show Transcription"):
+                st.write(transcription)
+
+            # Summarize the transcription using OpenAI GPT API
+            summary = gpt_summarize(transcription, openai_api_key)
+
+            with st.expander("Show Summary"):
+                st.write(summary)
+            
+            # Add summary to message history
+            state.messages.append({"role": "assistant", "content": f"Summary: {summary}"})
 
     # Chat Interface
     st.write("## Continue Chatting with GPT")
