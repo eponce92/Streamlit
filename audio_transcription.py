@@ -2,19 +2,6 @@ import streamlit as st
 import openai
 from pytube import YouTube  # You can also use youtube_dl
 
-# Custom state object for Streamlit
-class SessionState(object):
-    def __init__(self, **kwargs):
-        for key, val in kwargs.items():
-            setattr(self, key, val)
-
-def _get_state():
-    if 'state' not in st.session_state:
-        st.session_state['state'] = SessionState(messages=[])
-    return st.session_state['state']
-
-
-
 # Function to download YouTube video audio
 def download_audio(youtube_url):
     yt = YouTube(youtube_url)
@@ -43,7 +30,6 @@ def gpt_summarize(text, api_key):
     )
     return response['choices'][0]['message']['content']
 
-
 # Function to continue the chat conversation
 def continue_chat(api_key, messages, model):
     openai.api_key = api_key
@@ -53,6 +39,7 @@ def continue_chat(api_key, messages, model):
     )
     return response['choices'][0]['message']['content']
 
+# Main function for Streamlit app
 def main():
     st.title("YouTube Video Summarizer")
 
@@ -69,52 +56,36 @@ def main():
     if 'messages' not in st.session_state:
         st.session_state['messages'] = [{"role": "system", "content": "You are a helpful assistant."}]
 
-
-    
-    # Button to start processing
     if st.button("Summarize"):
         if not openai_api_key or not youtube_url:
             st.warning("Please fill in all fields.")
         else:
-            # Download the video and extract audio
             audio_file_path = download_audio(youtube_url)
-            
-            # Transcribe the video using Whisper API
             transcription = whisper_transcribe(audio_file_path, openai_api_key)
 
             with st.expander("Show Transcription"):
                 st.write(transcription)
 
-            # Summarize the transcription using OpenAI GPT API
             summary = gpt_summarize(transcription, openai_api_key)
 
             with st.expander("Show Summary"):
                 st.write(summary)
             
-            # Add summary to message history
-            state.messages.append({"role": "assistant", "content": f"Summary: {summary}"})
+            st.session_state['messages'].append({"role": "assistant", "content": f"Summary: {summary}"})
 
-    # Chat Interface
     st.write("## Continue Chatting with GPT")
 
-    # Display previous messages
     for message in st.session_state['messages']:
         role = message["role"]
         content = message["content"]
         with st.chat_message(role):
             st.write(content)
 
-    # User input
     user_input = st.chat_input("Type your message")
 
     if user_input:
-        # Add user message to message history
-        state.messages.append({"role": "user", "content": user_input})
-
-       # Get GPT response
-        gpt_response = continue_chat(openai_api_key, state.messages, gpt_model)  # Pass the selected model
-
-        # Add GPT message to message history
+        st.session_state['messages'].append({"role": "user", "content": user_input})
+        gpt_response = continue_chat(openai_api_key, st.session_state['messages'], gpt_model)
         st.session_state['messages'].append({"role": "assistant", "content": gpt_response})
         
         with st.chat_message("assistant"):
