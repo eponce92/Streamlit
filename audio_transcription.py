@@ -35,7 +35,7 @@ def main():
     # Dropdown for GPT model selection
     gpt_model = st.selectbox(
         "Select GPT model:",
-        ("gpt-3.5-turbo", "gpt-3.5-turbo-16k", "gpt-4", "gpt-4-32k")  # Add your accessible models here
+        ("gpt-3.5-turbo", "gpt-3.5-turbo-16k", "gpt-4", "gpt-4-32k")
     )
 
     # Input for OpenAI API Key
@@ -68,10 +68,13 @@ def main():
 
                 with st.expander("Show Transcription"):
                     st.write(transcription)
+                    st.markdown(
+                        f'<a href="javascript:void(0);" onclick="navigator.clipboard.writeText(\'{transcription}\')">Copy to Clipboard 📋</a>',
+                        unsafe_allow_html=True,
+                    )
 
                 # Add transcription to message history
                 st.session_state['messages'].append({"role": "assistant", "content": f"Transcription: {transcription}"})
-
 
             except Exception as e:
                 st.error(f"An error occurred: {e}")
