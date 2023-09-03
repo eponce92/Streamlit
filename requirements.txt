@@ -8,4 +8,5 @@ streamlit
 openai
 pytube
 youtube_dl
+streamlit-extras
 
