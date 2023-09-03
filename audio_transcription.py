@@ -1,6 +1,6 @@
 import streamlit as st
 import openai
-from pytube import YouTube  # You can also use youtube_dl
+from pytube import YouTube
 import re
 
 # Function to download YouTube video audio
@@ -32,82 +32,62 @@ def continue_chat(api_key, messages, model):
 def main():
     st.title("Audio Transcriber 🎙️")
 
-    # Dropdown for GPT model selection
     gpt_model = st.selectbox(
         "Select GPT model:",
         ("gpt-3.5-turbo", "gpt-3.5-turbo-16k", "gpt-4", "gpt-4-32k")
     )
 
-    # Input for OpenAI API Key
     openai_api_key = st.text_input("Enter your OpenAI API Key:", type="password")
-
-    # YouTube URL or Upload File
     youtube_url = st.text_input("Enter YouTube Video URL:")
     uploaded_file = st.file_uploader("Or upload an audio file:", type=["mp3", "wav", "webm"])
 
     if 'messages' not in st.session_state:
         st.session_state['messages'] = [{"role": "system", "content": "Use this audio transcription as context to chat with the user. The user might ask you to summarize or questions about the content of the transcription and you should answer based on this information."}]
 
-    # Button to start transcription
     if st.button("Transcribe"):
         if not openai_api_key or (not youtube_url and not uploaded_file):
             st.warning("Please fill in all required fields.")
         else:
             try:
                 if youtube_url:
-                    # Download the video and extract audio
                     audio_file_path = download_audio(youtube_url)
                 else:
-                    # Use the uploaded audio file
                     audio_file_path = uploaded_file.name
                     with open(audio_file_path, "wb") as f:
                         f.write(uploaded_file.read())
 
-                # Transcribe the video using Whisper API
                 transcription = whisper_transcribe(audio_file_path, openai_api_key)
 
                 with st.expander("Show Transcription"):
-                    st.write(transcription)
+                    st.code(transcription, language="")
                     st.markdown(
-                        f'<a href="javascript:void(0);" onclick="navigator.clipboard.writeText(\'{transcription}\')">Copy to Clipboard 📋</a>',
+                        """<button onclick="navigator.clipboard.writeText(`{}`)">Copy to Clipboard</button>""".format(transcription),
                         unsafe_allow_html=True,
                     )
 
-                # Add transcription to message history
                 st.session_state['messages'].append({"role": "assistant", "content": f"Transcription: {transcription}"})
 
             except Exception as e:
                 st.error(f"An error occurred: {e}")
 
-    # Chat Interface
-    if 'messages' in st.session_state and len(st.session_state['messages']) > 1:  # Check if transcription is done
+    if 'messages' in st.session_state and len(st.session_state['messages']) > 1:
         st.write("## Continue Chatting with GPT")
 
-        # Display previous messages
         for message in st.session_state['messages']:
             role = message["role"]
             content = message["content"]
             with st.chat_message(role):
                 st.write(content)
 
-        # User input
         user_input = st.chat_input("Type your message")
 
         if user_input:
             try:
-                # Add user message to message history
                 st.session_state['messages'].append({"role": "user", "content": user_input})
-
-                # Get GPT response
                 gpt_response = continue_chat(openai_api_key, st.session_state['messages'], gpt_model)
-
-                # Add GPT message to message history
                 st.session_state['messages'].append({"role": "assistant", "content": gpt_response})
-
                 with st.chat_message("assistant"):
                     st.write(gpt_response)
-
-                # Force a rerun to update the chat interface
                 st.experimental_rerun()
 
             except Exception as e:
