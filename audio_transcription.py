@@ -70,7 +70,9 @@ def main():
                     st.write(transcription)
 
                 # Add transcription to message history
-                st.session_state['messages'].append({"role": "assistant", "content": f"Transcription: {transcription}"})
+                with st.chat_message("assistant"):
+                    st.write("Transcription:")
+                    st.code(transcription)
 
             except Exception as e:
                 st.error(f"An error occurred: {e}")
