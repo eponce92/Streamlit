@@ -1,4 +1,6 @@
 import streamlit as st
+from datetime import datetime, timedelta
+import calendar
 
 # Definición de skills y niveles
 skills = [
@@ -26,6 +28,28 @@ targets = {
     "ingeniero senior": 4
 }
 
+def generate_training_schedule(sorted_discrepancies):
+    start_date = datetime.now() + timedelta(weeks=1)
+    trainings = [skill for skill, discrepancy in sorted_discrepancies if discrepancy >= 1]
+
+    training_dates = []
+    for i, training in enumerate(trainings):
+        training_date = start_date + timedelta(weeks=i*4)  # Sumamos 4 semanas para cada siguiente entrenamiento
+        training_dates.append((training, training_date))
+
+    return training_dates
+
+def display_calendar(training_dates):
+    current_month = training_dates[0][1].month
+    current_year = training_dates[0][1].year
+
+    cal = calendar.TextCalendar(calendar.SUNDAY)
+    for training, date in training_dates:
+        if date.month != current_month:
+            current_month = date.month
+            st.text(cal.formatmonth(current_year, current_month))
+        st.write(f"{date.strftime('%Y-%m-%d')} - Entrenamiento en: {training}")
+
 def main():
     st.title('Autoevaluación para Ingenieros de Tesla')
     st.write("Por favor, rellena el formulario a continuación:")
@@ -52,7 +76,12 @@ def main():
             # Mostrar resultados
             st.subheader(f"Resultados de autoevaluación de {name} ({position}):")
             for skill, discrepancy in sorted_discrepancies:
-                st.write(f"{skill}: {levels[rating]} (Diferencia: {discrepancy})")
+                st.write(f"{skill}: {levels[user_ratings[skill]]} (Diferencia: {discrepancy})")
+
+            # Generar el calendario de entrenamiento
+            training_dates = generate_training_schedule(sorted_discrepancies)
+            display_calendar(training_dates)
+            
         else:
             st.warning("Por favor, ingresa tu nombre.")
 
