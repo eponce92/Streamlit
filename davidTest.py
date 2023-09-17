@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from datetime import date, timedelta
 import smtplib
 from email.message import EmailMessage
+import pandas as pd
 
 SKILLS = [
     "PLC Programming",
@@ -48,17 +49,18 @@ def main():
     if st.button("Submit"):
         differences = calculate_differences(responses, position)
         
-        results_table = []
-        # Adding headers to the results table
-        results_table.append(["Skill", "Self-Assessment", "Difference"])
+        results_data = []
         for skill, level in responses.items():
             difference = list(LEVELS.values()).index(level) - TARGETS[position]
-            results_table.append([skill, level, difference])
+            results_data.append([skill, level, difference])
+
+        # Convert the results list into a Pandas DataFrame
+        df = pd.DataFrame(results_data, columns=["Skill", "Self-Assessment", "Difference"])
 
         if SHOW_RESULTS:
-            st.table(results_table)
+            st.write(df)  # Display the DataFrame using Streamlit's default renderer
 
-        send_email(name, position, results_table)
+        send_email(name, position, results_data)
 
 def calculate_differences(responses, position):
     differences = {}
