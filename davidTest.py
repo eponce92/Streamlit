@@ -2,9 +2,11 @@ import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 from datetime import date, timedelta
+import smtplib
+from email.message import EmailMessage
 
 SKILLS = [
-    "Programacion de PLC",
+    "PLC Programming",
     "Cognex Cameras",
     "Kistler press",
     "Mechanical troubleshooting",
@@ -15,48 +17,46 @@ SKILLS = [
 ]
 
 LEVELS = {
-    0: "No tiene conocimiento",
-    1: "Tiene el conocimiento pero no tiene la práctica",
-    2: "Lo puede hacer pero con ayuda",
-    3: "Lo puede hacer solo sin ayuda",
-    4: "Puede entrenar a otros"
+    0: "No Knowledge",
+    1: "Has Knowledge but Lacks Practice",
+    2: "Can Do with Assistance",
+    3: "Can Do Independently",
+    4: "Can Train Others"
 }
 
 TARGETS = {
-    "ingeniero asociado": 2,
-    "ingeniero": 3,
-    "ingeniero senior": 4
+    "Associate Engineer": 1,
+    "Engineer": 2,
+    "Senior Engineer": 3,
+    "Staff Engineer": 4,
+    "Senior Staff Engineer": 5
 }
 
-def main():
-    st.title("Autoevaluación de Habilidades para Ingenieros en Tesla")
-    st.write("Por favor, llena el siguiente formulario:")
+SHOW_RESULTS = True  # Set to False before deploying
 
-    name = st.text_input("Nombre:")
-    position = st.selectbox("Posición:", list(TARGETS.keys()))
+def main():
+    st.title("Skill Self-assessment for Tesla Engineers")
+    st.write("Please fill out the following form:")
+
+    name = st.text_input("Name:")
+    position = st.selectbox("Position:", list(TARGETS.keys()))
 
     responses = {}
     for skill in SKILLS:
         responses[skill] = st.selectbox(f"{skill}:", list(LEVELS.values()))
 
-    if st.button("Enviar"):
+    if st.button("Submit"):
         differences = calculate_differences(responses, position)
-        st.write(f"Resultados de autoevaluación de {name} ({position}):")
         
+        results_table = []
         for skill, level in responses.items():
             difference = list(LEVELS.values()).index(level) - TARGETS[position]
-            st.write(f"{skill}: {level} (Diferencia: {difference})")
-        
-        training_dates = generate_training_schedule(differences)
-        
-        st.write("Calendario de entrenamientos:")
-        if training_dates:
-            for topic, training_date in training_dates:
-                st.date_input(f"Entrenamiento para {topic}:", value=training_date, disabled=True)
-        else:
-            st.write("No se requiere entrenamiento adicional.")
+            results_table.append([skill, level, difference])
 
-        visualize_skills(responses, position)
+        if SHOW_RESULTS:
+            st.table(results_table)
+
+        send_email(name, position, results_table)
 
 def calculate_differences(responses, position):
     differences = {}
@@ -64,30 +64,18 @@ def calculate_differences(responses, position):
         differences[skill] = list(LEVELS.values()).index(level) - TARGETS[position]
     return differences
 
-def generate_training_schedule(differences):
-    topics_with_diff_below_neg_one = [topic for topic, diff in differences.items() if diff <= -1]
-    training_dates = []
+def send_email(name, position, results_table):
+    msg = EmailMessage()
+    msg.set_content(str(results_table))
+    msg["Subject"] = f"Self-assessment Results for {name} - {position}"
+    msg["From"] = "your_email@gmail.com"  # Change this
+    msg["To"] = "destination_email@gmail.com"  # Change this
 
-    current_date = date.today() + timedelta(days=7)
-    for topic in topics_with_diff_below_neg_one:
-        training_dates.append((topic, current_date))
-        current_date += timedelta(weeks=4)  # Agrega 4 semanas para el siguiente entrenamiento
-
-    return training_dates
-
-def visualize_skills(responses, position):
-    y_values = [list(LEVELS.values()).index(responses[skill]) for skill in SKILLS]
-    target_value = TARGETS[position]
-    
-    fig, ax = plt.subplots(figsize=(12, 6))
-    ax.bar(SKILLS, y_values, color='lightblue')
-    ax.axhline(y=target_value, color='red', linestyle='dashed', linewidth=1)
-    ax.set_ylabel('Nivel de habilidad')
-    ax.set_title('Comparación de habilidades con el nivel objetivo')
-    ax.set_xticks(SKILLS)
-    ax.set_xticklabels(SKILLS, rotation=45, ha='right')
-    
-    st.pyplot(fig)
+    # Connect to the mail server
+    server = smtplib.SMTP_SSL("smtp.gmail.com", 465)
+    server.login("your_email@gmail.com", "your_password")  # Change these
+    server.send_message(msg)
+    server.quit()
 
 if __name__ == "__main__":
     main()
