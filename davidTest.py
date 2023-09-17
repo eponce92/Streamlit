@@ -1,4 +1,6 @@
 import streamlit as st
+import numpy as np
+import matplotlib.pyplot as plt
 from datetime import date, timedelta
 
 SKILLS = [
@@ -54,6 +56,8 @@ def main():
         else:
             st.write("No se requiere entrenamiento adicional.")
 
+        visualize_skills(responses, position)
+
 def calculate_differences(responses, position):
     differences = {}
     for skill, level in responses.items():
@@ -70,6 +74,20 @@ def generate_training_schedule(differences):
         current_date += timedelta(weeks=4)  # Agrega 4 semanas para el siguiente entrenamiento
 
     return training_dates
+
+def visualize_skills(responses, position):
+    y_values = [list(LEVELS.values()).index(responses[skill]) for skill in SKILLS]
+    target_value = TARGETS[position]
+    
+    plt.figure(figsize=(12, 6))
+    plt.bar(SKILLS, y_values, color='lightblue')
+    plt.axhline(y=target_value, color='red', linestyle='dashed', linewidth=1)
+    plt.ylabel('Nivel de habilidad')
+    plt.title('Comparación de habilidades con el nivel objetivo')
+    plt.xticks(rotation=45, ha='right')
+    plt.tight_layout()
+    
+    st.pyplot()
 
 if __name__ == "__main__":
     main()
