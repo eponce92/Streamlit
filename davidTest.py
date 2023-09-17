@@ -79,15 +79,15 @@ def visualize_skills(responses, position):
     y_values = [list(LEVELS.values()).index(responses[skill]) for skill in SKILLS]
     target_value = TARGETS[position]
     
-    plt.figure(figsize=(12, 6))
-    plt.bar(SKILLS, y_values, color='lightblue')
-    plt.axhline(y=target_value, color='red', linestyle='dashed', linewidth=1)
-    plt.ylabel('Nivel de habilidad')
-    plt.title('Comparación de habilidades con el nivel objetivo')
-    plt.xticks(rotation=45, ha='right')
-    plt.tight_layout()
+    fig, ax = plt.subplots(figsize=(12, 6))
+    ax.bar(SKILLS, y_values, color='lightblue')
+    ax.axhline(y=target_value, color='red', linestyle='dashed', linewidth=1)
+    ax.set_ylabel('Nivel de habilidad')
+    ax.set_title('Comparación de habilidades con el nivel objetivo')
+    ax.set_xticks(SKILLS)
+    ax.set_xticklabels(SKILLS, rotation=45, ha='right')
     
-    st.pyplot()
+    st.pyplot(fig)
 
 if __name__ == "__main__":
     main()
