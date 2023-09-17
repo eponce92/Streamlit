@@ -5,7 +5,6 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
-import openpyxl
 
 LEVELS = ['No knowledge', 'Knows but no practice', 'Can do with help', 'Can do alone', 'Can teach others']
 TARGETS = {
@@ -17,6 +16,7 @@ TARGETS = {
 }
 
 SHOW_RESULTS = True  # Change this to False if you don't want to show the results
+last_submitted_name = None  # Keep track of the last name submitted
 
 @st.cache
 def get_skills():
@@ -32,6 +32,12 @@ def get_skills():
     ]
 
 def send_email(name, position, results_data):
+    global last_submitted_name
+    if name == last_submitted_name:
+        st.warning("Duplicate submission detected. Email not sent.")
+        return
+    last_submitted_name = name
+    
     msg = MIMEMultipart()
     msg['From'] = "david.almazan.tsla@gmail.com"
     msg['To'] = "david.almazan.tsla@gmail.com"
