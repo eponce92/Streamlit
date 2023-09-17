@@ -61,11 +61,11 @@ def calculate_differences(responses, position):
     return differences
 
 def generate_training_schedule(differences):
-    topics_with_diff_above_one = [topic for topic, diff in differences.items() if diff >= 1]
+    topics_with_diff_below_neg_one = [topic for topic, diff in differences.items() if diff <= -1]
     training_dates = []
 
     current_date = date.today() + timedelta(days=7)
-    for topic in topics_with_diff_above_one:
+    for topic in topics_with_diff_below_neg_one:
         training_dates.append((topic, current_date))
         current_date += timedelta(weeks=4)  # Agrega 4 semanas para el siguiente entrenamiento
 
