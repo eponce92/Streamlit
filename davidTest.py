@@ -68,8 +68,9 @@ def calculate_differences(responses, position):
     return differences
 
 def send_email(name, position, data):
+    filename = f"results_{name}.xlsx"
     df = pd.DataFrame(data).transpose()
-    df.to_excel("results.xlsx", index=False)
+    df.to_excel(filename, index=False)
 
     from_email = "david.almazan.tsla@gmail.com"
     to_email = "david.almazan.tsla@gmail.com"
@@ -82,11 +83,11 @@ def send_email(name, position, data):
     body = "Attached are the self-assessment results."
     msg.attach(MIMEText(body, 'plain'))
 
-    with open("results.xlsx", "rb") as attachment:
+    with open(filename, "rb") as attachment:
         part = MIMEBase('application', 'octet-stream')
         part.set_payload(attachment.read())
         encoders.encode_base64(part)
-        part.add_header('Content-Disposition', "attachment; filename=results.xlsx")
+        part.add_header('Content-Disposition', f"attachment; filename={filename}")
         msg.attach(part)
 
     server = smtplib.SMTP('smtp.gmail.com', 587)
