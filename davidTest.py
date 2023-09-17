@@ -42,7 +42,7 @@ def main():
         st.write(f"Resultados de autoevaluación de {name} ({position}):")
         
         for skill, level in responses.items():
-            difference = LEVELS.index(level) - TARGETS[position]
+            difference = list(LEVELS.values()).index(level) - TARGETS[position]
             st.write(f"{skill}: {level} (Diferencia: {difference})")
         
         training_dates = generate_training_schedule(differences)
@@ -54,7 +54,7 @@ def main():
 def calculate_differences(responses, position):
     differences = {}
     for skill, level in responses.items():
-        differences[skill] = LEVELS.index(level) - TARGETS[position]
+        differences[skill] = list(LEVELS.values()).index(level) - TARGETS[position]
     return differences
 
 def generate_training_schedule(differences):
