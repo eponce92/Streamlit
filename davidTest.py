@@ -72,12 +72,12 @@ def send_email(name, position, results_table):
     msg = EmailMessage()
     msg.set_content(str(results_table))
     msg["Subject"] = f"Self-assessment Results for {name} - {position}"
-    msg["From"] = "your_email@gmail.com"  # Change this
-    msg["To"] = "destination_email@gmail.com"  # Change this
+    msg["From"] = "david.almazan.tsla@gmail.com"  # Change this
+    msg["To"] = "david.almazan.tsla@gmail.com"  # Change this
 
     # Connect to the mail server
     server = smtplib.SMTP_SSL("smtp.gmail.com", 465)
-    server.login("your_email@gmail.com", "your_password")  # Change these
+    server.login("david.almazan.tsla@gmail.com", "tesla2023")  # Change these
     server.send_message(msg)
     server.quit()
 
