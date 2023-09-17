@@ -48,8 +48,11 @@ def main():
         training_dates = generate_training_schedule(differences)
         
         st.write("Calendario de entrenamientos:")
-        for topic, training_date in training_dates:
-            st.date_input(f"Entrenamiento para {topic}:", value=training_date, disabled=True)
+        if training_dates:
+            for topic, training_date in training_dates:
+                st.date_input(f"Entrenamiento para {topic}:", value=training_date, disabled=True)
+        else:
+            st.write("No se requiere entrenamiento adicional.")
 
 def calculate_differences(responses, position):
     differences = {}
