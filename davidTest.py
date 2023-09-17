@@ -1,7 +1,5 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -9,92 +7,81 @@ from email.mime.base import MIMEBase
 from email import encoders
 import openpyxl
 
+LEVELS = ['No knowledge', 'Knows but no practice', 'Can do with help', 'Can do alone', 'Can teach others']
 TARGETS = {
-    'Associate Engineer': 4,
-    'Engineer': 3,
+    'Associate Engineer': 0,
+    'Engineer': 1,
     'Senior Engineer': 2,
-    'Staff Engineer': 1,
-    'Senior Staff Engineer': 0
+    'Staff Engineer': 3,
+    'Senior Staff Engineer': 4
 }
 
-SKILLS = [
-    "PLC Programming",
-    "Cognex Cameras",
-    "Kistler press",
-    "Mechanical troubleshooting",
-    "Electrical schematics and troubleshooting",
-    "Keyence vision",
-    "Fanuc Programming",
-    "Atlas coptco nutrunners"
-]
+SHOW_RESULTS = True  # Change this to False if you don't want to show the results
 
-LEVELS = [
-    "Can train others",
-    "Can do it on their own without help",
-    "Can do it with some help",
-    "Has the knowledge but lacks the practice",
-    "No knowledge"
-]
+@st.cache
+def get_skills():
+    return [
+        'PLC Programming',
+        'Cognex Cameras',
+        'Kistler press',
+        'Mechanical troubleshooting',
+        'Electrical schematics and troubleshooting',
+        'Keyence vision',
+        'Fanuc Programming',
+        'Atlas coptco nutrunners'
+    ]
 
-SHOW_RESULTS = True  # Change this to False to hide results from the user
-
-def main():
-    st.title("Self-Assessment Tool")
-
-    name = st.text_input("Enter your name:", "")
-    position = st.selectbox("Select your engineering level:", list(TARGETS.keys()))
-
-    responses = {skill: st.selectbox(f"How competent are you at {skill}?", LEVELS) for skill in SKILLS}
-
-    results_data = calculate_differences(responses, position)
-
-    if SHOW_RESULTS:
-        results_df = pd.DataFrame(results_data, columns=['Skill', 'Self-Assessment', 'Difference'])
-        st.table(results_df.style.hide_index().set_table_styles({
-            'Skill': 'font-weight: bold'
-        }))
-    
-    send_email(name, position, results_data)
-
-def calculate_differences(responses, position):
-    differences = {}
-    for skill, level in responses.items():
-        diff = LEVELS.index(level) - TARGETS[position]
-        differences[skill] = {
-            'Self-Assessment': level,
-            'Difference': diff
-        }
-
-    return differences
-
-def send_email(name, position, data):
-    filename = f"results_{name}.xlsx"
-    df = pd.DataFrame(data).transpose()
-    df.to_excel(filename, index=False)
-
-    from_email = "david.almazan.tsla@gmail.com"
-    to_email = "david.almazan.tsla@gmail.com"
-
+def send_email(name, position, results_data):
     msg = MIMEMultipart()
-    msg['From'] = from_email
-    msg['To'] = to_email
-    msg['Subject'] = f"Self-Assessment Results for {name} ({position})"
+    msg['From'] = "david.almazan.tsla@gmail.com"
+    msg['To'] = "david.almazan.tsla@gmail.com"
+    msg['Subject'] = f"Auto-evaluation results for {name} ({position})"
 
-    body = "Attached are the self-assessment results."
+    body = "Attached are the auto-evaluation results."
     msg.attach(MIMEText(body, 'plain'))
 
-    with open(filename, "rb") as attachment:
-        part = MIMEBase('application', 'octet-stream')
-        part.set_payload(attachment.read())
-        encoders.encode_base64(part)
-        part.add_header('Content-Disposition', f"attachment; filename={filename}")
-        msg.attach(part)
+    # Save results to Excel
+    df = pd.DataFrame(results_data, columns=['Skill', 'Self-Assessment', 'Difference'])
+    filename = f"Results_{name}.xlsx"
+    df.to_excel(filename, index=False)
+
+    attachment = open(filename, "rb")
+    part = MIMEBase('application', 'octet-stream')
+    part.set_payload(attachment.read())
+    encoders.encode_base64(part)
+    part.add_header('Content-Disposition', f"attachment; filename= {filename}")
+    msg.attach(part)
 
     server = smtplib.SMTP('smtp.gmail.com', 587)
     server.starttls()
     server.login("david.almazan.tsla@gmail.com", "tesla2023")
-    server.sendmail(from_email, to_email, msg.as_string())
+    text = msg.as_string()
+    server.sendmail("david.almazan.tsla@gmail.com", "david.almazan.tsla@gmail.com", text)
     server.quit()
+
+def main():
+    st.title("Engineer Auto-Evaluation")
+    
+    name = st.text_input("Your Name:")
+    position = st.selectbox("Your Engineer Level:", list(TARGETS.keys()))
+
+    skills = get_skills()
+    responses = {}
+    
+    for skill in skills:
+        responses[skill] = st.selectbox(f"How would you rate your {skill} skills?", LEVELS)
+
+    if st.button("Submit"):
+        results_data = []
+        for skill, level in responses.items():
+            difference = LEVELS.index(level) - TARGETS[position]
+            results_data.append([skill, level, difference])
+
+        send_email(name, position, results_data)
+
+        if SHOW_RESULTS:
+            results_df = pd.DataFrame(results_data, columns=['Skill', 'Self-Assessment', 'Difference'])
+            st.write(results_df.to_html(index=False, classes='table table-striped table-hover'), unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
