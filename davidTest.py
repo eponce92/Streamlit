@@ -1,10 +1,21 @@
 import streamlit as st
+import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from datetime import date, timedelta
 import smtplib
-from email.message import EmailMessage
-import pandas as pd
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
+from email import encoders
+import openpyxl
+
+TARGETS = {
+    'Associate Engineer': 4,
+    'Engineer': 3,
+    'Senior Engineer': 2,
+    'Staff Engineer': 1,
+    'Senior Staff Engineer': 0
+}
 
 SKILLS = [
     "PLC Programming",
@@ -17,68 +28,71 @@ SKILLS = [
     "Atlas coptco nutrunners"
 ]
 
-LEVELS = {
-    0: "No Knowledge",
-    1: "Has Knowledge but Lacks Practice",
-    2: "Can Do with Assistance",
-    3: "Can Do Independently",
-    4: "Can Train Others"
-}
+LEVELS = [
+    "Can train others",
+    "Can do it on their own without help",
+    "Can do it with some help",
+    "Has the knowledge but lacks the practice",
+    "No knowledge"
+]
 
-TARGETS = {
-    "Associate Engineer": 1,
-    "Engineer": 2,
-    "Senior Engineer": 3,
-    "Staff Engineer": 4,
-    "Senior Staff Engineer": 5
-}
-
-SHOW_RESULTS = True  # Set to False before deploying
+SHOW_RESULTS = True  # Change this to False to hide results from the user
 
 def main():
-    st.title("Skill Self-assessment for Tesla Engineers")
-    st.write("Please fill out the following form:")
+    st.title("Self-Assessment Tool")
 
-    name = st.text_input("Name:")
-    position = st.selectbox("Position:", list(TARGETS.keys()))
+    name = st.text_input("Enter your name:", "")
+    position = st.selectbox("Select your engineering level:", list(TARGETS.keys()))
 
-    responses = {}
-    for skill in SKILLS:
-        responses[skill] = st.selectbox(f"{skill}:", list(LEVELS.values()))
+    responses = {skill: st.selectbox(f"How competent are you at {skill}?", LEVELS) for skill in SKILLS}
 
-    if st.button("Submit"):
-        differences = calculate_differences(responses, position)
-        
-        results_data = []
-        for skill, level in responses.items():
-            difference = list(LEVELS.values()).index(level) - TARGETS[position]
-            results_data.append([skill, level, difference])
+    results_data = calculate_differences(responses, position)
 
-        # Convert the results list into a Pandas DataFrame
-        df = pd.DataFrame(results_data, columns=["Skill", "Self-Assessment", "Difference"])
-
-        if SHOW_RESULTS:
-            st.write(df)  # Display the DataFrame using Streamlit's default renderer
-
-        send_email(name, position, results_data)
+    if SHOW_RESULTS:
+        results_df = pd.DataFrame(results_data, columns=['Skill', 'Self-Assessment', 'Difference'])
+        st.table(results_df.style.hide_index().set_table_styles({
+            'Skill': 'font-weight: bold'
+        }))
+    
+    send_email(name, position, results_data)
 
 def calculate_differences(responses, position):
     differences = {}
     for skill, level in responses.items():
-        differences[skill] = list(LEVELS.values()).index(level) - TARGETS[position]
+        diff = LEVELS.index(level) - TARGETS[position]
+        differences[skill] = {
+            'Self-Assessment': level,
+            'Difference': diff
+        }
+
     return differences
 
-def send_email(name, position, results_table):
-    msg = EmailMessage()
-    msg.set_content(str(results_table))
-    msg["Subject"] = f"Self-assessment Results for {name} - {position}"
-    msg["From"] = "david.almazan.tsla@gmail.com"  # Change this
-    msg["To"] = "david.almazan.tsla@gmail.com"  # Change this
+def send_email(name, position, data):
+    df = pd.DataFrame(data).transpose()
+    df.to_excel("results.xlsx", index=False)
 
-    # Connect to the mail server
-    server = smtplib.SMTP_SSL("smtp.gmail.com", 465)
-    server.login("david.almazan.tsla@gmail.com", "tesla2023")  # Change these
-    server.send_message(msg)
+    from_email = "david.almazan.tsla@gmail.com"
+    to_email = "david.almazan.tsla@gmail.com"
+
+    msg = MIMEMultipart()
+    msg['From'] = from_email
+    msg['To'] = to_email
+    msg['Subject'] = f"Self-Assessment Results for {name} ({position})"
+
+    body = "Attached are the self-assessment results."
+    msg.attach(MIMEText(body, 'plain'))
+
+    with open("results.xlsx", "rb") as attachment:
+        part = MIMEBase('application', 'octet-stream')
+        part.set_payload(attachment.read())
+        encoders.encode_base64(part)
+        part.add_header('Content-Disposition', "attachment; filename=results.xlsx")
+        msg.attach(part)
+
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.starttls()
+    server.login("david.almazan.tsla@gmail.com", "tesla2023")
+    server.sendmail(from_email, to_email, msg.as_string())
     server.quit()
 
 if __name__ == "__main__":
