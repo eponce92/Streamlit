@@ -7,81 +7,96 @@ from email.mime.base import MIMEBase
 from email import encoders
 import openpyxl
 
-LEVELS = ['No knowledge', 'Knows but no practice', 'Can do with help', 'Can do alone', 'Can teach others']
-TARGETS = {
-    'Associate Engineer': 0,
-    'Engineer': 1,
-    'Senior Engineer': 2,
-    'Staff Engineer': 3,
-    'Senior Staff Engineer': 4
-}
+def main():
+    st.title("Engineer Self-Evaluation")
+    
+    # Input fields
+    name = st.text_input("Name")
+    positions = ["Associate Engineer", "Engineer", "Senior Engineer", "Staff Engineer", "Senior Staff Engineer"]
+    position = st.selectbox("Position", positions)
+    skills = {
+        "PLC Programming": st.slider("PLC Programming", 0, 4),
+        "Cognex Cameras": st.slider("Cognex Cameras", 0, 4),
+        "Kistler Press": st.slider("Kistler Press", 0, 4),
+        "Mechanical Troubleshooting": st.slider("Mechanical Troubleshooting", 0, 4),
+        "Electrical Schematics & Troubleshooting": st.slider("Electrical Schematics & Troubleshooting", 0, 4),
+        "Keyence Vision": st.slider("Keyence Vision", 0, 4),
+        "Fanuc Programming": st.slider("Fanuc Programming", 0, 4),
+        "Atlas Coptco Nutrunners": st.slider("Atlas Coptco Nutrunners", 0, 4)
+    }
+    
+    submit = st.button("Submit")
+    
+    if submit:
+        # Analyze the results
+        results_data = analyze_results(position, skills)
+        
+        # Send the results via email
+        send_email(name, position, results_data)
 
-SHOW_RESULTS = True  # Change this to False if you don't want to show the results
+        # Optionally display the results (can turn this off later)
+        display_results = True  # Set this to False if you don't want to display results to users
+        if display_results:
+            results_df = pd.DataFrame(results_data, columns=['Skill', 'Level', 'Difference'])
+            st.table(results_df.set_index('Skill'))
 
-@st.cache
-def get_skills():
-    return [
-        'PLC Programming',
-        'Cognex Cameras',
-        'Kistler press',
-        'Mechanical troubleshooting',
-        'Electrical schematics and troubleshooting',
-        'Keyence vision',
-        'Fanuc Programming',
-        'Atlas coptco nutrunners'
+def analyze_results(position, skills):
+    TARGETS = {
+        "Associate Engineer": 2,
+        "Engineer": 2,
+        "Senior Engineer": 3,
+        "Staff Engineer": 3,
+        "Senior Staff Engineer": 4
+    }
+    LEVELS = [
+        "No Knowledge",
+        "Knows with Assistance",
+        "Can Perform with Assistance",
+        "Can Perform Independently",
+        "Can Train Others"
     ]
+    
+    target_level = TARGETS[position]
+    results_data = []
+    
+    for skill, level in skills.items():
+        difference = level - target_level
+        results_data.append([skill, LEVELS[level], difference])
+    
+    return results_data
 
 def send_email(name, position, results_data):
+    # Create a new Excel file with the results
+    df = pd.DataFrame(results_data, columns=['Skill', 'Level', 'Difference'])
+    filename = f"{name}_{position}_evaluation.xlsx"
+    df.to_excel(filename, index=False)
+
+    # Set up the SMTP server
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.starttls()
+    
+    # Log in to the server using the App Password
+    server.login("david.almazan.tsla@gmail.com", "dtupyqjbdiufrwqp")
+    
+    # Set up the email
     msg = MIMEMultipart()
     msg['From'] = "david.almazan.tsla@gmail.com"
     msg['To'] = "david.almazan.tsla@gmail.com"
-    msg['Subject'] = f"Auto-evaluation results for {name} ({position})"
-
-    body = "Attached are the auto-evaluation results."
+    msg['Subject'] = f"Self-evaluation results for {name} ({position})"
+    body = f"Attached are the self-evaluation results for {name} ({position})."
     msg.attach(MIMEText(body, 'plain'))
-
-    # Save results to Excel
-    df = pd.DataFrame(results_data, columns=['Skill', 'Self-Assessment', 'Difference'])
-    filename = f"Results_{name}.xlsx"
-    df.to_excel(filename, index=False)
-
+    
+    # Attach the Excel file
     attachment = open(filename, "rb")
     part = MIMEBase('application', 'octet-stream')
     part.set_payload(attachment.read())
     encoders.encode_base64(part)
     part.add_header('Content-Disposition', f"attachment; filename= {filename}")
     msg.attach(part)
-
-    server = smtplib.SMTP('smtp.gmail.com', 587)
-    server.starttls()
-    server.login("david.almazan.tsla@gmail.com", "tesla2023")
-    text = msg.as_string()
-    server.sendmail("david.almazan.tsla@gmail.com", "david.almazan.tsla@gmail.com", text)
+    
+    # Send the email
+    server.sendmail("david.almazan.tsla@gmail.com", "david.almazan.tsla@gmail.com", msg.as_string())
     server.quit()
-
-def main():
-    st.title("Engineer Auto-Evaluation")
-    
-    name = st.text_input("Your Name:")
-    position = st.selectbox("Your Engineer Level:", list(TARGETS.keys()))
-
-    skills = get_skills()
-    responses = {}
-    
-    for skill in skills:
-        responses[skill] = st.selectbox(f"How would you rate your {skill} skills?", LEVELS)
-
-    if st.button("Submit"):
-        results_data = []
-        for skill, level in responses.items():
-            difference = LEVELS.index(level) - TARGETS[position]
-            results_data.append([skill, level, difference])
-
-        send_email(name, position, results_data)
-
-        if SHOW_RESULTS:
-            results_df = pd.DataFrame(results_data, columns=['Skill', 'Self-Assessment', 'Difference'])
-            st.write(results_df.to_html(index=False, classes='table table-striped table-hover'), unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
