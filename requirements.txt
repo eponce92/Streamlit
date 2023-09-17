@@ -10,7 +10,7 @@ pytube
 youtube_dl
 streamlit-extras
 
-streamlit==0.88.0  # Asume que estás utilizando esta versión, ajusta si es necesario
-streamlit-aggrid==0.3.0  # Asume que estás utilizando esta versión, ajusta si es necesario
+streamlit-aggrid==0.2.0
+
 
 
