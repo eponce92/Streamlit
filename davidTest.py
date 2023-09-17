@@ -30,14 +30,17 @@ targets = {
 
 def generate_training_schedule(sorted_discrepancies):
     start_date = datetime.now() + timedelta(weeks=1)
+    
+    # Aquí debemos filtrar las habilidades con discrepancia >= 1, no sólo las que son exactamente 1.
     trainings = [skill for skill, discrepancy in sorted_discrepancies if discrepancy >= 1]
-
+    
     training_dates = []
     for i, training in enumerate(trainings):
         training_date = start_date + timedelta(weeks=i*4)  # Sumamos 4 semanas para cada siguiente entrenamiento
         training_dates.append((training, training_date))
 
     return training_dates
+
 
 def display_calendar(training_dates):
     current_month = training_dates[0][1].month
