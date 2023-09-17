@@ -10,7 +10,6 @@ pytube
 youtube_dl
 streamlit-extras
 
-streamlit-aggrid==0.2.0
 
 
 
