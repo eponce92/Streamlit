@@ -49,6 +49,8 @@ def main():
         differences = calculate_differences(responses, position)
         
         results_table = []
+        # Adding headers to the results table
+        results_table.append(["Skill", "Self-Assessment", "Difference"])
         for skill, level in responses.items():
             difference = list(LEVELS.values()).index(level) - TARGETS[position]
             results_table.append([skill, level, difference])
