@@ -1,10 +1,7 @@
-import streamlit as st
-import pandas as pd
-
-@st.cache
+@st.cache(allow_output_mutation=True)
 def consolidate_files(files):
     # List to store all the dataframes
-    dfs = []
+    all_data = []
 
     for file in files:
         # Read the Excel file into a DataFrame
@@ -14,33 +11,18 @@ def consolidate_files(files):
         
         df_results = pd.read_excel(file, sheet_name='Results')
         
-        # Pivot the table
-        df_pivot = df_results.pivot_table(index=df_results.index, columns='Skill', values='Difference').reset_index(drop=True)
+        # Creating a dictionary to store data for each engineer
+        engineer_data = {
+            'Name': name,
+            'Engineer Level': position
+        }
+        # Updating the dictionary with skill differences
+        for idx, row in df_results.iterrows():
+            engineer_data[row['Skill']] = row['Difference']
         
-        # Add name and position
-        df_pivot['Name'] = name
-        df_pivot['Engineer Level'] = position
-        
-        dfs.append(df_pivot)
+        all_data.append(engineer_data)
 
-    # Combine all dataframes into one
-    consolidated_df = pd.concat(dfs, axis=0)
-    
-    # Rearrange columns
-    cols = ['Name', 'Engineer Level'] + [col for col in consolidated_df if col not in ['Name', 'Engineer Level']]
-    consolidated_df = consolidated_df[cols]
+    # Converting list of dictionaries to DataFrame
+    consolidated_df = pd.DataFrame(all_data)
 
     return consolidated_df
-
-
-def main():
-    st.title("Engineers Data Consolidation")
-
-    uploaded_files = st.file_uploader("Upload Files", type=['xlsx'], accept_multiple_files=True)
-
-    if uploaded_files:
-        consolidated_df = consolidate_files(uploaded_files)
-        st.write(consolidated_df)
-
-if __name__ == "__main__":
-    main()
