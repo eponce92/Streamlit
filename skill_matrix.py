@@ -51,7 +51,7 @@ def main():
     # Split the screen into 2 columns:
     # Left column for file uploads and download button.
     # Right column for showing the consolidated table.
-    left_col, right_col = st.beta_columns(2)
+    left_col, right_col = st.columns(2)
 
     with left_col:
         uploaded_files = st.file_uploader("Upload Files", type=['xlsx'], accept_multiple_files=True)
@@ -64,7 +64,7 @@ def main():
             st.write(consolidated_df)
 
             # Download button within an expander for better organization.
-            with st.beta_expander("Download Options"):
+            with st.expander("Download Options"):
                 download_data = to_excel(consolidated_df)
                 st.download_button(label="Download as Excel",
                                    data=download_data,
