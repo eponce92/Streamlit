@@ -120,15 +120,17 @@ def main():
 
     display_training_schedule(training_events)
 
-    st.write("### Heatmaps")
+  st.write("### Heatmaps")
     
     fig1 = px.imshow(consolidated_df.drop(columns=['Name', 'Engineer Level']).transpose(), 
                      title="All Engineers Skill Levels",
-                     color_continuous_scale=["red", "yellow", "green"])
+                     color_continuous_scale=["red", "yellow", "green"],
+                     zmin=-4, zmax=4)
     
     fig2 = px.imshow(pd.DataFrame(consolidated_df.drop(columns=['Name', 'Engineer Level']).mean()).transpose(),
                      title="Average Skill Level Across All Engineers",
-                     color_continuous_scale=["red", "yellow", "green"])
+                     color_continuous_scale=["red", "yellow", "green"],
+                     zmin=-4, zmax=4)
 
     st.plotly_chart(fig1, use_container_width=True)
     st.plotly_chart(fig2, use_container_width=True)
