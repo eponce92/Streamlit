@@ -13,7 +13,7 @@ def to_excel(df):
         df.to_excel(writer, sheet_name='Consolidated_Data', index=False)
     return output.getvalue()
 
-@st.cache(allow_output_mutation=True)
+@st.cache_data(allow_output_mutation=True)
 def consolidate_files(files):
     all_data = []
     for file in files:
@@ -60,7 +60,10 @@ def main():
         skill_priority = st.sidebar.multiselect("Set Priority for Skills", consolidated_df.columns.drop(['Name', 'Engineer Level']), default=consolidated_df.columns.drop(['Name', 'Engineer Level']).tolist())
 
         skills_to_train = consolidated_df.drop(columns=['Name', 'Engineer Level']).mean()
-        skills_to_train = skills_to_train[skills_to_train < threshold].sort_values(key=lambda x: skill_priority.index(x.name))
+        filtered_skills = skills_to_train[skills_to_train < threshold]
+        sorted_skills = sorted(filtered_skills.index, key=lambda x: skill_priority.index(x))
+        skills_to_train = filtered_skills.loc[sorted_skills]
+
         
 
         st.write("### Proposed Training Schedule")
