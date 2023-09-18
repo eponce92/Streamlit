@@ -6,6 +6,7 @@ import datetime
 import calendar
 import plotly.graph_objects as go
 import numpy as np
+import colorsys
 import plotly.figure_factory as ff
 
 st.set_page_config(layout="wide")
@@ -51,13 +52,23 @@ def get_next_training_date(frequency, start_date=datetime.datetime.now() + datet
     else:
         return start_date + datetime.timedelta(weeks=4)
 
+def generate_colors(n):
+    """
+    Generate n distinct colors.
+    """
+    hues = np.linspace(0, 1, n + 1)[:-1]
+    colors = [colorsys.hsv_to_rgb(h, 1, 1) for h in hues]
+    return ["rgb({:.0f}, {:.0f}, {:.0f})".format(r*255, g*255, b*255) for r, g, b in colors]
+
 def create_colors_dict(skills):
     # Predefined colors list; expand this as needed.
     colors_list = ['rgb(220, 0, 0)', 'rgb(170, 14, 200)', 'rgb(0, 128, 128)', 'rgb(255, 0, 255)', 'rgb(255, 165, 0)']
-    
-    # Make sure the colors_list is sufficient for the skills. If not, you may have to generate or loop through colors.
-    assert len(colors_list) >= len(skills), "Not enough predefined colors for skills"
-    
+
+    # If the number of skills exceeds predefined colors, generate more colors.
+    if len(skills) > len(colors_list):
+        additional_colors = generate_colors(len(skills) - len(colors_list))
+        colors_list.extend(additional_colors)
+
     return {skill: colors_list[i] for i, skill in enumerate(skills)}
 
 
