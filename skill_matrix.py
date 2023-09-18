@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import io
+import datetime
+import calendar
 
 # Set the page layout to wide mode
 st.set_page_config(layout="wide")
@@ -35,12 +37,20 @@ def consolidate_files(files):
 def recommend_trainers(df, skill):
     """Recommend trainers based on engineer level for a given skill."""
     top_experts = df[df[skill] > 3]['Name'].tolist()
-    return ", ".join(top_experts)
+    return top_experts
 
 def engineers_requiring_training(df, skill, setpoint):
     """Find engineers below the skill setpoint."""
     low_skill_engineers = df[df[skill] < setpoint]['Name'].tolist()
-    return ", ".join(low_skill_engineers)
+    return low_skill_engineers
+
+def get_next_training_date(frequency, start_date=datetime.datetime.now() + datetime.timedelta(weeks=2)):
+    if frequency == "Weekly":
+        return start_date + datetime.timedelta(weeks=1)
+    elif frequency == "Bi-weekly":
+        return start_date + datetime.timedelta(weeks=2)
+    else:
+        return start_date + datetime.timedelta(weeks=4)
 
 def main():
     st.title("Engineer Training Planning Tool")
@@ -48,18 +58,22 @@ def main():
     # Config Sidebar
     st.sidebar.title("Configuration")
     threshold = st.sidebar.slider("Skill Threshold for Training", -4, 4, 3)
-    training_frequency = st.sidebar.radio("Training Frequency", ["Weekly", "Bi-weekly", "Monthly"])
+    training_frequency = st.sidebar.radio("Training Spread", ["Weekly", "Bi-weekly", "Monthly"])
     skill_setpoint = st.sidebar.slider("Skill Setpoint for Training Requirement", -4, 4, 0)
 
     uploaded_files = st.sidebar.file_uploader("Upload Files", type=['xlsx'], accept_multiple_files=True)
     if uploaded_files:
         consolidated_df = consolidate_files(uploaded_files)
-        st.session_state.consolidated_df = consolidated_df
-    elif 'consolidated_df' not in st.session_state:
+        st.table(consolidated_df)
+
+        download_data = to_excel(consolidated_df)
+        st.download_button(label="Download Consolidated Data",
+                           data=download_data,
+                           file_name="consolidated_data.xlsx",
+                           mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    else:
         st.warning("Please upload files.")
         return
-    else:
-        consolidated_df = st.session_state.consolidated_df
 
     # Setting skill priority as scores from 1 to 10
     skill_priority_scores = {}
@@ -74,10 +88,15 @@ def main():
     sorted_skill_names = [item[0] for item in sorted_skills]
 
     st.write("### Proposed Training Schedule")
+    training_date = datetime.datetime.now() + datetime.timedelta(weeks=2)
     for skill in sorted_skill_names:
         trainers = recommend_trainers(consolidated_df, skill)
         engineers = engineers_requiring_training(consolidated_df, skill, skill_setpoint)
-        st.markdown(f"**Training for {skill}** - Recommended Trainers: {trainers} - Engineers: {engineers}")
+        st.write(f"**{skill}**:")
+        st.write(f"Date: {training_date.strftime('%Y-%m-%d')}")
+        st.write(f"Recommended Trainers: {', '.join(trainers)}")
+        st.write(f"Engineers: {', '.join(engineers)}")
+        training_date = get_next_training_date(training_frequency, training_date)
 
     # Visualization
     st.write("### Visualization")
@@ -95,13 +114,6 @@ def main():
                             color_continuous_scale=["red", "yellow", "green"])
     fig_overall.update_layout(xaxis_title="Skills", yaxis_title="Team Average")
     st.plotly_chart(fig_overall, use_container_width=True)
-
-    # Save & Export
-    download_data = to_excel(consolidated_df)
-    st.sidebar.download_button(label="Download Consolidated Data",
-                               data=download_data,
-                               file_name="consolidated_data.xlsx",
-                               mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
 if __name__ == "__main__":
     main()
