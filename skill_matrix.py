@@ -2,7 +2,8 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import io
-
+# Set the page layout to wide mode
+st.set_page_config(layout="wide")
 
 def to_excel(df):
     """
