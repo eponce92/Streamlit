@@ -120,7 +120,7 @@ def main():
 
     display_training_schedule(training_events)
 
-  st.write("### Heatmaps")
+    st.write("### Heatmaps")
     
     fig1 = px.imshow(consolidated_df.drop(columns=['Name', 'Engineer Level']).transpose(), 
                      title="All Engineers Skill Levels",
