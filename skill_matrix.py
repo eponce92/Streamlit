@@ -1,6 +1,18 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import io
+
+
+def to_excel(df):
+    """
+    Convert a DataFrame into a BytesIO stream Excel format for download
+    """
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+        df.to_excel(writer, sheet_name='Consolidated_Data', index=False)
+    return output.getvalue()
+
 
 @st.cache(allow_output_mutation=True)
 def consolidate_files(files):
@@ -41,6 +53,14 @@ def main():
     if uploaded_files:
         consolidated_df = consolidate_files(uploaded_files)
         st.write(consolidated_df)
+
+        # Download button
+        download_data = to_excel(consolidated_df)
+        st.download_button(label="Download as Excel",
+                           data=download_data,
+                           file_name="consolidated_data.xlsx",
+                           mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        
 
         # Individual heatmap
         fig_individual = px.imshow(consolidated_df.set_index('Name').drop(columns=['Engineer Level']),
