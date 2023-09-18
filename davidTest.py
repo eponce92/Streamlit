@@ -80,8 +80,9 @@ def main():
         position = st.selectbox("Your Engineer Level:", list(TARGETS.keys()))
 
         responses = {}
+   
         for skill in SKILLS:
-            responses[skill] = st.selectbox(f"How would you rate your {skill} skills?", LEVELS)
+            responses[skill] = st.selectbox(f"How would you rate your {skill} skills?", LEVELS, key=skill)
 
         if st.button("Submit"):
             results_data = []
