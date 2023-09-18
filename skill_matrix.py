@@ -6,6 +6,7 @@ import datetime
 import calendar
 import plotly.graph_objects as go
 import numpy as np
+import plotly.figure_factory as ff
 
 # Set the page layout to wide mode
 st.set_page_config(layout="wide")
@@ -38,15 +39,13 @@ def consolidate_files(files):
 
 def recommend_trainers(df, skill, threshold):
     """Recommend trainers based on engineer level for a given skill."""
-    top_experts = df[df[skill] >= threshold]['Name'].tolist() 
+    top_experts = df[df[skill] >= threshold]['Name'].tolist()
     return top_experts
 
 def engineers_requiring_training(df, skill, setpoint, threshold):
     """Find engineers below the skill setpoint."""
     low_skill_engineers = df[df[skill] <= setpoint]['Name'].tolist()
     return low_skill_engineers
-
-
 
 def get_next_training_date(frequency, start_date=datetime.datetime.now() + datetime.timedelta(weeks=2)):
     if frequency == "Weekly":
@@ -93,17 +92,13 @@ def main():
 
     st.write("### Proposed Training Schedule")
     training_date = datetime.datetime.now() + datetime.timedelta(weeks=2)
-    
-    training_dates = []  # List to keep track of training dates
+    training_dates = []
 
     for skill in sorted_skill_names:
         trainers = recommend_trainers(consolidated_df, skill, threshold)
-       
         engineers = engineers_requiring_training(consolidated_df, skill, skill_setpoint, threshold)
+        training_dates.append(training_date)
 
-        
-        training_dates.append(training_date)  # Append the current training date to the list
-        
         st.write(f"**{skill}**:")
         st.write(f"Date: {training_date.strftime('%Y-%m-%d')}")
         st.write(f"Recommended Trainers: {', '.join(trainers)}")
@@ -124,7 +119,7 @@ def main():
         mode='markers',
         marker=dict(
             size=10,
-            color=values, 
+            color=values,
             colorscale='Viridis',
             showscale=False
         )
