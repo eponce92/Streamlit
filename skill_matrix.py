@@ -51,6 +51,18 @@ def get_next_training_date(frequency, start_date=datetime.datetime.now() + datet
     else:
         return start_date + datetime.timedelta(weeks=4)
 
+def create_colors_dict(skills):
+    # Predefined colors list; expand this as needed.
+    colors_list = ['rgb(220, 0, 0)', 'rgb(170, 14, 200)', 'rgb(0, 128, 128)', 'rgb(255, 0, 255)', 'rgb(255, 165, 0)']
+    
+    # Make sure the colors_list is sufficient for the skills. If not, you may have to generate or loop through colors.
+    assert len(colors_list) >= len(skills), "Not enough predefined colors for skills"
+    
+    return {skill: colors_list[i] for i, skill in enumerate(skills)}
+
+colors_dict = create_colors_dict(sorted_skill_names)
+
+
 def main():
     st.title("Engineer Training Planning Tool")
 
@@ -148,9 +160,9 @@ def main():
     st.plotly_chart(fig_calendar, use_container_width=True)
 
     # Gantt Chart
-    fig_gantt = ff.create_gantt(training_events, colors={'Machine Learning': 'rgb(220, 0, 0)', 'Python': 'rgb(170, 14, 200)'},  
-                            index_col='Resource', title='Training Schedule',
-                            show_colorbar=True, bar_width=0.2, showgrid_x=True, showgrid_y=True)
+    fig_gantt = ff.create_gantt(training_events, colors=colors_dict, index_col='Resource', title='Training Schedule',
+                                show_colorbar=True, bar_width=0.2, showgrid_x=True, showgrid_y=True)
+
     st.plotly_chart(fig_gantt, use_container_width=True)
 
 if __name__ == "__main__":
