@@ -49,28 +49,33 @@ def consolidate_files(files):
 def main():
     st.title("Engineers Data Consolidation")
 
-    # Split the screen into 3 columns: 
-    col1, col2, col3 = st.columns([2,3,3])
-
-    with col1:
+    # Container for upload and download buttons
+    with st.container():
         uploaded_files = st.file_uploader("Upload Files", type=['xlsx'], accept_multiple_files=True)
 
         if uploaded_files:
             consolidated_df = consolidate_files(uploaded_files)
-            st.write("### Consolidated Data Table")
-            st.dataframe(consolidated_df)  # Using st.dataframe to let the table utilize full column width
 
-            # Download button within an expander for better organization.
-            with st.expander("Download Options"):
-                download_data = to_excel(consolidated_df)
-                st.download_button(label="Download as Excel",
-                                   data=download_data,
-                                   file_name="consolidated_data.xlsx",
-                                   mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+            # Download button with popup color.
+            download_data = to_excel(consolidated_df)
+            st.download_button(label="Download as Excel",
+                               data=download_data,
+                               file_name="consolidated_data.xlsx",
+                               mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                               help="Click to download the consolidated data as an Excel file.",  # This adds a small 'i' icon which, when hovered, shows the help text and provides the "popup color" effect.
+                               on_click=None,  # Just added to showcase potential functionality. Can be removed.
+                               args=None  # Just added to showcase potential functionality. Can be removed.
+                              )
+
+    # Table covering the full screen width
+    st.write("### Consolidated Data Table")
+    st.dataframe(consolidated_df)
 
     if uploaded_files:  # Checking again to ensure the data has been uploaded before rendering the plots
         
-        with col2:
+        col1, col2 = st.columns(2)  # Two columns for the charts
+
+        with col1:
             st.write("#### Individual Skills Heatmap")
             fig_individual = px.imshow(consolidated_df.set_index('Name').drop(columns=['Engineer Level']),
                                        labels=dict(color="Difference"),
@@ -78,7 +83,7 @@ def main():
             fig_individual.update_layout(xaxis_title="Skills", yaxis_title="Engineer Name")
             st.plotly_chart(fig_individual, use_container_width=True)
 
-        with col3:
+        with col2:
             st.write("#### Team Skills Heatmap")
             average_difference = consolidated_df.drop(columns=['Name', 'Engineer Level']).mean().to_frame().T
             fig_overall = px.imshow(average_difference,
