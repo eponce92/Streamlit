@@ -6,14 +6,12 @@ import io
 # Set the page layout to wide mode
 st.set_page_config(layout="wide")
 
-
 def to_excel(df):
     """Convert a DataFrame into a BytesIO stream Excel format for download."""
     output = io.BytesIO()
     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
         df.to_excel(writer, sheet_name='Consolidated_Data', index=False)
     return output.getvalue()
-
 
 @st.cache(allow_output_mutation=True)
 def consolidate_files(files):
@@ -35,60 +33,38 @@ def consolidate_files(files):
     consolidated_df = pd.DataFrame(all_data)
     return consolidated_df
 
-
 def recommend_trainers(df, skill):
     """Recommend trainers based on engineer level for a given skill."""
-    top_experts = df[df[skill] > 2]['Name'].tolist()
+    top_experts = df[df[skill] > 3]['Name'].tolist()
     return ", ".join(top_experts)
 
+def engineers_requiring_training(df, skill, setpoint):
+    """Find engineers below the skill setpoint."""
+    low_skill_engineers = df[df[skill] < setpoint]['Name'].tolist()
+    return ", ".join(low_skill_engineers)
 
 def main():
-    st.title("Engineers Training Planner")
+    st.title("Engineer Training Planning Tool")
 
-    # Configuration Sidebar
-    with st.sidebar:
-        st.header("Configuration")
-        threshold = st.slider("Skill Difference Threshold (Recommend Training Below This Value)", -4, 4, 0)
-        sessions = st.slider("Number of Weeks Available for Training Sessions", 1, 52, 4)
-        weeks = [f"Week {i+1}" for i in range(sessions)]
+    # Config Sidebar
+    st.sidebar.title("Configuration")
+    threshold = st.sidebar.slider("Skill Threshold for Training", -4, 4, 3)
+    training_frequency = st.sidebar.radio("Training Frequency", ["Weekly", "Bi-weekly", "Monthly"])
+    skill_priority = st.sidebar.multiselect("Set Priority for Skills", consolidated_df.columns.drop(['Name', 'Engineer Level']), default=consolidated_df.columns.drop(['Name', 'Engineer Level']).tolist())
+    skill_setpoint = st.sidebar.slider("Skill Setpoint for Training Requirement", -4, 4, 0)
 
-    uploaded_files = st.file_uploader("Upload Engineer Skill Data Files", type=['xlsx'], accept_multiple_files=True)
-
+    uploaded_files = st.sidebar.file_uploader("Upload Files", type=['xlsx'], accept_multiple_files=True)
     if uploaded_files:
         consolidated_df = consolidate_files(uploaded_files)
-        st.write("### Consolidated Data Table")
-        st.dataframe(consolidated_df)
 
-        # Skills below threshold
-        skills_to_train = consolidated_df.drop(columns=['Name', 'Engineer Level']).mean().sort_values()
-        skills_to_train = skills_to_train[skills_to_train <= threshold]
+        skills_to_train = consolidated_df.drop(columns=['Name', 'Engineer Level']).mean()
+        skills_to_train = skills_to_train[skills_to_train < threshold].sort_values(key=lambda x: skill_priority.index(x.name))
 
-        # Proposed Training Schedule
         st.write("### Proposed Training Schedule")
-
-        skills_below_threshold = skills_to_train.index.tolist()
-        max_sessions = min(len(skills_below_threshold), sessions)
-
-        for i in range(max_sessions):
-            skill = skills_below_threshold[i]
+        for skill in skills_to_train.index:
             trainers = recommend_trainers(consolidated_df, skill)
-            st.markdown(f"**Training for {skill}**: Recommended Trainers: {trainers}")
-
-        # Calendar Planning
-        st.write("### Training Calendar")
-
-        # Ensure equal lengths for all columns
-        remaining_sessions = sessions - max_sessions
-        skills_for_calendar = skills_below_threshold[:max_sessions] + ["-"] * remaining_sessions
-        trainers_for_calendar = [recommend_trainers(consolidated_df, skill) for skill in skills_for_calendar]
-
-        st.table(pd.DataFrame({
-            "Week": weeks,
-            "Skill": skills_for_calendar,
-            "Recommended Trainer": trainers_for_calendar
-        }))
-
-
+            engineers = engineers_requiring_training(consolidated_df, skill, skill_setpoint)
+            st.markdown(f"**Training for {skill}** - Recommended Trainers: {trainers} - Engineers: {engineers}")
 
         # Visualization
         st.write("### Visualization")
@@ -113,7 +89,6 @@ def main():
                                    data=download_data,
                                    file_name="consolidated_data.xlsx",
                                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-
 
 if __name__ == "__main__":
     main()
