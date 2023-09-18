@@ -5,16 +5,21 @@ import pandas as pd
 def consolidate_files(files):
     # List to store all the dataframes
     dfs = []
-    
+
     for file in files:
         # Read the Excel file into a DataFrame
-        df = pd.read_excel(file)
+        metadata = pd.read_excel(file, sheet_name='Metadata')
+        name = metadata.loc[metadata['Key'] == 'Name', 'Value'].iloc[0]
+        position = metadata.loc[metadata['Key'] == 'Engineer Level', 'Value'].iloc[0]
+        
+        df_results = pd.read_excel(file, sheet_name='Results')
         
         # Pivot the table
-        df_pivot = df.pivot_table(index=['Engineer Level', df.index], columns='Skill', values='Difference').reset_index(drop=True)
+        df_pivot = df_results.pivot_table(index=df_results.index, columns='Skill', values='Difference').reset_index(drop=True)
         
-        # Add name from filename (assuming filename format is Results_{name}.xlsx)
-        df_pivot['Name'] = file.name.split('_')[1].replace('.xlsx', '')
+        # Add name and position
+        df_pivot['Name'] = name
+        df_pivot['Engineer Level'] = position
         
         dfs.append(df_pivot)
 
@@ -26,6 +31,7 @@ def consolidate_files(files):
     consolidated_df = consolidated_df[cols]
 
     return consolidated_df
+
 
 def main():
     st.title("Engineers Data Consolidation")
