@@ -42,13 +42,22 @@ def main():
         consolidated_df = consolidate_files(uploaded_files)
         st.write(consolidated_df)
 
-        # Creating a heatmap with a custom color scale
-        fig = px.imshow(consolidated_df.set_index('Name').drop(columns=['Engineer Level']),
-                        labels=dict(color="Difference"),
-                        title="Skills Difference Heatmap",
-                        color_continuous_scale=["red", "yellow", "green"])  # Adjusting the color scale
-        fig.update_layout(xaxis_title="Skills", yaxis_title="Engineer Name")
-        st.plotly_chart(fig)
+        # Individual heatmap
+        fig_individual = px.imshow(consolidated_df.set_index('Name').drop(columns=['Engineer Level']),
+                                   labels=dict(color="Difference"),
+                                   title="Individual Skills Difference Heatmap",
+                                   color_continuous_scale=["red", "yellow", "green"])
+        fig_individual.update_layout(xaxis_title="Skills", yaxis_title="Engineer Name")
+        st.plotly_chart(fig_individual)
+
+        # Overall team heatmap
+        average_difference = consolidated_df.drop(columns=['Name', 'Engineer Level']).mean().to_frame().T
+        fig_overall = px.imshow(average_difference,
+                                labels=dict(color="Average Difference"),
+                                title="Overall Team Skills Difference Heatmap",
+                                color_continuous_scale=["red", "yellow", "green"])
+        fig_overall.update_layout(xaxis_title="Skills", yaxis_title="Team Average")
+        st.plotly_chart(fig_overall)
 
 if __name__ == "__main__":
     main()
