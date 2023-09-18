@@ -50,15 +50,18 @@ def main():
     st.sidebar.title("Configuration")
     threshold = st.sidebar.slider("Skill Threshold for Training", -4, 4, 3)
     training_frequency = st.sidebar.radio("Training Frequency", ["Weekly", "Bi-weekly", "Monthly"])
-    skill_priority = st.sidebar.multiselect("Set Priority for Skills", consolidated_df.columns.drop(['Name', 'Engineer Level']), default=consolidated_df.columns.drop(['Name', 'Engineer Level']).tolist())
     skill_setpoint = st.sidebar.slider("Skill Setpoint for Training Requirement", -4, 4, 0)
 
     uploaded_files = st.sidebar.file_uploader("Upload Files", type=['xlsx'], accept_multiple_files=True)
     if uploaded_files:
         consolidated_df = consolidate_files(uploaded_files)
 
+        # Setting the skill priority after the consolidated_df is created
+        skill_priority = st.sidebar.multiselect("Set Priority for Skills", consolidated_df.columns.drop(['Name', 'Engineer Level']), default=consolidated_df.columns.drop(['Name', 'Engineer Level']).tolist())
+
         skills_to_train = consolidated_df.drop(columns=['Name', 'Engineer Level']).mean()
         skills_to_train = skills_to_train[skills_to_train < threshold].sort_values(key=lambda x: skill_priority.index(x.name))
+        
 
         st.write("### Proposed Training Schedule")
         for skill in skills_to_train.index:
