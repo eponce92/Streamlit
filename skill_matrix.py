@@ -97,8 +97,10 @@ def main():
     training_dates = []  # List to keep track of training dates
 
     for skill in sorted_skill_names:
-        trainers = recommend_trainers(consolidated_df, skill)
-        engineers = engineers_requiring_training(consolidated_df, skill, skill_setpoint)
+        trainers = recommend_trainers(consolidated_df, skill, threshold)
+       
+        engineers = engineers_requiring_training(consolidated_df, skill, skill_setpoint, threshold)
+
         
         training_dates.append(training_date)  # Append the current training date to the list
         
