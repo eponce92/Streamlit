@@ -60,7 +60,7 @@ def create_colors_dict(skills):
     
     return {skill: colors_list[i] for i, skill in enumerate(skills)}
 
-colors_dict = create_colors_dict(sorted_skill_names)
+
 
 
 def main():
@@ -94,6 +94,8 @@ def main():
     filtered_skills = skills_to_train[skills_to_train < threshold]
     sorted_skills = sorted(filtered_skills.items(), key=lambda x: skill_priority_scores[x[0]], reverse=True)
     sorted_skill_names = [item[0] for item in sorted_skills]
+    colors_dict = create_colors_dict(sorted_skill_names)
+
 
     st.write("### Proposed Training Schedule")
     training_date = datetime.datetime.now() + datetime.timedelta(weeks=2)
