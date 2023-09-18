@@ -45,11 +45,14 @@ def consolidate_files(files):
 
 
 
+# ... [Previous imports and function definitions remain unchanged]
+
 def main():
     st.title("Engineers Data Consolidation")
-    
-    # Create 3 columns: 1 for the main section and 2 for the heatmaps.
-    col_main, col_heatmap1, col_heatmap2 = st.columns([3,2,2])
+
+    # Split the screen into 3 columns: 
+    # First column gets 40% of the width, and the other two columns get 30% each.
+    col1, col2, col3 = st.columns((4,3,3))
 
     with col1:
         uploaded_files = st.file_uploader("Upload Files", type=['xlsx'], accept_multiple_files=True)
@@ -57,7 +60,7 @@ def main():
         if uploaded_files:
             consolidated_df = consolidate_files(uploaded_files)
             st.write("### Consolidated Data Table")
-            st.write(consolidated_df)
+            st.dataframe(consolidated_df, height=600)  # Using st.dataframe to make the table stretch to full width.
 
             # Download button within an expander for better organization.
             with st.expander("Download Options"):
@@ -79,7 +82,7 @@ def main():
             fig_individual.update_layout(xaxis_title="Skills", yaxis_title="Engineer Name")
             st.plotly_chart(fig_individual)
 
-        # Overall team heatmap in col3 (or col4 depending on where you want it)
+        # Overall team heatmap in col3
         with col3:
             st.write("#### Team Skills Heatmap")
             average_difference = consolidated_df.drop(columns=['Name', 'Engineer Level']).mean().to_frame().T
@@ -89,7 +92,6 @@ def main():
             fig_overall.update_layout(xaxis_title="Skills", yaxis_title="Team Average")
             st.plotly_chart(fig_overall)
 
-        # If you have any additional charts or content, you can place them in col4
-
 if __name__ == "__main__":
     main()
+
