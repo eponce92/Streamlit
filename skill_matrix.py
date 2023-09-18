@@ -3,11 +3,8 @@ import pandas as pd
 import plotly.express as px
 import io
 import datetime
-import calendar
-import plotly.graph_objects as go
 import numpy as np
 import colorsys
-import plotly.figure_factory as ff
 
 st.set_page_config(layout="wide")
 
@@ -37,7 +34,7 @@ def consolidate_files(files):
     return consolidated_df
 
 def recommend_trainers(df, skill, threshold):
-    top_experts = df[df[skill] >= threshold]['Name'].tolist() 
+    top_experts = df[df[skill] >= threshold]['Name'].tolist()
     return top_experts
 
 def engineers_requiring_training(df, skill, setpoint):
@@ -51,28 +48,6 @@ def get_next_training_date(frequency, start_date=datetime.datetime.now() + datet
         return start_date + datetime.timedelta(weeks=2)
     else:
         return start_date + datetime.timedelta(weeks=4)
-
-def generate_colors(n):
-    """
-    Generate n distinct colors.
-    """
-    hues = np.linspace(0, 1, n + 1)[:-1]
-    colors = [colorsys.hsv_to_rgb(h, 1, 1) for h in hues]
-    return ["rgb({:.0f}, {:.0f}, {:.0f})".format(r*255, g*255, b*255) for r, g, b in colors]
-
-def create_colors_dict(skills):
-    # Predefined colors list; expand this as needed.
-    colors_list = ['rgb(220, 0, 0)', 'rgb(170, 14, 200)', 'rgb(0, 128, 128)', 'rgb(255, 0, 255)', 'rgb(255, 165, 0)']
-
-    # If the number of skills exceeds predefined colors, generate more colors.
-    if len(skills) > len(colors_list):
-        additional_colors = generate_colors(len(skills) - len(colors_list))
-        colors_list.extend(additional_colors)
-
-    return {skill: colors_list[i] for i, skill in enumerate(skills)}
-
-
-
 
 def main():
     st.title("Engineer Training Planning Tool")
@@ -105,28 +80,13 @@ def main():
     filtered_skills = skills_to_train[skills_to_train < threshold]
     sorted_skills = sorted(filtered_skills.items(), key=lambda x: skill_priority_scores[x[0]], reverse=True)
     sorted_skill_names = [item[0] for item in sorted_skills]
-    colors_dict = create_colors_dict(sorted_skill_names)
-
 
     st.write("### Proposed Training Schedule")
     training_date = datetime.datetime.now() + datetime.timedelta(weeks=2)
-    
-    training_dates = []  
-    training_events = []
 
     for skill in sorted_skill_names:
         trainers = recommend_trainers(consolidated_df, skill, threshold)
         engineers = engineers_requiring_training(consolidated_df, skill, skill_setpoint)
-
-        training_dates.append(training_date)  
-
-        event = {
-            "Task": skill,
-            "Start": training_date,
-            "Finish": training_date + datetime.timedelta(hours=2),
-            "Resource": ", ".join(trainers)
-        }
-        training_events.append(event)
 
         st.write(f"**{skill}**:")
         st.write(f"Date: {training_date.strftime('%Y-%m-%d')}")
@@ -134,50 +94,19 @@ def main():
         st.write(f"Engineers: {', '.join(engineers)}")
         training_date = get_next_training_date(training_frequency, training_date)
 
-    st.write("### Visualization")
+    # Skills Heat Map
+    st.write("### Skills Heat Map")
+    skill_means = consolidated_df.drop(columns=['Name', 'Engineer Level']).mean().reset_index()
+    skill_means.columns = ["Skill", "Average Score"]
+    fig_skill = px.imshow(skill_means.pivot_table(index="Skill", values="Average Score", aggfunc="mean"),
+                          color_continuous_scale=["red", "yellow", "green"], zmin=-4, zmax=4)
+    st.plotly_chart(fig_skill, use_container_width=True)
 
-    st.write("#### Training Schedule Calendar")
-    dates = pd.date_range(start="2023-01-01", end="2023-12-31", freq='D')
-    values = [1 if date in training_dates else 0 for date in dates]
-
-    fig_calendar = go.Figure(data=go.Scatter(
-        x=dates,
-        y=values,
-        mode='markers',
-        marker=dict(
-            size=10,
-            color=values,
-            colorscale='Viridis',
-            showscale=False
-        )
-    ))
-
-    fig_calendar.update_layout(
-        title="Training Schedule in 2023",
-        xaxis_title="Date",
-        yaxis_title="Scheduled Training",
-        yaxis=dict(tickvals=[0, 1], ticktext=['No Training', 'Training']),
-        xaxis=dict(
-            rangeselector=dict(
-                buttons=list([
-                    dict(count=1, label="1m", step="month", stepmode="backward"),
-                    dict(count=6, label="6m", step="month", stepmode="backward"),
-                    dict(count=12, label="YTD", step="month", stepmode="todate"),
-                    dict(count=12, label="1y", step="year", stepmode="backward"),
-                    dict(step="all")
-                ])
-            ),
-            type="date"
-        ),
-    )
-    st.plotly_chart(fig_calendar, use_container_width=True)
-
-    # Gantt Chart
-    fig_gantt = ff.create_gantt(training_events, colors=colors_dict, index_col='Task', title='Training Schedule',
-                                show_colorbar=True, bar_width=0.2, showgrid_x=True, showgrid_y=True)
-
-
-    st.plotly_chart(fig_gantt, use_container_width=True)
+    # Engineers Heat Map
+    st.write("### Engineers Heat Map")
+    fig_engineers = px.imshow(consolidated_df.drop(columns=['Engineer Level']).set_index('Name'),
+                              color_continuous_scale=["red", "yellow", "green"], zmin=-4, zmax=4)
+    st.plotly_chart(fig_engineers, use_container_width=True)
 
 if __name__ == "__main__":
     main()
