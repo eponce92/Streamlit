@@ -61,20 +61,29 @@ def main():
 
         # Proposed Training Schedule
         st.write("### Proposed Training Schedule")
-        for skill in skills_to_train.index:
+        
+        skills_below_threshold = skills_to_train.index.tolist()
+        max_sessions = min(len(skills_below_threshold), sessions)
+        
+        for i in range(max_sessions):
+            skill = skills_below_threshold[i]
             trainers = recommend_trainers(consolidated_df, skill)
             st.markdown(f"**Training for {skill}**: Recommended Trainers: {trainers}")
-
+        
         # Calendar Planning
         st.write("### Training Calendar")
-        sessions = int(6 / {'Weekly': 4, 'Bi-weekly': 2, 'Monthly': 1}[training_frequency])
-        weeks = [f"Week {i + 1}" for i in range(sessions)]
+        
+        # Ensure equal lengths for all columns
+        remaining_sessions = sessions - max_sessions
+        skills_for_calendar = skills_below_threshold[:max_sessions] + ["-"] * remaining_sessions
+        trainers_for_calendar = [recommend_trainers(consolidated_df, skill) for skill in skills_for_calendar]
+        
         st.table(pd.DataFrame({
             "Week": weeks,
-            "Skill": skills_to_train.index.tolist() + (["-"] * (sessions - len(skills_to_train))),
-            "Recommended Trainer": [recommend_trainers(consolidated_df, skill) for skill in skills_to_train.index] +
-                                   ["-"] * (sessions - len(skills_to_train))
+            "Skill": skills_for_calendar,
+            "Recommended Trainer": trainers_for_calendar
         }))
+
 
         # Visualization
         st.write("### Visualization")
