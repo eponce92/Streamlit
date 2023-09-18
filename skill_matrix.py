@@ -13,7 +13,12 @@ def to_excel(df):
         df.to_excel(writer, sheet_name='Consolidated_Data', index=False)
     return output.getvalue()
 
-@st.cache_data(allow_output_mutation=True)
+def hash_func(x):
+    """Return None for all inputs. Used to bypass Streamlit's hashing in st.cache."""
+    return None
+
+@st.cache(hash_funcs={pd.DataFrame: hash_func}, suppress_st_warning=True)
+
 def consolidate_files(files):
     all_data = []
     for file in files:
