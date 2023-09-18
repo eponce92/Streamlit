@@ -8,9 +8,7 @@ st.set_page_config(layout="wide")
 
 
 def to_excel(df):
-    """
-    Convert a DataFrame into a BytesIO stream Excel format for download.
-    """
+    """Convert a DataFrame into a BytesIO stream Excel format for download."""
     output = io.BytesIO()
     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
         df.to_excel(writer, sheet_name='Consolidated_Data', index=False)
@@ -38,42 +36,45 @@ def consolidate_files(files):
     return consolidated_df
 
 
+def recommend_trainers(df, skill):
+    """Recommend trainers based on engineer level for a given skill."""
+    top_experts = df[df[skill] > 2]['Name'].tolist()
+    return ", ".join(top_experts)
+
+
 def main():
     st.title("Engineer Training Planning Tool")
 
     # Config Sidebar
     st.sidebar.title("Configuration")
-
-    threshold = st.sidebar.slider("Skill Threshold", 0, 10, 5)
+    threshold = st.sidebar.slider("Skill Threshold for Training", -4, 4, 0)
     training_frequency = st.sidebar.radio("Training Frequency", ["Weekly", "Bi-weekly", "Monthly"])
-    priority = st.sidebar.slider("Skill Priority (1 is highest)", 1, 5, 1)
-    trainers = st.sidebar.text_input("Enter Potential Trainers", "John, Jane, Doe")
-    duration = st.sidebar.number_input("Expected Duration of Each Training (in hours)", 1, 10, 2)
 
     uploaded_files = st.sidebar.file_uploader("Upload Files", type=['xlsx'], accept_multiple_files=True)
     if uploaded_files:
         consolidated_df = consolidate_files(uploaded_files)
-        
+
         # Skills Overview
         st.write("### Skills Overview")
-        flagged_skills = consolidated_df.drop(columns=['Name', 'Engineer Level']).mean()
-        flagged_skills = flagged_skills[flagged_skills < threshold]
-        st.write("Skills Below Threshold: ", ", ".join(flagged_skills.index.tolist()))
-        
+        skills_to_train = consolidated_df.drop(columns=['Name', 'Engineer Level']).mean()
+        skills_to_train = skills_to_train[skills_to_train < threshold]
+
         # Proposed Training Schedule
         st.write("### Proposed Training Schedule")
-        # Simple illustration using markdown (actual scheduling may require more backend logic)
-        sessions = int(6 / {'Weekly': 4, 'Bi-weekly': 2, 'Monthly': 1}[training_frequency])
-        st.markdown(f"Suggested {sessions} training sessions over 6 months.")
-        for idx in range(sessions):
-            st.markdown(f"**Session {idx + 1}**: Focus on {flagged_skills.idxmax()} skill. Trainer: {trainers.split(',')[0]}")
-            flagged_skills = flagged_skills.drop(flagged_skills.idxmax())
+        for skill in skills_to_train.index:
+            trainers = recommend_trainers(consolidated_df, skill)
+            st.markdown(f"**Training for {skill}**: Recommended Trainers: {trainers}")
 
-        # Skill Breakdown
-        st.write("### Skill Breakdown")
-        flagged_skills = consolidated_df.drop(columns=['Name', 'Engineer Level']).mean()
-        flagged_skills = flagged_skills[flagged_skills < threshold]
-        st.write(flagged_skills.sort_values(ascending=False))
+        # Calendar Planning
+        st.write("### Training Calendar")
+        sessions = int(6 / {'Weekly': 4, 'Bi-weekly': 2, 'Monthly': 1}[training_frequency])
+        weeks = [f"Week {i + 1}" for i in range(sessions)]
+        st.table(pd.DataFrame({
+            "Week": weeks,
+            "Skill": skills_to_train.index.tolist() + (["-"] * (sessions - len(skills_to_train))),
+            "Recommended Trainer": [recommend_trainers(consolidated_df, skill) for skill in skills_to_train.index] +
+                                   ["-"] * (sessions - len(skills_to_train))
+        }))
 
         # Visualization
         st.write("### Visualization")
@@ -91,7 +92,7 @@ def main():
                                 color_continuous_scale=["red", "yellow", "green"])
         fig_overall.update_layout(xaxis_title="Skills", yaxis_title="Team Average")
         st.plotly_chart(fig_overall, use_container_width=True)
-        
+
         # Save & Export
         download_data = to_excel(consolidated_df)
         st.sidebar.download_button(label="Download Consolidated Data",
