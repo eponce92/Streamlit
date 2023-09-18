@@ -91,7 +91,7 @@ def main():
     sorted_skills = sorted(filtered_skills.items(), key=lambda x: skill_priority_scores[x[0]], reverse=True)
     sorted_skill_names = [item[0] for item in sorted_skills]
 
-     st.write("### Proposed Training Schedule")
+    st.write("### Proposed Training Schedule")
     training_date = datetime.datetime.now() + datetime.timedelta(weeks=2)
     
     training_dates = []  # List to keep track of training dates
