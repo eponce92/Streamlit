@@ -47,10 +47,14 @@ def send_email(name, position, results_data):
     msg.attach(MIMEText(body, 'plain'))
 
     # Save results to Excel
-    df = pd.DataFrame(results_data, columns=['Skill', 'Self-Assessment', 'Difference'])
-    df['Engineer Level'] = position  # add engineer's level to every row
-    filename = f"Results_{name}.xlsx"
-    df.to_excel(filename, index=False)
+    metadata = [['Name', name], ['Engineer Level', position]]
+    df_metadata = pd.DataFrame(metadata, columns=['Key', 'Value'])
+    df_results = pd.DataFrame(results_data, columns=['Skill', 'Self-Assessment', 'Difference'])
+
+    # Save both metadata and results to the same Excel but different sheets
+    with pd.ExcelWriter(filename) as writer:
+        df_metadata.to_excel(writer, sheet_name='Metadata', index=False)
+        df_results.to_excel(writer, sheet_name='Results', index=False)
 
     attachment = open(filename, "rb")
     part = MIMEBase('application', 'octet-stream')
