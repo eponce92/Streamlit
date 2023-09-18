@@ -15,26 +15,16 @@ TARGETS = {
     'Engineer Level 2': 4,
     'Engineer Level 3': 5
 }
-EXCEL_FILE_PATH = "/mnt/data/Training Matrix_Rev2.xlsx"
-
-def get_skills_from_excel():
-    # Load the excel file
-    xl = pd.ExcelFile(EXCEL_FILE_PATH)
-    # Extract the first sheet (assuming the data is in the first sheet)
-    df = xl.parse(xl.sheet_names[0])
-    # Extract skills from column C starting from C5
-    skills = df.iloc[4:, 2].dropna().tolist()
-    return skills
-
-SKILLS = get_skills_from_excel()
 TARGET_VALUES = []
 
-SHOW_RESULTS = True  # Change this to False if you don't want to show the results
-last_submitted_name = None  # Keep track of the last name submitted
+SHOW_RESULTS = True
+last_submitted_name = None
 
-@st.cache_data 
-def get_skills():
-    return SKILLS
+def get_skills_from_excel(file):
+    xl = pd.ExcelFile(file)
+    df = xl.parse(xl.sheet_names[0])
+    skills = df.iloc[4:, 2].dropna().tolist()
+    return skills
 
 def get_target_value(skill, position):
     skill_index = SKILLS.index(skill)
@@ -56,13 +46,11 @@ def send_email(name, position, results_data):
     body = "Attached are the auto-evaluation results."
     msg.attach(MIMEText(body, 'plain'))
 
-     # Save results to Excel
-    filename = f"Results_{name}.xlsx"  # Define filename here if it's not defined earlier
+    filename = f"Results_{name}.xlsx"
     metadata = [['Name', name], ['Engineer Level', position]]
     df_metadata = pd.DataFrame(metadata, columns=['Key', 'Value'])
     df_results = pd.DataFrame(results_data, columns=['Skill', 'Self-Assessment', 'Difference'])
 
-    # Save both metadata and results to the same Excel but different sheets
     with pd.ExcelWriter(filename) as writer:
         df_metadata.to_excel(writer, sheet_name='Metadata', index=False)
         df_results.to_excel(writer, sheet_name='Results', index=False)
@@ -76,34 +64,36 @@ def send_email(name, position, results_data):
 
     server = smtplib.SMTP('smtp.gmail.com', 587)
     server.starttls()
-    server.login("david.almazan.tsla@gmail.com", "dtupyqjbdiufrwqp")  # Use the app password here
+    server.login("david.almazan.tsla@gmail.com", "dtupyqjbdiufrwqp")
     text = msg.as_string()
     server.sendmail("david.almazan.tsla@gmail.com", "david.almazan.tsla@gmail.com", text)
     server.quit()
 
 def main():
     st.title("Engineer Auto-Evaluation")
-    
-    name = st.text_input("Your Name:")
-    position = st.selectbox("Your Engineer Level:", list(TARGETS.keys()))
 
-    skills = get_skills()
-    responses = {}
-    
-    for skill in skills:
-        responses[skill] = st.selectbox(f"How would you rate your {skill} skills?", LEVELS)
+    uploaded_file = st.file_uploader("Choose an Excel file", type="xlsx")
 
-    if st.button("Submit"):
-        results_data = []
-        for skill, level in responses.items():
-            difference = LEVELS.index(level) - TARGETS[position]
-            results_data.append([skill, level, difference])
+    if uploaded_file:
+        SKILLS = get_skills_from_excel(uploaded_file)
+        name = st.text_input("Your Name:")
+        position = st.selectbox("Your Engineer Level:", list(TARGETS.keys()))
 
-        send_email(name, position, results_data)
+        responses = {}
+        for skill in SKILLS:
+            responses[skill] = st.selectbox(f"How would you rate your {skill} skills?", LEVELS)
 
-        if SHOW_RESULTS:
-            results_df = pd.DataFrame(results_data, columns=['Skill', 'Self-Assessment', 'Difference'])
-            st.write(results_df.to_html(index=False, classes='table table-striped table-hover'), unsafe_allow_html=True)
+        if st.button("Submit"):
+            results_data = []
+            for skill, level in responses.items():
+                difference = LEVELS.index(level) - TARGETS[position]
+                results_data.append([skill, level, difference])
+
+            send_email(name, position, results_data)
+
+            if SHOW_RESULTS:
+                results_df = pd.DataFrame(results_data, columns=['Skill', 'Self-Assessment', 'Difference'])
+                st.write(results_df.to_html(index=False, classes='table table-striped table-hover'), unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
