@@ -36,13 +36,14 @@ def consolidate_files(files):
 
 def recommend_trainers(df, skill):
     """Recommend trainers based on engineer level for a given skill."""
-    top_experts = df[df[skill] > 3]['Name'].tolist()
+    top_experts = df[df[skill] >= threshold]['Name'].tolist()  # Change > to >=
     return top_experts
 
 def engineers_requiring_training(df, skill, setpoint):
     """Find engineers below the skill setpoint."""
-    low_skill_engineers = df[df[skill] < setpoint]['Name'].tolist()
+    low_skill_engineers = df[df[skill] <= setpoint]['Name'].tolist()  # Change < to <=
     return low_skill_engineers
+
 
 def get_next_training_date(frequency, start_date=datetime.datetime.now() + datetime.timedelta(weeks=2)):
     if frequency == "Weekly":
