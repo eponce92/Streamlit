@@ -1,3 +1,6 @@
+import streamlit as st
+import pandas as pd
+
 @st.cache(allow_output_mutation=True)
 def consolidate_files(files):
     # List to store all the dataframes
@@ -26,3 +29,17 @@ def consolidate_files(files):
     consolidated_df = pd.DataFrame(all_data)
 
     return consolidated_df
+
+
+
+def main():
+    st.title("Engineers Data Consolidation")
+
+    uploaded_files = st.file_uploader("Upload Files", type=['xlsx'], accept_multiple_files=True)
+
+    if uploaded_files:
+        consolidated_df = consolidate_files(uploaded_files)
+        st.write(consolidated_df)
+
+if __name__ == "__main__":
+    main()
