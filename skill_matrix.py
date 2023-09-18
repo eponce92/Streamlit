@@ -48,36 +48,49 @@ def consolidate_files(files):
 def main():
     st.title("Engineers Data Consolidation")
 
-    uploaded_files = st.file_uploader("Upload Files", type=['xlsx'], accept_multiple_files=True)
+    # Split the screen into 2 columns:
+    # Left column for file uploads and download button.
+    # Right column for showing the consolidated table.
+    left_col, right_col = st.beta_columns(2)
+
+    with left_col:
+        uploaded_files = st.file_uploader("Upload Files", type=['xlsx'], accept_multiple_files=True)
 
     if uploaded_files:
         consolidated_df = consolidate_files(uploaded_files)
-        st.write(consolidated_df)
 
-        # Download button
-        download_data = to_excel(consolidated_df)
-        st.download_button(label="Download as Excel",
-                           data=download_data,
-                           file_name="consolidated_data.xlsx",
-                           mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-        
+        with right_col:
+            st.write("### Consolidated Data Table")
+            st.write(consolidated_df)
+
+            # Download button within an expander for better organization.
+            with st.beta_expander("Download Options"):
+                download_data = to_excel(consolidated_df)
+                st.download_button(label="Download as Excel",
+                                   data=download_data,
+                                   file_name="consolidated_data.xlsx",
+                                   mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
+        # Visualizations section
+        st.write("### Visualizations")
 
         # Individual heatmap
+        st.write("#### Individual Skills Difference Heatmap")
         fig_individual = px.imshow(consolidated_df.set_index('Name').drop(columns=['Engineer Level']),
                                    labels=dict(color="Difference"),
-                                   title="Individual Skills Difference Heatmap",
                                    color_continuous_scale=["red", "yellow", "green"])
         fig_individual.update_layout(xaxis_title="Skills", yaxis_title="Engineer Name")
         st.plotly_chart(fig_individual)
 
         # Overall team heatmap
+        st.write("#### Overall Team Skills Difference Heatmap")
         average_difference = consolidated_df.drop(columns=['Name', 'Engineer Level']).mean().to_frame().T
         fig_overall = px.imshow(average_difference,
                                 labels=dict(color="Average Difference"),
-                                title="Overall Team Skills Difference Heatmap",
                                 color_continuous_scale=["red", "yellow", "green"])
         fig_overall.update_layout(xaxis_title="Skills", yaxis_title="Team Average")
         st.plotly_chart(fig_overall)
+
 
 if __name__ == "__main__":
     main()
