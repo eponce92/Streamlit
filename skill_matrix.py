@@ -47,11 +47,9 @@ def consolidate_files(files):
 
 def main():
     st.title("Engineers Data Consolidation")
-
-    # Split the screen into 4 columns: 
-    # First column gets double the width for file uploads and the data table.
-    # The other columns will be used for visualizations.
-    col1, col2, col3, col4 = st.columns((2,1,1,1))
+    
+    # Create 3 columns: 1 for the main section and 2 for the heatmaps.
+    col_main, col_heatmap1, col_heatmap2 = st.columns([3,2,2])
 
     with col1:
         uploaded_files = st.file_uploader("Upload Files", type=['xlsx'], accept_multiple_files=True)
