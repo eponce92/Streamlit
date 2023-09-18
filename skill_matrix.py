@@ -1,33 +1,40 @@
 import streamlit as st
 import pandas as pd
 
-def consolidate_data(uploaded_files):
-    # Create an empty DataFrame to store the consolidated results
-    consolidated_df = pd.DataFrame()
+@st.cache
+def consolidate_files(files):
+    # List to store all the dataframes
+    dfs = []
     
-    # Process each uploaded file
-    for file in uploaded_files:
+    for file in files:
         # Read the Excel file into a DataFrame
-        data = pd.read_excel(file)
-        # Pivot the data so that the skills become columns
-        pivoted_data = data.pivot(index=None, columns='Skill', values='Difference')
-        # Add the engineer's name to the DataFrame (assuming it's in the filename)
-        name = file.name.replace("Results_", "").replace(".xlsx", "")
-        pivoted_data.insert(0, "Name", name)
+        df = pd.read_excel(file)
         
-        # Append the pivoted data to the consolidated DataFrame
-        consolidated_df = consolidated_df.append(pivoted_data, ignore_index=True)
+        # Pivot the table
+        df_pivot = df.pivot_table(index=['Engineer Level', df.index], columns='Skill', values='Difference').reset_index(drop=True)
+        
+        # Add name from filename (assuming filename format is Results_{name}.xlsx)
+        df_pivot['Name'] = file.name.split('_')[1].replace('.xlsx', '')
+        
+        dfs.append(df_pivot)
+
+    # Combine all dataframes into one
+    consolidated_df = pd.concat(dfs, axis=0)
     
+    # Rearrange columns
+    cols = ['Name', 'Engineer Level'] + [col for col in consolidated_df if col not in ['Name', 'Engineer Level']]
+    consolidated_df = consolidated_df[cols]
+
     return consolidated_df
 
 def main():
-    st.title("Engineer Skills Consolidator")
-    
-    uploaded_files = st.file_uploader("Upload all the Excel files", type="xlsx", accept_multiple_files=True)
-    
+    st.title("Engineers Data Consolidation")
+
+    uploaded_files = st.file_uploader("Upload Files", type=['xlsx'], accept_multiple_files=True)
+
     if uploaded_files:
-        consolidated_data = consolidate_data(uploaded_files)
-        st.table(consolidated_data)
+        consolidated_df = consolidate_files(uploaded_files)
+        st.write(consolidated_df)
 
 if __name__ == "__main__":
     main()
