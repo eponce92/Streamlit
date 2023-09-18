@@ -9,6 +9,7 @@ openai
 pytube
 youtube_dl
 streamlit-extras
+xlsxwriter
 
 
 
