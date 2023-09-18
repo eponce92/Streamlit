@@ -7,7 +7,6 @@ plotly
 streamlit
 openai
 pytube
-io
 youtube_dl
 streamlit-extras
 
