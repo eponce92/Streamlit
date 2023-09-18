@@ -42,10 +42,11 @@ def main():
         consolidated_df = consolidate_files(uploaded_files)
         st.write(consolidated_df)
 
-        # Creating a heatmap
+        # Creating a heatmap with a custom color scale
         fig = px.imshow(consolidated_df.set_index('Name').drop(columns=['Engineer Level']),
                         labels=dict(color="Difference"),
-                        title="Skills Difference Heatmap")
+                        title="Skills Difference Heatmap",
+                        color_continuous_scale=["red", "yellow", "green"])  # Adjusting the color scale
         fig.update_layout(xaxis_title="Skills", yaxis_title="Engineer Name")
         st.plotly_chart(fig)
 
