@@ -34,15 +34,16 @@ def consolidate_files(files):
     consolidated_df = pd.DataFrame(all_data)
     return consolidated_df
 
-def recommend_trainers(df, skill):
+def recommend_trainers(df, skill, threshold):
     """Recommend trainers based on engineer level for a given skill."""
-    top_experts = df[df[skill] >= threshold]['Name'].tolist()  # Change > to >=
+    top_experts = df[df[skill] >= threshold]['Name'].tolist() 
     return top_experts
 
-def engineers_requiring_training(df, skill, setpoint):
+def engineers_requiring_training(df, skill, setpoint, threshold):
     """Find engineers below the skill setpoint."""
-    low_skill_engineers = df[df[skill] <= setpoint]['Name'].tolist()  # Change < to <=
+    low_skill_engineers = df[df[skill] <= setpoint]['Name'].tolist()
     return low_skill_engineers
+
 
 
 def get_next_training_date(frequency, start_date=datetime.datetime.now() + datetime.timedelta(weeks=2)):
@@ -91,8 +92,10 @@ def main():
     st.write("### Proposed Training Schedule")
     training_date = datetime.datetime.now() + datetime.timedelta(weeks=2)
     for skill in sorted_skill_names:
-        trainers = recommend_trainers(consolidated_df, skill)
-        engineers = engineers_requiring_training(consolidated_df, skill, skill_setpoint)
+
+        trainers = recommend_trainers(consolidated_df, skill, threshold)
+        engineers = engineers_requiring_training(consolidated_df, skill, skill_setpoint, threshold)
+
         st.write(f"**{skill}**:")
         st.write(f"Date: {training_date.strftime('%Y-%m-%d')}")
         st.write(f"Recommended Trainers: {', '.join(trainers)}")
