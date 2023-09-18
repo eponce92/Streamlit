@@ -48,46 +48,42 @@ def consolidate_files(files):
 def main():
     st.title("Engineers Data Consolidation")
 
-    # Using a container to span the full width
-    main_container = st.container()
+    # Split the screen into 4 columns: 
+    # First column gets double the width for file uploads and the data table.
+    # The other columns will be used for visualizations.
+    col1, col2, col3, col4 = st.columns((2,1,1,1))
 
-    with main_container:
-        # Split the screen into 2 columns:
-        # Left column for file uploads and download button.
-        # Right column for showing the consolidated table.
-        left_col, right_col = st.columns(2)
-
-        with left_col:
-            uploaded_files = st.file_uploader("Upload Files", type=['xlsx'], accept_multiple_files=True)
+    with col1:
+        uploaded_files = st.file_uploader("Upload Files", type=['xlsx'], accept_multiple_files=True)
 
         if uploaded_files:
             consolidated_df = consolidate_files(uploaded_files)
+            st.write("### Consolidated Data Table")
+            st.write(consolidated_df)
 
-            with right_col:
-                st.write("### Consolidated Data Table")
-                st.write(consolidated_df)
+            # Download button within an expander for better organization.
+            with st.expander("Download Options"):
+                download_data = to_excel(consolidated_df)
+                st.download_button(label="Download as Excel",
+                                   data=download_data,
+                                   file_name="consolidated_data.xlsx",
+                                   mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
-                # Download button within an expander for better organization.
-                with st.expander("Download Options"):
-                    download_data = to_excel(consolidated_df)
-                    st.download_button(label="Download as Excel",
-                                       data=download_data,
-                                       file_name="consolidated_data.xlsx",
-                                       mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    if uploaded_files:  # Checking again to ensure the data has been uploaded before rendering the plots
+        # Visualizations section
 
-            # Visualizations section
-            st.write("### Visualizations")
-
-            # Individual heatmap
-            st.write("#### Individual Skills Difference Heatmap")
+        # Individual heatmap in col2
+        with col2:
+            st.write("#### Individual Skills Heatmap")
             fig_individual = px.imshow(consolidated_df.set_index('Name').drop(columns=['Engineer Level']),
                                        labels=dict(color="Difference"),
                                        color_continuous_scale=["red", "yellow", "green"])
             fig_individual.update_layout(xaxis_title="Skills", yaxis_title="Engineer Name")
             st.plotly_chart(fig_individual)
 
-            # Overall team heatmap
-            st.write("#### Overall Team Skills Difference Heatmap")
+        # Overall team heatmap in col3 (or col4 depending on where you want it)
+        with col3:
+            st.write("#### Team Skills Heatmap")
             average_difference = consolidated_df.drop(columns=['Name', 'Engineer Level']).mean().to_frame().T
             fig_overall = px.imshow(average_difference,
                                     labels=dict(color="Average Difference"),
@@ -95,6 +91,7 @@ def main():
             fig_overall.update_layout(xaxis_title="Skills", yaxis_title="Team Average")
             st.plotly_chart(fig_overall)
 
+        # If you have any additional charts or content, you can place them in col4
 
 if __name__ == "__main__":
     main()
