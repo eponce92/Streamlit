@@ -13,12 +13,6 @@ def to_excel(df):
         df.to_excel(writer, sheet_name='Consolidated_Data', index=False)
     return output.getvalue()
 
-def hash_func(x):
-    """Return None for all inputs. Used to bypass Streamlit's hashing in st.cache."""
-    return None
-
-@st.cache(hash_funcs={pd.DataFrame: hash_func}, suppress_st_warning=True)
-
 def consolidate_files(files):
     all_data = []
     for file in files:
@@ -60,46 +54,54 @@ def main():
     uploaded_files = st.sidebar.file_uploader("Upload Files", type=['xlsx'], accept_multiple_files=True)
     if uploaded_files:
         consolidated_df = consolidate_files(uploaded_files)
+        st.session_state.consolidated_df = consolidated_df
+    elif 'consolidated_df' not in st.session_state:
+        st.warning("Please upload files.")
+        return
+    else:
+        consolidated_df = st.session_state.consolidated_df
 
-        # Setting the skill priority after the consolidated_df is created
-        skill_priority = st.sidebar.multiselect("Set Priority for Skills", consolidated_df.columns.drop(['Name', 'Engineer Level']), default=consolidated_df.columns.drop(['Name', 'Engineer Level']).tolist())
+    # Setting skill priority as scores from 1 to 10
+    skill_priority_scores = {}
+    for skill in consolidated_df.columns.drop(['Name', 'Engineer Level']):
+        score = st.sidebar.slider(f"Priority score for {skill}", 1, 10, 5)
+        skill_priority_scores[skill] = score
 
-        skills_to_train = consolidated_df.drop(columns=['Name', 'Engineer Level']).mean()
-        filtered_skills = skills_to_train[skills_to_train < threshold]
-        sorted_skills = sorted(filtered_skills.index, key=lambda x: skill_priority.index(x))
-        skills_to_train = filtered_skills.loc[sorted_skills]
+    # Sorting skills based on priority
+    skills_to_train = consolidated_df.drop(columns=['Name', 'Engineer Level']).mean()
+    filtered_skills = skills_to_train[skills_to_train < threshold]
+    sorted_skills = sorted(filtered_skills.items(), key=lambda x: skill_priority_scores[x[0]], reverse=True)
+    sorted_skill_names = [item[0] for item in sorted_skills]
 
-        
+    st.write("### Proposed Training Schedule")
+    for skill in sorted_skill_names:
+        trainers = recommend_trainers(consolidated_df, skill)
+        engineers = engineers_requiring_training(consolidated_df, skill, skill_setpoint)
+        st.markdown(f"**Training for {skill}** - Recommended Trainers: {trainers} - Engineers: {engineers}")
 
-        st.write("### Proposed Training Schedule")
-        for skill in skills_to_train.index:
-            trainers = recommend_trainers(consolidated_df, skill)
-            engineers = engineers_requiring_training(consolidated_df, skill, skill_setpoint)
-            st.markdown(f"**Training for {skill}** - Recommended Trainers: {trainers} - Engineers: {engineers}")
+    # Visualization
+    st.write("### Visualization")
+    st.write("#### Individual Skills Heatmap")
+    fig_individual = px.imshow(consolidated_df.set_index('Name').drop(columns=['Engineer Level']),
+                               labels=dict(color="Difference"),
+                               color_continuous_scale=["red", "yellow", "green"])
+    fig_individual.update_layout(xaxis_title="Skills", yaxis_title="Engineer Name")
+    st.plotly_chart(fig_individual, use_container_width=True)
 
-        # Visualization
-        st.write("### Visualization")
-        st.write("#### Individual Skills Heatmap")
-        fig_individual = px.imshow(consolidated_df.set_index('Name').drop(columns=['Engineer Level']),
-                                   labels=dict(color="Difference"),
-                                   color_continuous_scale=["red", "yellow", "green"])
-        fig_individual.update_layout(xaxis_title="Skills", yaxis_title="Engineer Name")
-        st.plotly_chart(fig_individual, use_container_width=True)
+    st.write("#### Team Skills Heatmap")
+    average_difference = consolidated_df.drop(columns=['Name', 'Engineer Level']).mean().to_frame().T
+    fig_overall = px.imshow(average_difference,
+                            labels=dict(color="Average Difference"),
+                            color_continuous_scale=["red", "yellow", "green"])
+    fig_overall.update_layout(xaxis_title="Skills", yaxis_title="Team Average")
+    st.plotly_chart(fig_overall, use_container_width=True)
 
-        st.write("#### Team Skills Heatmap")
-        average_difference = consolidated_df.drop(columns=['Name', 'Engineer Level']).mean().to_frame().T
-        fig_overall = px.imshow(average_difference,
-                                labels=dict(color="Average Difference"),
-                                color_continuous_scale=["red", "yellow", "green"])
-        fig_overall.update_layout(xaxis_title="Skills", yaxis_title="Team Average")
-        st.plotly_chart(fig_overall, use_container_width=True)
-
-        # Save & Export
-        download_data = to_excel(consolidated_df)
-        st.sidebar.download_button(label="Download Consolidated Data",
-                                   data=download_data,
-                                   file_name="consolidated_data.xlsx",
-                                   mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    # Save & Export
+    download_data = to_excel(consolidated_df)
+    st.sidebar.download_button(label="Download Consolidated Data",
+                               data=download_data,
+                               file_name="consolidated_data.xlsx",
+                               mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
 if __name__ == "__main__":
     main()
