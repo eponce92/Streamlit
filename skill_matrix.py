@@ -8,11 +8,9 @@ import plotly.graph_objects as go
 import numpy as np
 import plotly.figure_factory as ff
 
-# Set the page layout to wide mode
 st.set_page_config(layout="wide")
 
 def to_excel(df):
-    """Convert a DataFrame into a BytesIO stream Excel format for download."""
     output = io.BytesIO()
     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
         df.to_excel(writer, sheet_name='Consolidated_Data', index=False)
@@ -38,12 +36,10 @@ def consolidate_files(files):
     return consolidated_df
 
 def recommend_trainers(df, skill, threshold):
-    """Recommend trainers based on engineer level for a given skill."""
-    top_experts = df[df[skill] >= threshold]['Name'].tolist()
+    top_experts = df[df[skill] >= threshold]['Name'].tolist() 
     return top_experts
 
-def engineers_requiring_training(df, skill, setpoint, threshold):
-    """Find engineers below the skill setpoint."""
+def engineers_requiring_training(df, skill, setpoint):
     low_skill_engineers = df[df[skill] <= setpoint]['Name'].tolist()
     return low_skill_engineers
 
@@ -58,7 +54,6 @@ def get_next_training_date(frequency, start_date=datetime.datetime.now() + datet
 def main():
     st.title("Engineer Training Planning Tool")
 
-    # Config Sidebar
     st.sidebar.title("Configuration")
     threshold = st.sidebar.slider("Skill Threshold for Training", -4, 4, 3)
     training_frequency = st.sidebar.radio("Training Spread", ["Weekly", "Bi-weekly", "Monthly"])
@@ -78,13 +73,11 @@ def main():
         st.warning("Please upload files.")
         return
 
-    # Setting skill priority as scores from 1 to 10
     skill_priority_scores = {}
     for skill in consolidated_df.columns.drop(['Name', 'Engineer Level']):
         score = st.sidebar.slider(f"Priority score for {skill}", 1, 10, 5)
         skill_priority_scores[skill] = score
 
-    # Sorting skills based on priority
     skills_to_train = consolidated_df.drop(columns=['Name', 'Engineer Level']).mean()
     filtered_skills = skills_to_train[skills_to_train < threshold]
     sorted_skills = sorted(filtered_skills.items(), key=lambda x: skill_priority_scores[x[0]], reverse=True)
@@ -92,12 +85,23 @@ def main():
 
     st.write("### Proposed Training Schedule")
     training_date = datetime.datetime.now() + datetime.timedelta(weeks=2)
-    training_dates = []
+    
+    training_dates = []  
+    training_events = []
 
     for skill in sorted_skill_names:
         trainers = recommend_trainers(consolidated_df, skill, threshold)
-        engineers = engineers_requiring_training(consolidated_df, skill, skill_setpoint, threshold)
-        training_dates.append(training_date)
+        engineers = engineers_requiring_training(consolidated_df, skill, skill_setpoint)
+
+        training_dates.append(training_date)  
+
+        event = {
+            "Task": skill,
+            "Start": training_date,
+            "Finish": training_date + datetime.timedelta(hours=2),
+            "Resource": ", ".join(trainers)
+        }
+        training_events.append(event)
 
         st.write(f"**{skill}**:")
         st.write(f"Date: {training_date.strftime('%Y-%m-%d')}")
@@ -105,10 +109,8 @@ def main():
         st.write(f"Engineers: {', '.join(engineers)}")
         training_date = get_next_training_date(training_frequency, training_date)
 
-    # Visualization
     st.write("### Visualization")
 
-    # Training Calendar Visualization
     st.write("#### Training Schedule Calendar")
     dates = pd.date_range(start="2023-01-01", end="2023-12-31", freq='D')
     values = [1 if date in training_dates else 0 for date in dates]
@@ -144,6 +146,12 @@ def main():
         ),
     )
     st.plotly_chart(fig_calendar, use_container_width=True)
+
+    # Gantt Chart
+    fig_gantt = ff.create_gantt(training_events, colors={'Machine Learning': 'rgb(220, 0, 0)', 'Python': 'rgb(170, 14, 200)'},  
+                            index_col='Resource', title='Training Schedule',
+                            show_colorbar=True, bar_width=0.2, showgrid_x=True, showgrid_y=True)
+    st.plotly_chart(fig_gantt, use_container_width=True)
 
 if __name__ == "__main__":
     main()
