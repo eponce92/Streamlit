@@ -173,8 +173,9 @@ def main():
     st.plotly_chart(fig_calendar, use_container_width=True)
 
     # Gantt Chart
-    fig_gantt = ff.create_gantt(training_events, colors=colors_dict, index_col='Resource', title='Training Schedule',
+    fig_gantt = ff.create_gantt(training_events, colors=colors_dict, index_col='Task', title='Training Schedule',
                                 show_colorbar=True, bar_width=0.2, showgrid_x=True, showgrid_y=True)
+
 
     st.plotly_chart(fig_gantt, use_container_width=True)
 
