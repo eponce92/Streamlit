@@ -48,6 +48,7 @@ def send_email(name, position, results_data):
 
     # Save results to Excel
     df = pd.DataFrame(results_data, columns=['Skill', 'Self-Assessment', 'Difference'])
+    df['Engineer Level'] = position  # add engineer's level to every row
     filename = f"Results_{name}.xlsx"
     df.to_excel(filename, index=False)
 
