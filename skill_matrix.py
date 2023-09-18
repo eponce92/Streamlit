@@ -45,14 +45,11 @@ def consolidate_files(files):
 
 
 
-# ... [Previous imports and function definitions remain unchanged]
-
 def main():
     st.title("Engineers Data Consolidation")
 
     # Split the screen into 3 columns: 
-    # First column gets 40% of the width, and the other two columns get 30% each.
-    col1, col2, col3 = st.columns((4,3,3))
+    col1, col2, col3 = st.columns([2,3,3])
 
     with col1:
         uploaded_files = st.file_uploader("Upload Files", type=['xlsx'], accept_multiple_files=True)
@@ -60,7 +57,7 @@ def main():
         if uploaded_files:
             consolidated_df = consolidate_files(uploaded_files)
             st.write("### Consolidated Data Table")
-            st.dataframe(consolidated_df, height=600)  # Using st.dataframe to make the table stretch to full width.
+            st.dataframe(consolidated_df)  # Using st.dataframe to let the table utilize full column width
 
             # Download button within an expander for better organization.
             with st.expander("Download Options"):
@@ -71,18 +68,15 @@ def main():
                                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
     if uploaded_files:  # Checking again to ensure the data has been uploaded before rendering the plots
-        # Visualizations section
-
-        # Individual heatmap in col2
+        
         with col2:
             st.write("#### Individual Skills Heatmap")
             fig_individual = px.imshow(consolidated_df.set_index('Name').drop(columns=['Engineer Level']),
                                        labels=dict(color="Difference"),
                                        color_continuous_scale=["red", "yellow", "green"])
             fig_individual.update_layout(xaxis_title="Skills", yaxis_title="Engineer Name")
-            st.plotly_chart(fig_individual)
+            st.plotly_chart(fig_individual, use_container_width=True)
 
-        # Overall team heatmap in col3
         with col3:
             st.write("#### Team Skills Heatmap")
             average_difference = consolidated_df.drop(columns=['Name', 'Engineer Level']).mean().to_frame().T
@@ -90,7 +84,7 @@ def main():
                                     labels=dict(color="Average Difference"),
                                     color_continuous_scale=["red", "yellow", "green"])
             fig_overall.update_layout(xaxis_title="Skills", yaxis_title="Team Average")
-            st.plotly_chart(fig_overall)
+            st.plotly_chart(fig_overall, use_container_width=True)
 
 if __name__ == "__main__":
     main()
