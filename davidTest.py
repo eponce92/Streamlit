@@ -18,7 +18,7 @@ TARGETS = {
 SHOW_RESULTS = True  # Change this to False if you don't want to show the results
 last_submitted_name = None  # Keep track of the last name submitted
 
-@st.cache
+@st.cache_data 
 def get_skills():
     return [
         'PLC Programming',
@@ -46,7 +46,8 @@ def send_email(name, position, results_data):
     body = "Attached are the auto-evaluation results."
     msg.attach(MIMEText(body, 'plain'))
 
-    # Save results to Excel
+     # Save results to Excel
+    filename = f"Results_{name}.xlsx"  # Define filename here if it's not defined earlier
     metadata = [['Name', name], ['Engineer Level', position]]
     df_metadata = pd.DataFrame(metadata, columns=['Key', 'Value'])
     df_results = pd.DataFrame(results_data, columns=['Skill', 'Self-Assessment', 'Difference'])
