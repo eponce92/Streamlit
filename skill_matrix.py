@@ -43,46 +43,51 @@ def recommend_trainers(df, skill):
 
 
 def main():
-    st.title("Engineer Training Planning Tool")
+    st.title("Engineers Training Planner")
 
-    # Config Sidebar
-    st.sidebar.title("Configuration")
-    threshold = st.sidebar.slider("Skill Threshold for Training", -4, 4, 0)
-    training_frequency = st.sidebar.radio("Training Frequency", ["Weekly", "Bi-weekly", "Monthly"])
+    # Configuration Sidebar
+    with st.sidebar:
+        st.header("Configuration")
+        threshold = st.slider("Skill Difference Threshold (Recommend Training Below This Value)", -4, 4, 0)
+        sessions = st.slider("Number of Weeks Available for Training Sessions", 1, 52, 4)
+        weeks = [f"Week {i+1}" for i in range(sessions)]
 
-    uploaded_files = st.sidebar.file_uploader("Upload Files", type=['xlsx'], accept_multiple_files=True)
+    uploaded_files = st.file_uploader("Upload Engineer Skill Data Files", type=['xlsx'], accept_multiple_files=True)
+
     if uploaded_files:
         consolidated_df = consolidate_files(uploaded_files)
+        st.write("### Consolidated Data Table")
+        st.dataframe(consolidated_df)
 
-        # Skills Overview
-        st.write("### Skills Overview")
-        skills_to_train = consolidated_df.drop(columns=['Name', 'Engineer Level']).mean()
-        skills_to_train = skills_to_train[skills_to_train < threshold]
+        # Skills below threshold
+        skills_to_train = consolidated_df.drop(columns=['Name', 'Engineer Level']).mean().sort_values()
+        skills_to_train = skills_to_train[skills_to_train <= threshold]
 
         # Proposed Training Schedule
         st.write("### Proposed Training Schedule")
-        
+
         skills_below_threshold = skills_to_train.index.tolist()
         max_sessions = min(len(skills_below_threshold), sessions)
-        
+
         for i in range(max_sessions):
             skill = skills_below_threshold[i]
             trainers = recommend_trainers(consolidated_df, skill)
             st.markdown(f"**Training for {skill}**: Recommended Trainers: {trainers}")
-        
+
         # Calendar Planning
         st.write("### Training Calendar")
-        
+
         # Ensure equal lengths for all columns
         remaining_sessions = sessions - max_sessions
         skills_for_calendar = skills_below_threshold[:max_sessions] + ["-"] * remaining_sessions
         trainers_for_calendar = [recommend_trainers(consolidated_df, skill) for skill in skills_for_calendar]
-        
+
         st.table(pd.DataFrame({
             "Week": weeks,
             "Skill": skills_for_calendar,
             "Recommended Trainer": trainers_for_calendar
         }))
+
 
 
         # Visualization
