@@ -4,6 +4,8 @@ import plotly.express as px
 import io
 import datetime
 import calendar
+import plotly.graph_objects as go
+import numpy as np
 
 # Set the page layout to wide mode
 st.set_page_config(layout="wide")
@@ -89,13 +91,17 @@ def main():
     sorted_skills = sorted(filtered_skills.items(), key=lambda x: skill_priority_scores[x[0]], reverse=True)
     sorted_skill_names = [item[0] for item in sorted_skills]
 
-    st.write("### Proposed Training Schedule")
+     st.write("### Proposed Training Schedule")
     training_date = datetime.datetime.now() + datetime.timedelta(weeks=2)
+    
+    training_dates = []  # List to keep track of training dates
+
     for skill in sorted_skill_names:
-
-        trainers = recommend_trainers(consolidated_df, skill, threshold)
-        engineers = engineers_requiring_training(consolidated_df, skill, skill_setpoint, threshold)
-
+        trainers = recommend_trainers(consolidated_df, skill)
+        engineers = engineers_requiring_training(consolidated_df, skill, skill_setpoint)
+        
+        training_dates.append(training_date)  # Append the current training date to the list
+        
         st.write(f"**{skill}**:")
         st.write(f"Date: {training_date.strftime('%Y-%m-%d')}")
         st.write(f"Recommended Trainers: {', '.join(trainers)}")
@@ -104,20 +110,43 @@ def main():
 
     # Visualization
     st.write("### Visualization")
-    st.write("#### Individual Skills Heatmap")
-    fig_individual = px.imshow(consolidated_df.set_index('Name').drop(columns=['Engineer Level']),
-                               labels=dict(color="Difference"),
-                               color_continuous_scale=["red", "yellow", "green"])
-    fig_individual.update_layout(xaxis_title="Skills", yaxis_title="Engineer Name")
-    st.plotly_chart(fig_individual, use_container_width=True)
 
-    st.write("#### Team Skills Heatmap")
-    average_difference = consolidated_df.drop(columns=['Name', 'Engineer Level']).mean().to_frame().T
-    fig_overall = px.imshow(average_difference,
-                            labels=dict(color="Average Difference"),
-                            color_continuous_scale=["red", "yellow", "green"])
-    fig_overall.update_layout(xaxis_title="Skills", yaxis_title="Team Average")
-    st.plotly_chart(fig_overall, use_container_width=True)
+    # Training Calendar Visualization
+    st.write("#### Training Schedule Calendar")
+    dates = pd.date_range(start="2023-01-01", end="2023-12-31", freq='D')
+    values = [1 if date in training_dates else 0 for date in dates]
+
+    fig_calendar = go.Figure(data=go.Scatter(
+        x=dates,
+        y=values,
+        mode='markers',
+        marker=dict(
+            size=10,
+            color=values, 
+            colorscale='Viridis',
+            showscale=False
+        )
+    ))
+
+    fig_calendar.update_layout(
+        title="Training Schedule in 2023",
+        xaxis_title="Date",
+        yaxis_title="Scheduled Training",
+        yaxis=dict(tickvals=[0, 1], ticktext=['No Training', 'Training']),
+        xaxis=dict(
+            rangeselector=dict(
+                buttons=list([
+                    dict(count=1, label="1m", step="month", stepmode="backward"),
+                    dict(count=6, label="6m", step="month", stepmode="backward"),
+                    dict(count=12, label="YTD", step="month", stepmode="todate"),
+                    dict(count=12, label="1y", step="year", stepmode="backward"),
+                    dict(step="all")
+                ])
+            ),
+            type="date"
+        ),
+    )
+    st.plotly_chart(fig_calendar, use_container_width=True)
 
 if __name__ == "__main__":
     main()
