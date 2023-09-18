@@ -3,8 +3,8 @@ import pandas as pd
 import plotly.express as px
 import io
 import datetime
+import plotly.graph_objects as go
 import numpy as np
-import colorsys
 
 st.set_page_config(layout="wide")
 
@@ -34,7 +34,7 @@ def consolidate_files(files):
     return consolidated_df
 
 def recommend_trainers(df, skill, threshold):
-    top_experts = df[df[skill] >= threshold]['Name'].tolist()
+    top_experts = df[df[skill] >= threshold]['Name'].tolist() 
     return top_experts
 
 def engineers_requiring_training(df, skill, setpoint):
@@ -48,6 +48,26 @@ def get_next_training_date(frequency, start_date=datetime.datetime.now() + datet
         return start_date + datetime.timedelta(weeks=2)
     else:
         return start_date + datetime.timedelta(weeks=4)
+
+def display_training_schedule(training_events):
+    st.write("### Proposed Training Schedule")
+    
+    for event in training_events:
+        st.write("---")  # horizontal line for separation
+        st.subheader(event["Task"])
+        st.write(f"**Date**: {event['Start'].strftime('%Y-%m-%d')}")
+        
+        trainers = event["Resource"]
+        if trainers:
+            st.write(f"**Recommended Trainers**: {trainers}")
+        else:
+            st.write("**Recommended Trainers**: Not specified")
+        
+        engineers = event.get("Engineers", [])
+        if engineers:
+            st.write(f"**Engineers**: {', '.join(engineers)}")
+        else:
+            st.write("**Engineers**: Not specified")
 
 def main():
     st.title("Engineer Training Planning Tool")
@@ -81,32 +101,37 @@ def main():
     sorted_skills = sorted(filtered_skills.items(), key=lambda x: skill_priority_scores[x[0]], reverse=True)
     sorted_skill_names = [item[0] for item in sorted_skills]
 
-    st.write("### Proposed Training Schedule")
     training_date = datetime.datetime.now() + datetime.timedelta(weeks=2)
+    training_events = []
 
     for skill in sorted_skill_names:
         trainers = recommend_trainers(consolidated_df, skill, threshold)
         engineers = engineers_requiring_training(consolidated_df, skill, skill_setpoint)
 
-        st.write(f"**{skill}**:")
-        st.write(f"Date: {training_date.strftime('%Y-%m-%d')}")
-        st.write(f"Recommended Trainers: {', '.join(trainers)}")
-        st.write(f"Engineers: {', '.join(engineers)}")
+        event = {
+            "Task": skill,
+            "Start": training_date,
+            "Resource": ", ".join(trainers),
+            "Engineers": engineers
+        }
+        training_events.append(event)
+
         training_date = get_next_training_date(training_frequency, training_date)
 
-    # Skills Heat Map
-    st.write("### Skills Heat Map")
-    skill_means = consolidated_df.drop(columns=['Name', 'Engineer Level']).mean().reset_index()
-    skill_means.columns = ["Skill", "Average Score"]
-    fig_skill = px.imshow(skill_means.pivot_table(index="Skill", values="Average Score", aggfunc="mean"),
-                          color_continuous_scale=["red", "yellow", "green"], zmin=-4, zmax=4)
-    st.plotly_chart(fig_skill, use_container_width=True)
+    display_training_schedule(training_events)
 
-    # Engineers Heat Map
-    st.write("### Engineers Heat Map")
-    fig_engineers = px.imshow(consolidated_df.drop(columns=['Engineer Level']).set_index('Name'),
-                              color_continuous_scale=["red", "yellow", "green"], zmin=-4, zmax=4)
-    st.plotly_chart(fig_engineers, use_container_width=True)
+    st.write("### Heatmaps")
+    
+    fig1 = px.imshow(consolidated_df.drop(columns=['Name', 'Engineer Level']).transpose(), 
+                     title="All Engineers Skill Levels",
+                     color_continuous_scale=["red", "yellow", "green"])
+    
+    fig2 = px.imshow(pd.DataFrame(consolidated_df.drop(columns=['Name', 'Engineer Level']).mean()).transpose(),
+                     title="Average Skill Level Across All Engineers",
+                     color_continuous_scale=["red", "yellow", "green"])
+
+    st.plotly_chart(fig1, use_container_width=True)
+    st.plotly_chart(fig2, use_container_width=True)
 
 if __name__ == "__main__":
     main()
