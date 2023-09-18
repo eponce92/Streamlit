@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import plotly.express as px
 
 @st.cache(allow_output_mutation=True)
 def consolidate_files(files):
@@ -40,6 +41,13 @@ def main():
     if uploaded_files:
         consolidated_df = consolidate_files(uploaded_files)
         st.write(consolidated_df)
+
+        # Creating a heatmap
+        fig = px.imshow(consolidated_df.set_index('Name').drop(columns=['Engineer Level']),
+                        labels=dict(color="Difference"),
+                        title="Skills Difference Heatmap")
+        fig.update_layout(xaxis_title="Skills", yaxis_title="Engineer Name")
+        st.plotly_chart(fig)
 
 if __name__ == "__main__":
     main()
