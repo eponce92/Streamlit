@@ -127,6 +127,18 @@ def main():
         score = st.sidebar.slider(f"Priority score for {skill}", 1, 10, 5, key=key)
         skill_priority_scores[skill] = score
 
+    skills_to_train = consolidated_df.drop(columns=['Name', 'Engineer Level']).mean()
+    filtered_skills = skills_to_train[skills_to_train < threshold]
+    sorted_skills = sorted(filtered_skills.items(), key=lambda x: skill_priority_scores[x[0]], reverse=True)
+    sorted_skill_names = [item[0] for item in sorted_skills]
+
+    training_date = datetime.datetime.now() + datetime.timedelta(weeks=2)
+    training_events = []
+
+    for skill in sorted_skill_names:
+        trainers = recommend_trainers(consolidated_df, skill, threshold)
+        engineers = engineers_requiring_training(consolidated_df, skill, skill_setpoint)
+
         event = {
             "Task": skill,
             "Start": training_date,
@@ -153,6 +165,7 @@ def main():
 
     st.plotly_chart(fig1, use_container_width=True)
     st.plotly_chart(fig2, use_container_width=True)
+
 
 if __name__ == "__main__":
     main()
