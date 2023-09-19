@@ -76,10 +76,11 @@ def main():
 
     skills = get_skills()
     responses = {}
-    
+
     for skill in skills:
         key = f"selectbox_{skill}"
         responses[skill] = st.selectbox(f"How would you rate your {skill} skills?", LEVELS, key=key)
+
 
     if st.button("Submit"):
         results_data = []
