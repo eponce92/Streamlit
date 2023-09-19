@@ -19,7 +19,7 @@ TARGETS = {
     'Engineer Level 3': 5
 }
 
-@st.cache
+@st.cache_data
 def get_skills():
     # Fetching the skills list from the GitHub raw URL
     url = "https://raw.githubusercontent.com/eponce92/Streamlit/main/skills_list.txt"
@@ -92,9 +92,9 @@ def main():
     st.title("Engineer Training Planning Tool")
 
     st.sidebar.title("Configuration")
-    threshold = st.sidebar.slider("Skill Threshold for Training", -5, 5, 4)
+    threshold = st.sidebar.slider("Skill Threshold for Training", -5, 5, 4, key="threshold_slider")
     training_frequency = st.sidebar.radio("Training Spread", ["Weekly", "Bi-weekly", "Monthly"])
-    skill_setpoint = st.sidebar.slider("Skill Setpoint for Training Requirement", -5, 5, 0)
+    skill_setpoint = st.sidebar.slider("Skill Setpoint for Training Requirement", -5, 5, 0, key="setpoint_slider")
 
     uploaded_files = st.sidebar.file_uploader("Upload Files", type=['xlsx'], accept_multiple_files=True)
     if uploaded_files:
@@ -112,7 +112,7 @@ def main():
 
     skill_priority_scores = {}
     for skill in get_skills():
-        score = st.sidebar.slider(f"Priority score for {skill}", 1, 10, 5)
+        score = st.sidebar.slider(f"Priority score for {skill}", 1, 10, 5, key=f"priority_{skill}")
         skill_priority_scores[skill] = score
 
     skills_to_train = consolidated_df.drop(columns=['Name', 'Engineer Level']).mean()
