@@ -76,11 +76,10 @@ def main():
 
     skills = get_skills()
     responses = {}
-
-    for skill in skills:
-        key = f"selectbox_{skill}"
+    
+    for index, skill in enumerate(skills):
+        key = f"selectbox_{index}_{skill}"
         responses[skill] = st.selectbox(f"How would you rate your {skill} skills?", LEVELS, key=key)
-
 
     if st.button("Submit"):
         results_data = []
