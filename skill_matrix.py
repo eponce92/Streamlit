@@ -27,8 +27,8 @@ def get_skills():
     skills = response.text.split(",\n")
     return [skill.strip() for skill in skills]
 
-def sanitize_key(skill_name):
-    return "priority_" + "".join(e for e in skill_name if e.isalnum()) + str(hash(skill_name))
+def sanitize_key(skill_name, idx):
+    return "priority_" + str(idx) + "_" + "".join(e for e in skill_name if e.isalnum())
 
 @st.cache_data
 def get_skills():
@@ -122,8 +122,8 @@ def main():
         return
 
     skill_priority_scores = {}
-    for skill in get_skills():
-        key = sanitize_key(skill)
+    for idx, skill in enumerate(get_skills()):
+        key = sanitize_key(skill, idx)
         score = st.sidebar.slider(f"Priority score for {skill}", 1, 10, 5, key=key)
         skill_priority_scores[skill] = score
 
