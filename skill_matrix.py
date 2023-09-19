@@ -28,7 +28,7 @@ def get_skills():
     return [skill.strip() for skill in skills]
 
 def sanitize_key(skill_name):
-    return "priority_" + "".join(e for e in skill_name if e.isalnum())
+    return "priority_" + "".join(e for e in skill_name if e.isalnum()) + str(hash(skill_name))
 
 @st.cache_data
 def get_skills():
