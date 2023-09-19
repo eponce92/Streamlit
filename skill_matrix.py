@@ -19,6 +19,13 @@ TARGETS = {
     'Engineer Level 3': 5
 }
 
+@st.cache_data
+def get_skills():
+    # Fetching the skills list from the GitHub raw URL
+    url = "https://raw.githubusercontent.com/eponce92/Streamlit/main/skills_list.txt"
+    response = requests.get(url)
+    skills = response.text.split(",\n")
+    return [skill.strip() for skill in skills]
 
 def sanitize_key(skill_name):
     return "priority_" + "".join(e for e in skill_name if e.isalnum())
@@ -116,23 +123,9 @@ def main():
 
     skill_priority_scores = {}
     for skill in get_skills():
-       
         key = sanitize_key(skill)
         score = st.sidebar.slider(f"Priority score for {skill}", 1, 10, 5, key=key)
-
         skill_priority_scores[skill] = score
-
-    skills_to_train = consolidated_df.drop(columns=['Name', 'Engineer Level']).mean()
-    filtered_skills = skills_to_train[skills_to_train < threshold]
-    sorted_skills = sorted(filtered_skills.items(), key=lambda x: skill_priority_scores[x[0]], reverse=True)
-    sorted_skill_names = [item[0] for item in sorted_skills]
-
-    training_date = datetime.datetime.now() + datetime.timedelta(weeks=2)
-    training_events = []
-
-    for skill in sorted_skill_names:
-        trainers = recommend_trainers(consolidated_df, skill, threshold)
-        engineers = engineers_requiring_training(consolidated_df, skill, skill_setpoint)
 
         event = {
             "Task": skill,
