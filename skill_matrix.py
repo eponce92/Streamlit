@@ -19,6 +19,10 @@ TARGETS = {
     'Engineer Level 3': 5
 }
 
+
+def sanitize_key(skill_name):
+    return "priority_" + "".join(e for e in skill_name if e.isalnum())
+
 @st.cache_data
 def get_skills():
     # Fetching the skills list from the GitHub raw URL
@@ -112,7 +116,10 @@ def main():
 
     skill_priority_scores = {}
     for skill in get_skills():
-        score = st.sidebar.slider(f"Priority score for {skill}", 1, 10, 5, key=f"priority_{skill}")
+       
+        key = sanitize_key(skill)
+        score = st.sidebar.slider(f"Priority score for {skill}", 1, 10, 5, key=key)
+
         skill_priority_scores[skill] = score
 
     skills_to_train = consolidated_df.drop(columns=['Name', 'Engineer Level']).mean()
