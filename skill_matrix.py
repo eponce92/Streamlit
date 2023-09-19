@@ -5,8 +5,27 @@ import io
 import datetime
 import plotly.graph_objects as go
 import numpy as np
+import requests
 
 st.set_page_config(layout="wide")
+
+LEVELS = ['No knowledge', 'Knows but no practice', 'Can do with help', 'Can do alone', 'Can teach others', 'Expert']
+TARGETS = {
+    'MX Technitian Level 1': 1,
+    'MX Technitian Level 2': 2,
+    'MX Technitian Level 3': 3,
+    'Engineer Level 1': 3,
+    'Engineer Level 2': 4,
+    'Engineer Level 3': 5
+}
+
+@st.cache
+def get_skills():
+    # Fetching the skills list from the GitHub raw URL
+    url = "https://raw.githubusercontent.com/eponce92/Streamlit/main/skills_list.txt"
+    response = requests.get(url)
+    skills = response.text.split(",\n")
+    return [skill.strip() for skill in skills]
 
 def to_excel(df):
     output = io.BytesIO()
@@ -73,9 +92,9 @@ def main():
     st.title("Engineer Training Planning Tool")
 
     st.sidebar.title("Configuration")
-    threshold = st.sidebar.slider("Skill Threshold for Training", -4, 4, 3)
+    threshold = st.sidebar.slider("Skill Threshold for Training", -5, 5, 4)
     training_frequency = st.sidebar.radio("Training Spread", ["Weekly", "Bi-weekly", "Monthly"])
-    skill_setpoint = st.sidebar.slider("Skill Setpoint for Training Requirement", -4, 4, 0)
+    skill_setpoint = st.sidebar.slider("Skill Setpoint for Training Requirement", -5, 5, 0)
 
     uploaded_files = st.sidebar.file_uploader("Upload Files", type=['xlsx'], accept_multiple_files=True)
     if uploaded_files:
@@ -92,7 +111,7 @@ def main():
         return
 
     skill_priority_scores = {}
-    for skill in consolidated_df.columns.drop(['Name', 'Engineer Level']):
+    for skill in get_skills():
         score = st.sidebar.slider(f"Priority score for {skill}", 1, 10, 5)
         skill_priority_scores[skill] = score
 
@@ -125,12 +144,12 @@ def main():
     fig1 = px.imshow(consolidated_df.drop(columns=['Name', 'Engineer Level']).transpose(), 
                      title="All Engineers Skill Levels",
                      color_continuous_scale=["red", "yellow", "green"],
-                     zmin=-4, zmax=4)
+                     zmin=-5, zmax=5)
     
     fig2 = px.imshow(pd.DataFrame(consolidated_df.drop(columns=['Name', 'Engineer Level']).mean()).transpose(),
                      title="Average Skill Level Across All Engineers",
                      color_continuous_scale=["red", "yellow", "green"],
-                     zmin=-4, zmax=4)
+                     zmin=-5, zmax=5)
 
     st.plotly_chart(fig1, use_container_width=True)
     st.plotly_chart(fig2, use_container_width=True)
