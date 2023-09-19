@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import smtplib
+import requests
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
@@ -15,21 +16,17 @@ TARGETS = {
     'Engineer Level 2': 4,
     'Engineer Level 3': 5
 }
-TARGET_VALUES = []
 
-SHOW_RESULTS = True
-last_submitted_name = None
+SHOW_RESULTS = True  # Change this to False if you don't want to show the results
+last_submitted_name = None  # Keep track of the last name submitted
 
-def get_skills_from_excel(file):
-    xl = pd.ExcelFile(file)
-    df = xl.parse(xl.sheet_names[0])
-    skills = df.iloc[4:, 2].dropna().tolist()
-    return skills
-
-def get_target_value(skill, position):
-    skill_index = SKILLS.index(skill)
-    position_index = list(TARGETS.keys()).index(position)
-    return TARGET_VALUES[skill_index][position_index]
+@st.cache_data 
+def get_skills():
+    # Fetching the skills list from the GitHub raw URL
+    url = "https://raw.githubusercontent.com/eponce92/Streamlit/main/skills_list.txt"
+    response = requests.get(url)
+    skills = response.text.split(",\n")
+    return [skill.strip() for skill in skills]
 
 def send_email(name, position, results_data):
     global last_submitted_name
@@ -37,7 +34,7 @@ def send_email(name, position, results_data):
         st.warning("Duplicate submission detected. Email not sent.")
         return
     last_submitted_name = name
-
+    
     msg = MIMEMultipart()
     msg['From'] = "david.almazan.tsla@gmail.com"
     msg['To'] = "david.almazan.tsla@gmail.com"
@@ -46,11 +43,13 @@ def send_email(name, position, results_data):
     body = "Attached are the auto-evaluation results."
     msg.attach(MIMEText(body, 'plain'))
 
-    filename = f"Results_{name}.xlsx"
+     # Save results to Excel
+    filename = f"Results_{name}.xlsx"  # Define filename here if it's not defined earlier
     metadata = [['Name', name], ['Engineer Level', position]]
     df_metadata = pd.DataFrame(metadata, columns=['Key', 'Value'])
     df_results = pd.DataFrame(results_data, columns=['Skill', 'Self-Assessment', 'Difference'])
 
+    # Save both metadata and results to the same Excel but different sheets
     with pd.ExcelWriter(filename) as writer:
         df_metadata.to_excel(writer, sheet_name='Metadata', index=False)
         df_results.to_excel(writer, sheet_name='Results', index=False)
@@ -64,37 +63,34 @@ def send_email(name, position, results_data):
 
     server = smtplib.SMTP('smtp.gmail.com', 587)
     server.starttls()
-    server.login("david.almazan.tsla@gmail.com", "dtupyqjbdiufrwqp")
+    server.login("david.almazan.tsla@gmail.com", "dtupyqjbdiufrwqp")  # Use the app password here
     text = msg.as_string()
     server.sendmail("david.almazan.tsla@gmail.com", "david.almazan.tsla@gmail.com", text)
     server.quit()
 
 def main():
     st.title("Engineer Auto-Evaluation")
+    
+    name = st.text_input("Your Name:")
+    position = st.selectbox("Your Engineer Level:", list(TARGETS.keys()))
 
-    uploaded_file = st.file_uploader("Choose an Excel file", type="xlsx")
+    skills = get_skills()
+    responses = {}
+    
+    for skill in skills:
+        responses[skill] = st.selectbox(f"How would you rate your {skill} skills?", LEVELS)
 
-    if uploaded_file:
-        SKILLS = get_skills_from_excel(uploaded_file)
-        name = st.text_input("Your Name:")
-        position = st.selectbox("Your Engineer Level:", list(TARGETS.keys()))
+    if st.button("Submit"):
+        results_data = []
+        for skill, level in responses.items():
+            difference = LEVELS.index(level) - TARGETS[position]
+            results_data.append([skill, level, difference])
 
-        responses = {}
-   
-        for skill in SKILLS:
-            responses[skill] = st.selectbox(f"How would you rate your {skill} skills?", LEVELS, key=skill)
+        send_email(name, position, results_data)
 
-        if st.button("Submit"):
-            results_data = []
-            for skill, level in responses.items():
-                difference = LEVELS.index(level) - TARGETS[position]
-                results_data.append([skill, level, difference])
-
-            send_email(name, position, results_data)
-
-            if SHOW_RESULTS:
-                results_df = pd.DataFrame(results_data, columns=['Skill', 'Self-Assessment', 'Difference'])
-                st.write(results_df.to_html(index=False, classes='table table-striped table-hover'), unsafe_allow_html=True)
+        if SHOW_RESULTS:
+            results_df = pd.DataFrame(results_data, columns=['Skill', 'Self-Assessment', 'Difference'])
+            st.write(results_df.to_html(index=False, classes='table table-striped table-hover'), unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
