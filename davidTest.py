@@ -7,11 +7,11 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
 
-LEVELS = ['No knowledge', 'Knows but no practice', 'Can do with help', 'Can do alone', 'Can teach others']
+LEVELS = ['No knowledge', 'Knows but no practice', 'Can do with help', 'Can do alone', 'Can teach others', 'Expert']
 TARGETS = {
-    'MX Technitian Level 1': 0,
-    'MX Technitian Level 2': 1,
-    'MX Technitian Level 3': 2,
+    'MX Technitian Level 1': 1,
+    'MX Technitian Level 2': 2,
+    'MX Technitian Level 3': 3,
     'Engineer Level 1': 3,
     'Engineer Level 2': 4,
     'Engineer Level 3': 5
@@ -44,7 +44,7 @@ def send_email(name, position, results_data):
     msg.attach(MIMEText(body, 'plain'))
 
      # Save results to Excel
-    filename = f"Results_{name}.xlsx"  # Define filename here if it's not defined earlier
+    filename = f"Results_{name}.xlsx"
     metadata = [['Name', name], ['Engineer Level', position]]
     df_metadata = pd.DataFrame(metadata, columns=['Key', 'Value'])
     df_results = pd.DataFrame(results_data, columns=['Skill', 'Self-Assessment', 'Difference'])
@@ -63,7 +63,7 @@ def send_email(name, position, results_data):
 
     server = smtplib.SMTP('smtp.gmail.com', 587)
     server.starttls()
-    server.login("david.almazan.tsla@gmail.com", "dtupyqjbdiufrwqp")  # Use the app password here
+    server.login("david.almazan.tsla@gmail.com", "dtupyqjbdiufrwqp")
     text = msg.as_string()
     server.sendmail("david.almazan.tsla@gmail.com", "david.almazan.tsla@gmail.com", text)
     server.quit()
