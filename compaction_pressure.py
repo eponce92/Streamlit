@@ -79,7 +79,8 @@ if uploaded_file:
     peak_inertia_force = data['Inertial Force (N)'].max()
     st.write(f"**Peak Force due to Inertia**: {peak_inertia_force:.2f} N")
 
-    st.write(f"**Total Force**: {F_total:.2f} N")
+    peak_total_force = data['Total Force (N)'].max() 
+    st.write(f"**Peak Total Force**: {peak_total_force:.2f} N")
     st.write(f"**Pressure on the Compaction Pin Tip**: {pressure_tip_psi:.2f} PSI")
 
     # Interactive Plotting using plotly
@@ -100,13 +101,14 @@ if uploaded_file:
     max_force_time = data['Total Time (ms)'][data['Total Force (N)'].idxmax()]
     fig3.add_annotation(
         x=max_force_time,
-        y=F_total,
-        text=f"Peak Force: {F_total:.2f} N",
+        y=peak_total_force,
+        text=f"Peak Force: {peak_total_force:.2f} N",
         showarrow=True,
         arrowhead=4,
         ax=0,
         ay=-40
     )
+
     
     st.plotly_chart(fig3)
 
