@@ -44,21 +44,40 @@ st.write("""
 This application processes data from a PLC trend on an IL-100 distance sensor observing a pneumatic actuator. 
 The main objective is to determine the peak force the cylinder exerts on powder during compaction.
 
-#### Key Metrics:
-- **PSI**: Represents the internal pressure of the pneumatic cylinder.
-- **Flow**: Indicates the flow rate of air into the cylinder, influencing piston speed.
-- **Pneumatic Force**: Calculated from the internal pressure and the cylinder's bore size.
-    - $$ F_{\text{pneumatic}} = P \times A $$
-    where \( P \) is the pressure in Pascals and \( A \) is the piston's area.
-- **Inertial Force**: Represents the force due to the tool's acceleration.
-    - $$ F_{\text{inertia}} = m \times a $$
-    where \( m \) is the mass of the tool and \( a \) is its acceleration.
-- **Total Force**: The sum of pneumatic and inertial forces.
-- **Pressure on the Tip**: Represents the pressure experienced by the material being compacted.
-    - Calculated by dividing the total force by the compactor pin's tip area.
+#### Key Metrics and Calculations:
 
-To use the application, upload the data file and adjust the parameters on the sidebar as needed. The results will be displayed along with interactive plots for a comprehensive analysis.
+- **PSI (Pounds per Square Inch)**: This metric indicates the internal pressure within the pneumatic cylinder.
+
+- **Flow**: Represents the rate at which air enters the pneumatic cylinder, which can influence the speed of the piston's movement.
+
+- **Pneumatic Force (N)**: This is the force exerted by the pneumatic cylinder due to the air pressure inside.
+  - Calculation: 
+    $$ F_{\text{pneumatic}} = P \times A $$
+  Where:
+    - \( P \) is the pressure, converted from PSI to Pascals using the formula:
+      $$ P = \text{PSI} \times 6894.76 $$
+    - \( A \) is the piston's area, calculated from the bore size:
+      $$ A = \pi \times \left( \frac{\text{bore size}}{2} \right)^2 $$
+
+- **Inertial Force (N)**: The force resulting from the tool's acceleration during the piston's movement.
+  - Calculation:
+    $$ F_{\text{inertia}} = m \times a $$
+  Where:
+    - \( m \) is the mass of the tool.
+    - \( a \) is the acceleration, derived from the rate of change of velocity.
+
+- **Total Force (N)**: The combined force of the pneumatic and inertial components during compaction.
+  - Calculation:
+    $$ F_{\text{total}} = F_{\text{pneumatic}} + F_{\text{inertia}} $$
+
+- **Pressure on the Tip (PSI)**: Represents the pressure experienced by the material being compacted.
+  - Calculation:
+    $$ \text{Pressure on the tip} = \frac{\text{Total Force in Pounds}}{\text{Tip Area in Square Inches}} $$
+  Where the Total Force is converted to Pounds and the Tip Area is calculated using its diameter.
+
+To use the application, upload the data file and adjust the parameters on the sidebar as needed. The results, accompanied by interactive plots, provide a comprehensive analysis of the compaction process.
 """)
+
 
 
 # Upload the Excel file
