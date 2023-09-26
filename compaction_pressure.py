@@ -19,15 +19,21 @@ def process_data(data, pressure, bore_size, mass, tip_diameter):
     r = bore_size / 2  # Radius in meters
     A = math.pi * r**2  # Area of the piston
     F_pneumatic = P * A  # Pneumatic force
-    F_inertia = mass * data['Smoothed Acceleration (mm/ms^2)'].abs().max() * 1000  # In m/s^2
-    F_total = F_pneumatic + F_inertia
+    
+    # Calculate inertial force for each time point
+    data['Inertial Force (N)'] = mass * data['Smoothed Acceleration (mm/ms^2)'] * 1000  # Convert mm/ms^2 to m/s^2
+    
+    # Total force = constant pneumatic force + variable inertial force
+    data['Total Force (N)'] = F_pneumatic + data['Inertial Force (N)']
 
     # Calculate pressure on the tip
     tip_area_mm2 = math.pi * (tip_diameter / 2)**2  # Area in mm^2
-    F_total_lbs = F_total * 0.2248  # Force in lbs
-    pressure_tip_psi = F_total_lbs / (tip_area_mm2 / 645.16)  # Pressure in PSI
+    max_force = data['Total Force (N)'].max()
+    max_force_lbs = max_force * 0.2248  # Force in lbs
+    pressure_tip_psi = max_force_lbs / (tip_area_mm2 / 645.16)  # Pressure in PSI
 
-    return data, F_pneumatic, F_inertia, F_total, pressure_tip_psi
+    return data, F_pneumatic, pressure_tip_psi
+
 
 st.title("Pneumatic Cylinder Compaction Force Analysis")
 
