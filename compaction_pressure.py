@@ -70,7 +70,8 @@ if uploaded_file:
     tip_diameter = st.sidebar.number_input("Compactor Pin Diameter (thou)", min_value=0.0, value=25.0, step=0.1) * 0.0254  # in meters
 
     # Process data and calculate forces
-    data, F_pneumatic, F_inertia, F_total, pressure_tip_psi = process_data(data, pressure, bore_size, mass, tip_diameter)
+    data, F_pneumatic, pressure_tip_psi = process_data(data, pressure, bore_size, mass, tip_diameter)
+
 
     # Display results
     st.header("Results:")
