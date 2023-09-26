@@ -40,6 +40,7 @@ st.title("Pneumatic Cylinder Compaction Force Analysis")
 # Documentation
 st.write("""
 ### Pneumatic Cylinder Compaction Force Analysis
+
 This application processes data from a PLC trend on an IL-100 distance sensor observing a pneumatic actuator. 
 The main objective is to determine the peak force the cylinder exerts on powder during compaction.
 
@@ -47,10 +48,10 @@ The main objective is to determine the peak force the cylinder exerts on powder 
 - **PSI**: Represents the internal pressure of the pneumatic cylinder.
 - **Flow**: Indicates the flow rate of air into the cylinder, influencing piston speed.
 - **Pneumatic Force**: Calculated from the internal pressure and the cylinder's bore size.
-    - \( F_{\text{pneumatic}} = P \times A \)
+    - $$ F_{\text{pneumatic}} = P \times A $$
     where \( P \) is the pressure in Pascals and \( A \) is the piston's area.
 - **Inertial Force**: Represents the force due to the tool's acceleration.
-    - \( F_{\text{inertia}} = m \times a \)
+    - $$ F_{\text{inertia}} = m \times a $$
     where \( m \) is the mass of the tool and \( a \) is its acceleration.
 - **Total Force**: The sum of pneumatic and inertial forces.
 - **Pressure on the Tip**: Represents the pressure experienced by the material being compacted.
