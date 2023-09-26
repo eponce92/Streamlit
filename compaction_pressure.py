@@ -76,7 +76,9 @@ if uploaded_file:
     # Display results
     st.header("Results:")
     st.write(f"**Pneumatic Force**: {F_pneumatic:.2f} N")
-    st.write(f"**Force due to Inertia**: {F_inertia:.2f} N")
+    peak_inertia_force = data['Inertial Force (N)'].max()
+    st.write(f"**Peak Force due to Inertia**: {peak_inertia_force:.2f} N")
+
     st.write(f"**Total Force**: {F_total:.2f} N")
     st.write(f"**Pressure on the Compaction Pin Tip**: {pressure_tip_psi:.2f} PSI")
 
