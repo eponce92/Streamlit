@@ -92,11 +92,10 @@ if uploaded_file:
     fig2 = px.line(data, x='Total Time (ms)', y='Smoothed Acceleration (mm/ms^2)', title='Smoothed Acceleration vs Time')
     st.plotly_chart(fig2)
 
-    # Note: For total force vs time, we need a consistent force value over time. This will be a horizontal line on the graph.
+    # Displaying the total force vs time graph.
     st.subheader("Total Force vs Time")
-    data['Total Force (N)'] = F_total
     fig3 = px.line(data, x='Total Time (ms)', y='Total Force (N)', title='Total Force vs Time')
-    
+
     # Annotate the peak total force
     max_force_time = data['Total Time (ms)'][data['Total Force (N)'].idxmax()]
     fig3.add_annotation(
