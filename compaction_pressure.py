@@ -51,29 +51,38 @@ The main objective is to determine the peak force the cylinder exerts on powder 
 - **Flow**: Represents the rate at which air enters the pneumatic cylinder, which can influence the speed of the piston's movement.
 
 - **Pneumatic Force (N)**: This is the force exerted by the pneumatic cylinder due to the air pressure inside.
-  - Calculation: 
-    $$ F_{\text{pneumatic}} = P \times A $$
-  Where:
-    - \( P \) is the pressure, converted from PSI to Pascals using the formula:
-      $$ P = \text{PSI} \times 6894.76 $$
-    - \( A \) is the piston's area, calculated from the bore size:
-      $$ A = \pi \times \left( \frac{\text{bore size}}{2} \right)^2 $$
+""")
 
+st.latex(r'F_{\text{pneumatic}} = P \times A')
+st.write("""
+Where:
+- \( P \) is the pressure, converted from PSI to Pascals:
+""")
+st.latex(r'P = \text{PSI} \times 6894.76')
+st.write("""
+- \( A \) is the piston's area, calculated from the bore size:
+""")
+st.latex(r'A = \pi \times \left( \frac{\text{bore size}}{2} \right)^2')
+
+st.write("""
 - **Inertial Force (N)**: The force resulting from the tool's acceleration during the piston's movement.
-  - Calculation:
-    $$ F_{\text{inertia}} = m \times a $$
-  Where:
-    - \( m \) is the mass of the tool.
-    - \( a \) is the acceleration, derived from the rate of change of velocity.
+""")
+st.latex(r'F_{\text{inertia}} = m \times a')
+st.write("""
+Where:
+- \( m \) is the mass of the tool.
+- \( a \) is the acceleration, derived from the rate of change of velocity.
 
 - **Total Force (N)**: The combined force of the pneumatic and inertial components during compaction.
-  - Calculation:
-    $$ F_{\text{total}} = F_{\text{pneumatic}} + F_{\text{inertia}} $$
+""")
+st.latex(r'F_{\text{total}} = F_{\text{pneumatic}} + F_{\text{inertia}}')
 
+st.write("""
 - **Pressure on the Tip (PSI)**: Represents the pressure experienced by the material being compacted.
-  - Calculation:
-    $$ \text{Pressure on the tip} = \frac{\text{Total Force in Pounds}}{\text{Tip Area in Square Inches}} $$
-  Where the Total Force is converted to Pounds and the Tip Area is calculated using its diameter.
+""")
+st.latex(r'\text{Pressure on the tip} = \frac{\text{Total Force in Pounds}}{\text{Tip Area in Square Inches}}')
+st.write("""
+Where the Total Force is converted to Pounds and the Tip Area is calculated using its diameter.
 
 To use the application, upload the data file and adjust the parameters on the sidebar as needed. The results, accompanied by interactive plots, provide a comprehensive analysis of the compaction process.
 """)
