@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import math
-import matplotlib.pyplot as plt
+import plotly.express as px
 
 def process_data(data, pressure, bore_size, mass, tip_diameter):
     """Process the uploaded data and compute required metrics."""
@@ -27,7 +27,7 @@ def process_data(data, pressure, bore_size, mass, tip_diameter):
     F_total_lbs = F_total * 0.2248  # Force in lbs
     pressure_tip_psi = F_total_lbs / (tip_area_mm2 / 645.16)  # Pressure in PSI
 
-    return F_pneumatic, F_inertia, F_total, pressure_tip_psi
+    return data, F_pneumatic, F_inertia, F_total, pressure_tip_psi
 
 st.title("Pneumatic Cylinder Compaction Force Analysis")
 
@@ -64,7 +64,7 @@ if uploaded_file:
     tip_diameter = st.sidebar.number_input("Compactor Pin Diameter (thou)", min_value=0.0, value=25.0, step=0.1) * 0.0254  # in meters
 
     # Process data and calculate forces
-    F_pneumatic, F_inertia, F_total, pressure_tip_psi = process_data(data, pressure, bore_size, mass, tip_diameter)
+    data, F_pneumatic, F_inertia, F_total, pressure_tip_psi = process_data(data, pressure, bore_size, mass, tip_diameter)
 
     # Display results
     st.header("Results:")
@@ -73,15 +73,34 @@ if uploaded_file:
     st.write(f"**Total Force**: {F_total:.2f} N")
     st.write(f"**Pressure on the Compaction Pin Tip**: {pressure_tip_psi:.2f} PSI")
 
-    # Plotting
-    fig, ax = plt.subplots(figsize=(10, 6))
-    ax.plot(data['Total Time (ms)'], data['Compaction (mm)'], label='Compaction (mm)')
-    ax.set_xlabel('Time (ms)')
-    ax.set_ylabel('Compaction (mm)')
-    ax.set_title('Compaction vs Time')
-    ax.grid(True)
-    st.pyplot(fig)
+    # Interactive Plotting using plotly
+    st.subheader("Compaction vs Time")
+    fig1 = px.line(data, x='Total Time (ms)', y='Compaction (mm)', title='Compaction vs Time')
+    st.plotly_chart(fig1)
+
+    st.subheader("Smoothed Acceleration vs Time")
+    fig2 = px.line(data, x='Total Time (ms)', y='Smoothed Acceleration (mm/ms^2)', title='Smoothed Acceleration vs Time')
+    st.plotly_chart(fig2)
+
+    # Note: For total force vs time, we need a consistent force value over time. This will be a horizontal line on the graph.
+    st.subheader("Total Force vs Time")
+    data['Total Force (N)'] = F_total
+    fig3 = px.line(data, x='Total Time (ms)', y='Total Force (N)', title='Total Force vs Time')
+    
+    # Annotate the peak total force
+    max_force_time = data['Total Time (ms)'][data['Total Force (N)'].idxmax()]
+    fig3.add_annotation(
+        x=max_force_time,
+        y=F_total,
+        text=f"Peak Force: {F_total:.2f} N",
+        showarrow=True,
+        arrowhead=4,
+        ax=0,
+        ay=-40
+    )
+    
+    st.plotly_chart(fig3)
+
 
 else:
     st.write("Please upload an Excel file to proceed.")
-
