@@ -4,8 +4,8 @@ import numpy as np
 import math
 import plotly.express as px
 
-def process_data(data, pressure, bore_size, mass, tip_diameter):
-    """Process the uploaded data and compute required metrics."""
+def modified_process_data(data, pressure, bore_size, mass, tip_diameter, threshold=0.01):
+    """Process the uploaded data and compute required metrics with thresholding."""
     # Convert Time and Milisecond columns to a single time in milliseconds
     data['Total Time (ms)'] = data['Milisecond']
 
@@ -13,6 +13,9 @@ def process_data(data, pressure, bore_size, mass, tip_diameter):
     data['Velocity (mm/ms)'] = data['Compaction (mm)'].diff() / data['Total Time (ms)'].diff()
     data['Smoothed Velocity (mm/ms)'] = data['Velocity (mm/ms)'].rolling(window=5).mean()
     data['Smoothed Acceleration (mm/ms^2)'] = data['Smoothed Velocity (mm/ms)'].diff() / data['Total Time (ms)'].diff()
+    
+    # Thresholding the acceleration
+    data['Smoothed Acceleration (mm/ms^2)'] = data['Smoothed Acceleration (mm/ms^2)'].apply(lambda x: x if abs(x) > threshold else 0)
 
     # Calculate forces
     P = pressure * 6894.76  # Pressure in Pascals (from psi to Pa)
@@ -33,6 +36,8 @@ def process_data(data, pressure, bore_size, mass, tip_diameter):
     pressure_tip_psi = max_force_lbs / (tip_area_mm2 / 645.16)  # Pressure in PSI
 
     return data, F_pneumatic, pressure_tip_psi
+
+
 
 
 st.title("Pneumatic Cylinder Compaction Force Analysis")
@@ -108,7 +113,8 @@ if uploaded_file:
     tip_diameter = st.sidebar.number_input("Compactor Pin Diameter (thou)", min_value=0.0, value=25.0, step=0.1) * 0.0254  # in meters
 
     # Process data and calculate forces
-    data, F_pneumatic, pressure_tip_psi = process_data(data, pressure, bore_size, mass, tip_diameter)
+    data, F_pneumatic, pressure_tip_psi = modified_process_data(data, pressure, bore_size, mass, tip_diameter)
+
 
 
     # Display results
