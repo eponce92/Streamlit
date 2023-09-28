@@ -148,31 +148,24 @@ if uploaded_file:
     st.write(f"**Pressure on the Compaction Pin Tip**: {pressure_tip_psi:.2f} PSI")
 
     # Interactive Plotting using plotly
+    # Interactive Plotting using plotly
+    
     # Fitted Compaction (Distance) vs Time
     fig1 = px.line(data, x='Total Time (ms)', y='Compaction (mm)', title='Fitted Compaction (Distance) vs Time', range_x=[1550, 2000])
     st.plotly_chart(fig1)
-    
-    # Smoothed Acceleration vs Time
-    fig2 = px.line(data, x='Total Time (ms)', y='Smoothed Acceleration (mm/ms^2)', title='Smoothed Acceleration vs Time', range_x=[1550, 2000])
+        
+    # Fitted Velocity vs Time
+    fig2 = px.line(data, x='Total Time (ms)', y='Velocity (mm/ms)', title='Fitted Velocity vs Time', range_x=[1550, 2000])
     st.plotly_chart(fig2)
-    
-    # Total Force vs Time
-    fig3 = px.line(data, x='Total Time (ms)', y='Total Force (N)', title='Total Force vs Time', range_x=[1550, 2000])
+        
+    # Fitted Acceleration vs Time
+    fig3 = px.line(data, x='Total Time (ms)', y='Velocity (mm/ms)', title='Fitted Acceleration vs Time', range_x=[1550, 2000])
     st.plotly_chart(fig3)
-    
-    # Annotate the peak total force
-    max_force_time = data['Total Time (ms)'][data['Total Force (N)'].idxmax()]
-    fig3.add_annotation(
-        x=max_force_time,
-        y=peak_total_force,
-        text=f"Peak Force: {peak_total_force:.2f} N",
-        showarrow=True,
-        arrowhead=4,
-        ax=0,
-        ay=-40
-    )
-    
-    st.plotly_chart(fig3)
+        
+    # Fitted Inertial Force vs Time
+    fig4 = px.line(data, x='Total Time (ms)', y='Inertial Force (N)', title='Fitted Inertial Force vs Time', range_x=[1550, 2000])
+    st.plotly_chart(fig4)
+
 
 
 else:
