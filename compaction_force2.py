@@ -6,13 +6,13 @@ import matplotlib.pyplot as plt
 def compute_metrics(data, pressure, bore_size, mass):
     """Compute metrics based on input data and parameters."""
     # Fit the 40th-degree polynomial to the data
-    coefficients = np.polyfit(data['Total Time (ms)'], data['Compaction (mm)'], 40)
+    coefficients = np.polyfit(data['Milisecond'], data['Compaction (mm)'], 40)
     polynomial_fit = np.poly1d(coefficients)
-    data['Fitted Compaction (mm)'] = polynomial_fit(data['Total Time (ms)'])
+    data['Fitted Compaction (mm)'] = polynomial_fit(data['Milisecond'])
 
     # Calculate velocity and acceleration using the fitted compaction data
-    data['Fitted Velocity (mm/ms)'] = data['Fitted Compaction (mm)'].diff() / data['Total Time (ms)'].diff()
-    data['Fitted Acceleration (mm/ms^2)'] = data['Fitted Velocity (mm/ms)'].diff() / data['Total Time (ms)'].diff()
+    data['Fitted Velocity (mm/ms)'] = data['Fitted Compaction (mm)'].diff() / data['Milisecond'].diff()
+    data['Fitted Acceleration (mm/ms^2)'] = data['Fitted Velocity (mm/ms)'].diff() / data['Milisecond'].diff()
 
     # Calculate pneumatic force
     P = pressure * 6894.76  # Pressure in Pascals (from psi to Pa)
@@ -50,7 +50,7 @@ if uploaded_file:
     tip_diameter_thou = st.sidebar.number_input("Compactor Pin Diameter (thou)", min_value=0.0, value=25.0, step=0.1)
     
     # Filter the data from 1550ms to 2000ms and compute metrics
-    focused_data = data[(data['Total Time (ms)'] >= 1550) & (data['Total Time (ms)'] <= 2000)]
+    focused_data = data[(data['Milisecond'] >= 1550) & (data['Milisecond'] <= 2000)]
     focused_data, F_pneumatic, peak_inertia_force, peak_total_force = compute_metrics(focused_data, pressure, bore_size, mass)
     
     # Display results
@@ -72,9 +72,9 @@ if uploaded_file:
     for metric, title in zip(metrics, titles):
         st.subheader(title)
         fig, ax = plt.subplots(figsize=(15, 6))
-        ax.plot(focused_data['Total Time (ms)'], focused_data[metric])
+        ax.plot(focused_data['Milisecond'], focused_data[metric])
         ax.grid(True)
-        ax.set_xlabel('Total Time (ms)')
+        ax.set_xlabel('Milisecond')
         ax.set_ylabel(metric)
         st.pyplot(fig)
 
