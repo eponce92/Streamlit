@@ -33,11 +33,6 @@ def modified_process_data(data, pressure, bore_size, mass, tip_diameter):
     # Apply polynomial fit
     data = polynomial_fit_data(data)
 
-    # Calculate velocity and acceleration
-    data['Velocity (mm/ms)'] = data['Compaction (mm)'].diff() / data['Total Time (ms)'].diff()
-    data['Smoothed Velocity (mm/ms)'] = data['Velocity (mm/ms)'].rolling(window=5).mean()
-    data['Smoothed Acceleration (mm/ms^2)'] = data['Smoothed Velocity (mm/ms)'].diff() / data['Total Time (ms)'].diff()
-
     # Calculate forces
     P = pressure * 6894.76  # Pressure in Pascals (from psi to Pa)
     r = bore_size / 2  # Radius in meters
@@ -57,6 +52,7 @@ def modified_process_data(data, pressure, bore_size, mass, tip_diameter):
     pressure_tip_psi = max_force_lbs / (tip_area_mm2 / 645.16)  # Pressure in PSI
 
     return data, F_pneumatic, pressure_tip_psi
+
 
 st.title("Pneumatic Cylinder Compaction Force Analysis")
 
