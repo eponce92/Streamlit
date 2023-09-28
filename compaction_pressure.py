@@ -4,13 +4,16 @@ import numpy as np
 import math
 import plotly.express as px
 
-def polynomial_fit_data(data, degree=40):
-    focus_data = data[(data['Total Time (ms)'] >= 1550) & (data['Total Time (ms)'] <= 2000)]
-    coefficients = np.polyfit(focus_data['Total Time (ms)'], focus_data['Compaction (mm)'], degree)
-    poly = np.poly1d(coefficients)
-    subset_indices = (data['Total Time (ms)'] >= 1550) & (data['Total Time (ms)'] <= 2000)
-    data.loc[subset_indices, 'Compaction (mm)'] = poly(data.loc[subset_indices, 'Total Time (ms)'])
 
+def polynomial_fit_data(data, degree=40):
+    # Fit the polynomial to the data in the focused range
+    focused_data = data[(data['Total Time (ms)'] >= 1550) & (data['Total Time (ms)'] <= 2000)]
+    coefficients = np.polyfit(focused_data['Total Time (ms)'], focused_data['Compaction (mm)'], degree)
+    poly = np.poly1d(coefficients)
+    
+    # Replace the compaction values in the focused range with the polynomial-fitted values
+    data.loc[(data['Total Time (ms)'] >= 1550) & (data['Total Time (ms)'] <= 2000), 'Compaction (mm)'] = poly(focused_data['Total Time (ms)'])
+    
     return data
 
 def modified_process_data(data, pressure, bore_size, mass, tip_diameter):
@@ -141,17 +144,17 @@ if uploaded_file:
     st.write(f"**Pressure on the Compaction Pin Tip**: {pressure_tip_psi:.2f} PSI")
 
     # Interactive Plotting using plotly
-    st.subheader("Compaction vs Time")
-    fig1 = px.line(data, x='Total Time (ms)', y='Compaction (mm)', title='Compaction vs Time', range_x=[1550, 2000])
+    # Fitted Compaction (Distance) vs Time
+    fig1 = px.line(data, x='Total Time (ms)', y='Compaction (mm)', title='Fitted Compaction (Distance) vs Time', range_x=[1550, 2000])
     st.plotly_chart(fig1)
     
-    st.subheader("Smoothed Acceleration vs Time")
+    # Smoothed Acceleration vs Time
     fig2 = px.line(data, x='Total Time (ms)', y='Smoothed Acceleration (mm/ms^2)', title='Smoothed Acceleration vs Time', range_x=[1550, 2000])
     st.plotly_chart(fig2)
     
-    # Displaying the total force vs time graph.
-    st.subheader("Total Force vs Time")
+    # Total Force vs Time
     fig3 = px.line(data, x='Total Time (ms)', y='Total Force (N)', title='Total Force vs Time', range_x=[1550, 2000])
+    st.plotly_chart(fig3)
     
     # Annotate the peak total force
     max_force_time = data['Total Time (ms)'][data['Total Force (N)'].idxmax()]
