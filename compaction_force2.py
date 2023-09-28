@@ -16,18 +16,19 @@ def compute_metrics(data, pressure, bore_size, mass):
     data['Fitted Acceleration (mm/ms^2)'] = data['Fitted Velocity (mm/ms)'].diff() / data['Milisecond'].diff()
 
 
-    # Calculate pneumatic force
+   # Calculate pneumatic force
     P = pressure * 6894.76  # Pressure in Pascals (from psi to Pa)
     r = bore_size / 2 / 1000  # Radius in meters
     A = np.pi * r**2  # Area of the piston
-    F_pneumatic = P * A  # Pneumatic force
-
+    F_pneumatic = abs(P * A)  # Pneumatic force (absolute value)
+    
     # Calculate inertial force using the fitted acceleration data
-    data['Fitted Inertial Force (N)'] = mass * data['Fitted Acceleration (mm/ms^2)'] * 1000  # Convert mm/ms^2 to m/s^2
+    # Using absolute value to ensure the correct direction
+    data['Fitted Inertial Force (N)'] = mass * abs(data['Fitted Acceleration (mm/ms^2)']) * 1000  # Convert mm/ms^2 to m/s^2
     
     # Results
     range_data = data[(data['Milisecond'] >= 1700) & (data['Milisecond'] <= 1900)]
-    peak_inertia_force = range_data['Fitted Inertial Force (N)'].min()  # Finding the largest negative force
+    peak_inertia_force = abs(range_data['Fitted Inertial Force (N)'].min())  # Finding the largest absolute negative force
     peak_total_force = F_pneumatic + peak_inertia_force
     
     return data, F_pneumatic, peak_inertia_force, peak_total_force
