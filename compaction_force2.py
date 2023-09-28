@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 def compute_metrics(data, pressure, bore_size, mass):
     """Compute metrics based on input data and parameters."""
-    coefficients = np.polyfit(data['Milisecond'], data['Compaction (mm)'], 40)
+    coefficients = np.polyfit(data['Milisecond'], data['Compaction (mm)'], 3)  # Reduced from 40 to 3
     polynomial_fit = np.poly1d(coefficients)
     data['Fitted Compaction (mm)'] = polynomial_fit(data['Milisecond'])
 
@@ -45,6 +45,11 @@ if uploaded_file:
     focused_data = data[(data['Milisecond'] >= 1550) & (data['Milisecond'] <= 2000)].copy()
     focused_data, F_pneumatic, peak_inertia_force, peak_total_force = compute_metrics(focused_data, pressure, bore_size, mass)
     
+    # Check for NaN or Inf values after computation
+    if focused_data.isnull().values.any() or np.isinf(focused_data.values).any():
+        st.write("Error: The data contains NaN or Inf values after computation. Please check the input data or computations.")
+        st.stop()
+
     st.header("Results:")
     st.write(f"**Pneumatic Force**: {F_pneumatic:.2f} N")
     st.write(f"**Peak Force due to Inertia**: {peak_inertia_force:.2f} N")
@@ -73,7 +78,6 @@ if uploaded_file:
         ax.set_xlabel('Milisecond')
         ax.set_ylabel(metric)
         ax.set_xlim(1600, 1950)
-
         ax.set_ylim(y_min, y_max)
 
         # Adding a label for the computed peak force in the last graph
