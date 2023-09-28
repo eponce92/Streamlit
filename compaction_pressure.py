@@ -180,7 +180,7 @@ if uploaded_file:
     fig3.add_annotation(
         x=max_force_time,
         y=max_force,
-        text=f"Peak Force (1950-2000ms): {max_force:.2f} N",
+        text=f"Peak Force: {max_force:.2f} N"
         showarrow=True,
         arrowhead=4,
         ax=0,
