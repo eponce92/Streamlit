@@ -8,8 +8,12 @@ import plotly.express as px
 def process_data_within_range(data, pressure, bore_size, mass, tip_diameter, degree=40):
     """Process the data within the specified time range and compute required metrics."""
     
+    # Convert Time and Milisecond columns to a single time in milliseconds
+    data['Total Time (ms)'] = data['Milisecond']
+    
     # Select data within the desired range
     focused_data = data[(data['Total Time (ms)'] >= 1550) & (data['Total Time (ms)'] <= 2000)].copy()
+    
     
     # Apply polynomial fit
     coefficients = np.polyfit(focused_data['Total Time (ms)'], focused_data['Compaction (mm)'], degree)
