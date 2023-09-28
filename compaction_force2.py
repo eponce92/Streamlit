@@ -13,7 +13,8 @@ def compute_metrics(data, pressure, bore_size, mass):
     # Calculate velocity and acceleration using the fitted compaction data
     # Note the negative signs to adjust for the sensor's direction
     data['Fitted Velocity (mm/ms)'] = -data['Fitted Compaction (mm)'].diff() / data['Milisecond'].diff()
-    data['Fitted Acceleration (mm/ms^2)'] = -data['Fitted Velocity (mm/ms)'].diff() / data['Milisecond'].diff()
+    data['Fitted Acceleration (mm/ms^2)'] = data['Fitted Velocity (mm/ms)'].diff() / data['Milisecond'].diff()
+
 
     # Calculate pneumatic force
     P = pressure * 6894.76  # Pressure in Pascals (from psi to Pa)
