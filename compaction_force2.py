@@ -65,18 +65,28 @@ if uploaded_file:
     pressure_tip_psi = peak_total_force / (tip_area_m2 * 6894.76)  # Pressure in PSI, converting from Pascals
     st.write(f"**Pressure on the Compaction Pin Tip**: {pressure_tip_psi:.2f} PSI")
 
-    # Plotting
-    metrics = ['Fitted Compaction (mm)', 'Fitted Velocity (mm/ms)', 'Fitted Acceleration (mm/ms^2)', 'Fitted Inertial Force (N)']
-    titles = ['Fitted Compaction (Distance) vs Time', 'Fitted Velocity vs Time', 'Fitted Acceleration vs Time', 'Fitted Inertial Force vs Time']
+# Plotting
+metrics = ['Fitted Compaction (mm)', 'Fitted Velocity (mm/ms)', 'Fitted Acceleration (mm/ms^2)', 'Fitted Inertial Force (N)']
+titles = ['Fitted Compaction (Distance) vs Time', 'Fitted Velocity vs Time', 'Fitted Acceleration vs Time', 'Fitted Inertial Force vs Time']
+
+for metric, title in zip(metrics, titles):
+    st.subheader(title)
+    fig, ax = plt.subplots(figsize=(15, 6))
+    ax.plot(focused_data['Total Time (ms)'], focused_data[metric])
     
-    for metric, title in zip(metrics, titles):
-        st.subheader(title)
-        fig, ax = plt.subplots(figsize=(15, 6))
-        ax.plot(focused_data['Milisecond'], focused_data[metric])
-        ax.grid(True)
-        ax.set_xlabel('Milisecond')
-        ax.set_ylabel(metric)
-        st.pyplot(fig)
+    # Label the peak force on the Inertial Force graph
+    if metric == 'Fitted Inertial Force (N)':
+        peak_time = focused_data['Total Time (ms)'][focused_data[metric].idxmax()]
+        ax.annotate(f"Peak: {peak_inertia_force:.2f} N", 
+                    xy=(peak_time, peak_inertia_force), 
+                    xytext=(peak_time-50, peak_inertia_force-10),
+                    arrowprops=dict(facecolor='black', arrowstyle='->'),
+                    fontsize=9)
+    
+    ax.grid(True)
+    ax.set_xlabel('Total Time (ms)')
+    ax.set_ylabel(metric)
+    st.pyplot(fig)
 
 else:
     st.write("Please upload an Excel file to proceed.")
