@@ -70,10 +70,16 @@ if uploaded_file:
     pressure_tip_psi_corrected = peak_total_force_lbs / tip_area_in2  # Pressure in PSI
     st.write(f"**Pressure on the Compaction Pin Tip**: {pressure_tip_psi_corrected:.2f} PSI")
 
+    
     # Plotting
     metrics = ['Fitted Compaction (mm)', 'Fitted Velocity (mm/ms)', 'Fitted Acceleration (mm/ms^2)', 'Fitted Inertial Force (N)']
     titles = ['Fitted Compaction (Distance) vs Time', 'Fitted Velocity vs Time', 'Fitted Acceleration vs Time', 'Fitted Inertial Force vs Time']
     colors = ['blue', 'green', 'red', 'purple']  # Different colors for each graph
+    
+    # Determine the common Y-axis limits
+    all_values = np.concatenate([focused_data[metric].values for metric in metrics])
+    y_min = all_values.min()
+    y_max = all_values.max()
     
     for metric, title, color in zip(metrics, titles, colors):
         st.subheader(title)
@@ -83,7 +89,8 @@ if uploaded_file:
         ax.grid(True)
         ax.set_xlabel('Milisecond')
         ax.set_ylabel(metric)
-        ax.set_xlim(1600, 2000)  # Setting the same X-axis range for all plots
+        ax.set_xlim(1600, 1950)  # Setting the X-axis range for all plots
+        ax.set_ylim(y_min, y_max)  # Setting the same Y-axis range for all plots
     
         # Adding a label for the computed peak force in the last graph
         if metric == 'Fitted Inertial Force (N)':
