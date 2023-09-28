@@ -83,6 +83,7 @@ if uploaded_file:
         ax.grid(True)
         ax.set_xlabel('Milisecond')
         ax.set_ylabel(metric)
+        ax.set_xlim(1600, 2000)  # Setting the same X-axis range for all plots
     
         # Adding a label for the computed peak force in the last graph
         if metric == 'Fitted Inertial Force (N)':
