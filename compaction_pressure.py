@@ -4,18 +4,23 @@ import numpy as np
 import math
 import plotly.express as px
 
-def modified_process_data(data, pressure, bore_size, mass, tip_diameter, threshold=0.01):
-    """Process the uploaded data and compute required metrics with thresholding."""
-    # Convert Time and Milisecond columns to a single time in milliseconds
-    data['Total Time (ms)'] = data['Milisecond']
+def polynomial_fit_data(data, degree=40):
+    focus_data = data[(data['Total Time (ms)'] >= 1550) & (data['Total Time (ms)'] <= 2000)]
+    coefficients = np.polyfit(focus_data['Total Time (ms)'], focus_data['Compaction (mm)'], degree)
+    poly = np.poly1d(coefficients)
+    data.loc[(data['Total Time (ms)'] >= 1550) & (data['Total Time (ms)'] <= 2000), 'Compaction (mm)'] = poly(data['Total Time (ms)'])
+    return data
+
+def modified_process_data(data, pressure, bore_size, mass, tip_diameter):
+    """Process the uploaded data and compute required metrics."""
+    
+    # Apply polynomial fit
+    data = polynomial_fit_data(data)
 
     # Calculate velocity and acceleration
     data['Velocity (mm/ms)'] = data['Compaction (mm)'].diff() / data['Total Time (ms)'].diff()
     data['Smoothed Velocity (mm/ms)'] = data['Velocity (mm/ms)'].rolling(window=5).mean()
     data['Smoothed Acceleration (mm/ms^2)'] = data['Smoothed Velocity (mm/ms)'].diff() / data['Total Time (ms)'].diff()
-    
-    # Thresholding the acceleration
-    data['Smoothed Acceleration (mm/ms^2)'] = data['Smoothed Acceleration (mm/ms^2)'].apply(lambda x: x if abs(x) > threshold else 0)
 
     # Calculate forces
     P = pressure * 6894.76  # Pressure in Pascals (from psi to Pa)
@@ -37,10 +42,9 @@ def modified_process_data(data, pressure, bore_size, mass, tip_diameter, thresho
 
     return data, F_pneumatic, pressure_tip_psi
 
-
-
-
 st.title("Pneumatic Cylinder Compaction Force Analysis")
+
+
 
 # Documentation
 st.write("""
