@@ -11,8 +11,9 @@ def compute_metrics(data, pressure, bore_size, mass):
     data['Fitted Compaction (mm)'] = polynomial_fit(data['Milisecond'])
 
     # Calculate velocity and acceleration using the fitted compaction data
-    data['Fitted Velocity (mm/ms)'] = data['Fitted Compaction (mm)'].diff() / data['Milisecond'].diff()
-    data['Fitted Acceleration (mm/ms^2)'] = data['Fitted Velocity (mm/ms)'].diff() / data['Milisecond'].diff()
+    # Note the negative signs to adjust for the sensor's direction
+    data['Fitted Velocity (mm/ms)'] = -data['Fitted Compaction (mm)'].diff() / data['Milisecond'].diff()
+    data['Fitted Acceleration (mm/ms^2)'] = -data['Fitted Velocity (mm/ms)'].diff() / data['Milisecond'].diff()
 
     # Calculate pneumatic force
     P = pressure * 6894.76  # Pressure in Pascals (from psi to Pa)
@@ -29,6 +30,7 @@ def compute_metrics(data, pressure, bore_size, mass):
     peak_total_force = F_pneumatic + peak_inertia_force
     
     return data, F_pneumatic, peak_inertia_force, peak_total_force
+
 
 
 st.title("Pneumatic Cylinder Compaction Force Analysis")
