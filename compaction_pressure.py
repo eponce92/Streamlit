@@ -8,7 +8,9 @@ def polynomial_fit_data(data, degree=40):
     focus_data = data[(data['Total Time (ms)'] >= 1550) & (data['Total Time (ms)'] <= 2000)]
     coefficients = np.polyfit(focus_data['Total Time (ms)'], focus_data['Compaction (mm)'], degree)
     poly = np.poly1d(coefficients)
-    data.loc[(data['Total Time (ms)'] >= 1550) & (data['Total Time (ms)'] <= 2000), 'Compaction (mm)'] = poly(data['Total Time (ms)'])
+    subset_indices = (data['Total Time (ms)'] >= 1550) & (data['Total Time (ms)'] <= 2000)
+    data.loc[subset_indices, 'Compaction (mm)'] = poly(data.loc[subset_indices, 'Total Time (ms)'])
+
     return data
 
 def modified_process_data(data, pressure, bore_size, mass, tip_diameter):
