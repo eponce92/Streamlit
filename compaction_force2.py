@@ -25,8 +25,8 @@ def compute_metrics(data, pressure, bore_size, mass):
     data['Fitted Inertial Force (N)'] = mass * data['Fitted Acceleration (mm/ms^2)'] * 1000  # Convert mm/ms^2 to m/s^2
     
     # Results
-    range_data = data[(data['Milisecond'] >= 1950) & (data['Milisecond'] <= 1995)]
-    peak_inertia_force = range_data['Fitted Inertial Force (N)'].max()
+    range_data = data[(data['Milisecond'] >= 1700) & (data['Milisecond'] <= 1900)]
+    peak_inertia_force = range_data['Fitted Inertial Force (N)'].min()  # Finding the largest negative force
     peak_total_force = F_pneumatic + peak_inertia_force
     
     return data, F_pneumatic, peak_inertia_force, peak_total_force
