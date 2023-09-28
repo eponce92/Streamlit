@@ -73,4 +73,18 @@ if uploaded_file:
         ax.set_xlabel('Milisecond')
         ax.set_ylabel(metric)
         ax.set_xlim(1600, 1950)
-        ax.set
+
+        ax.set_ylim(y_min, y_max)
+
+        # Adding a label for the computed peak force in the last graph
+        if metric == 'Fitted Inertial Force (N)':
+            peak_time = focused_data['Milisecond'][focused_data[metric] == peak_inertia_force].iloc[0]
+            ax.annotate(f'Peak: {peak_inertia_force:.2f} N', 
+                        xy=(peak_time, peak_inertia_force), 
+                        xytext=(peak_time-15, peak_inertia_force+5), 
+                        arrowprops=dict(facecolor='black', arrowstyle='->'))
+
+        st.pyplot(fig)
+
+else:
+    st.write("Please upload an Excel file to proceed.")
