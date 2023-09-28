@@ -147,23 +147,23 @@ if uploaded_file:
     st.write(f"**Peak Total Force**: {peak_total_force:.2f} N")
     st.write(f"**Pressure on the Compaction Pin Tip**: {pressure_tip_psi:.2f} PSI")
 
-    # Interactive Plotting using plotly
+   
     # Interactive Plotting using plotly
     
     # Fitted Compaction (Distance) vs Time
     fig1 = px.line(data, x='Total Time (ms)', y='Compaction (mm)', title='Fitted Compaction (Distance) vs Time', range_x=[1550, 2000])
     st.plotly_chart(fig1)
-        
-    # Fitted Velocity vs Time
-    fig2 = px.line(data, x='Total Time (ms)', y='Velocity (mm/ms)', title='Fitted Velocity vs Time', range_x=[1550, 2000])
+    
+    # Velocity vs Time
+    fig2 = px.line(data, x='Total Time (ms)', y='Velocity (mm/ms)', title='Velocity vs Time', range_x=[1550, 2000])
     st.plotly_chart(fig2)
-        
-    # Fitted Acceleration vs Time
-    fig3 = px.line(data, x='Total Time (ms)', y='Velocity (mm/ms)', title='Fitted Acceleration vs Time', range_x=[1550, 2000])
+    
+    # Acceleration vs Time
+    fig3 = px.line(data, x='Total Time (ms)', y='Smoothed Acceleration (mm/ms^2)', title='Acceleration vs Time', range_x=[1550, 2000])
     st.plotly_chart(fig3)
-        
-    # Fitted Inertial Force vs Time
-    fig4 = px.line(data, x='Total Time (ms)', y='Inertial Force (N)', title='Fitted Inertial Force vs Time', range_x=[1550, 2000])
+    
+    # Inertial Force vs Time
+    fig4 = px.line(data, x='Total Time (ms)', y='Inertial Force (N)', title='Inertial Force vs Time', range_x=[1550, 2000])
     st.plotly_chart(fig4)
 
 
