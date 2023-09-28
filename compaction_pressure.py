@@ -14,6 +14,9 @@ def polynomial_fit_data(data, degree=40):
 def modified_process_data(data, pressure, bore_size, mass, tip_diameter):
     """Process the uploaded data and compute required metrics."""
     
+    # Convert Time and Milisecond columns to a single time in milliseconds
+    data['Total Time (ms)'] = data['Milisecond']
+    
     # Apply polynomial fit
     data = polynomial_fit_data(data)
 
