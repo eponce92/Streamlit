@@ -170,12 +170,13 @@ if uploaded_file:
     # Display results
     st.header("Results:")
     st.write(f"**Pneumatic Force**: {F_pneumatic:.2f} N")
-    peak_inertia_force = data['Inertial Force (N)'].max()
+    peak_inertia_force = focused_data['Inertial Force (N)'].max()
     st.write(f"**Peak Force due to Inertia**: {peak_inertia_force:.2f} N")
-
-    peak_total_force = data['Total Force (N)'].max() 
+    
+    peak_total_force = focused_data['Total Force (N)'].max() 
     st.write(f"**Peak Total Force**: {peak_total_force:.2f} N")
     st.write(f"**Pressure on the Compaction Pin Tip**: {pressure_tip_psi:.2f} PSI")
+
 
    
     # Interactive Plotting using plotly
