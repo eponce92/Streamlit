@@ -54,7 +54,8 @@ if uploaded_file:
     tip_diameter_thou = st.sidebar.number_input("Compactor Pin Diameter (thou)", min_value=0.0, value=25.0, step=0.1)
     
     # Filter the data from 1550ms to 2000ms and compute metrics
-    focused_data = data[(data['Milisecond'] >= 1550) & (data['Milisecond'] <= 2000)]
+    focused_data = data[(data['Milisecond'] >= 1550) & (data['Milisecond'] <= 2000)].copy()
+
     focused_data, F_pneumatic, peak_inertia_force, peak_total_force = compute_metrics(focused_data, pressure, bore_size, mass)
     
     # Display results
@@ -72,7 +73,10 @@ if uploaded_file:
 
     
     # Plotting
-    
+    if np.any(np.isnan(all_values)) or np.any(np.isinf(all_values)):
+    st.write("Error: The data contains NaN or Inf values. Please check the input data or computations.")
+    st.stop()
+
     metrics = ['Fitted Compaction (mm)', 'Fitted Velocity (mm/ms)', 'Fitted Acceleration (mm/ms^2)', 'Fitted Inertial Force (N)']
     titles = ['Fitted Compaction (Distance) vs Time', 'Fitted Velocity vs Time', 'Fitted Acceleration vs Time', 'Fitted Inertial Force vs Time']
     colors = ['blue', 'green', 'red', 'purple']  # Different colors for each graph
