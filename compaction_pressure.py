@@ -51,12 +51,16 @@ st.title("Pneumatic Cylinder Compaction Force Analysis")
 
 
 
-# Documentation
 st.write("""
 ### Pneumatic Cylinder Compaction Force Analysis
 
 This application processes data from a PLC trend on an IL-100 distance sensor observing a pneumatic actuator. 
 The main objective is to determine the peak force the cylinder exerts on powder during compaction.
+
+#### Modifications:
+- **Data Range Focus**: The analysis concentrates on the time range from 1550ms to 2000ms to focus on the main portion of the compaction event.
+- **Polynomial Fit**: A 40th-degree polynomial fit has been applied to the 'Compaction (mm)' data within this time range.
+- **Recalculated Metrics**: Metrics like velocity, acceleration, and forces have been recalculated based on the polynomial-fitted data.
 
 #### Key Metrics and Calculations:
 
@@ -138,17 +142,17 @@ if uploaded_file:
 
     # Interactive Plotting using plotly
     st.subheader("Compaction vs Time")
-    fig1 = px.line(data, x='Total Time (ms)', y='Compaction (mm)', title='Compaction vs Time')
+    fig1 = px.line(data, x='Total Time (ms)', y='Compaction (mm)', title='Compaction vs Time', range_x=[1550, 2000])
     st.plotly_chart(fig1)
-
+    
     st.subheader("Smoothed Acceleration vs Time")
-    fig2 = px.line(data, x='Total Time (ms)', y='Smoothed Acceleration (mm/ms^2)', title='Smoothed Acceleration vs Time')
+    fig2 = px.line(data, x='Total Time (ms)', y='Smoothed Acceleration (mm/ms^2)', title='Smoothed Acceleration vs Time', range_x=[1550, 2000])
     st.plotly_chart(fig2)
-
+    
     # Displaying the total force vs time graph.
     st.subheader("Total Force vs Time")
-    fig3 = px.line(data, x='Total Time (ms)', y='Total Force (N)', title='Total Force vs Time')
-
+    fig3 = px.line(data, x='Total Time (ms)', y='Total Force (N)', title='Total Force vs Time', range_x=[1550, 2000])
+    
     # Annotate the peak total force
     max_force_time = data['Total Time (ms)'][data['Total Force (N)'].idxmax()]
     fig3.add_annotation(
@@ -160,7 +164,6 @@ if uploaded_file:
         ax=0,
         ay=-40
     )
-
     
     st.plotly_chart(fig3)
 
