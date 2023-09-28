@@ -45,13 +45,17 @@ def modified_process_data(data, pressure, bore_size, mass, tip_diameter):
     # Total force = constant pneumatic force + variable inertial force
     data['Total Force (N)'] = F_pneumatic + data['Inertial Force (N)']
 
+    # Focus on the range from 1950 to 2000 for peak force calculation
+    peak_range = data[(data['Total Time (ms)'] >= 1950) & (data['Total Time (ms)'] <= 2000)]
+    max_force = peak_range['Total Force (N)'].max()
+    
     # Calculate pressure on the tip
     tip_area_mm2 = math.pi * (tip_diameter / 2)**2  # Area in mm^2
-    max_force = data['Total Force (N)'].max()
     max_force_lbs = max_force * 0.2248  # Force in lbs
     pressure_tip_psi = max_force_lbs / (tip_area_mm2 / 645.16)  # Pressure in PSI
 
     return data, F_pneumatic, pressure_tip_psi
+
 
 
 st.title("Pneumatic Cylinder Compaction Force Analysis")
@@ -137,6 +141,7 @@ if uploaded_file:
 
 
 
+
     # Display results
     st.header("Results:")
     st.write(f"**Pneumatic Force**: {F_pneumatic:.2f} N")
@@ -162,9 +167,24 @@ if uploaded_file:
     fig3 = px.line(data, x='Total Time (ms)', y='Smoothed Acceleration (mm/ms^2)', title='Acceleration vs Time', range_x=[1550, 2000])
     st.plotly_chart(fig3)
     
-    # Inertial Force vs Time
-    fig4 = px.line(data, x='Total Time (ms)', y='Inertial Force (N)', title='Inertial Force vs Time', range_x=[1550, 2000])
-    st.plotly_chart(fig4)
+    # Total Force vs Time
+    fig3 = px.line(data, x='Total Time (ms)', y='Total Force (N)', title='Total Force vs Time', range_x=[1550, 2000])
+    
+    # Find the time corresponding to the max_force within the 1950ms to 2000ms range
+    max_force_time = peak_range['Total Time (ms)'][peak_range['Total Force (N)'].idxmax()]
+    
+    # Annotate the peak total force in the range 1950ms to 2000ms
+    fig3.add_annotation(
+        x=max_force_time,
+        y=max_force,
+        text=f"Peak Force (1950-2000ms): {max_force:.2f} N",
+        showarrow=True,
+        arrowhead=4,
+        ax=0,
+        ay=-40
+    )
+    
+    st.plotly_chart(fig3)
 
 
 
