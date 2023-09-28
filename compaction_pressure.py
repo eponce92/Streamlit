@@ -178,15 +178,14 @@ if uploaded_file:
     
     # Annotate the peak total force in the range 1950ms to 2000ms
     fig3.add_annotation(
-        x=max_force_time,
-        y=max_force,
-        text=f"Peak Force: {max_force:.2f} N"
-        showarrow=True,
-        arrowhead=4,
-        ax=0,
-        ay=-40
-    )
-    
+            x=max_force_time,
+            y=max_force,
+            text=f"Peak Force: {max_force:.2f} N",
+            showarrow=True,
+            arrowhead=4,
+            ax=0,
+            ay=-40
+        )
     st.plotly_chart(fig3)
 
 
