@@ -72,6 +72,7 @@ if uploaded_file:
 
     
     # Plotting
+    
     metrics = ['Fitted Compaction (mm)', 'Fitted Velocity (mm/ms)', 'Fitted Acceleration (mm/ms^2)', 'Fitted Inertial Force (N)']
     titles = ['Fitted Compaction (Distance) vs Time', 'Fitted Velocity vs Time', 'Fitted Acceleration vs Time', 'Fitted Inertial Force vs Time']
     colors = ['blue', 'green', 'red', 'purple']  # Different colors for each graph
@@ -101,6 +102,7 @@ if uploaded_file:
                         arrowprops=dict(facecolor='black', arrowstyle='->'))
     
         st.pyplot(fig)
+
 
 else:
     st.write("Please upload an Excel file to proceed.")
