@@ -59,11 +59,12 @@ if uploaded_file:
     st.write(f"**Peak Force due to Inertia**: {peak_inertia_force:.2f} N")
     st.write(f"**Peak Total Force**: {peak_total_force:.2f} N")
     
-    # Calculating Pressure on the Compaction Pin Tip
-    tip_diameter_meters = tip_diameter_thou * 0.0254  # Convert thou to meters
-    tip_area_m2 = np.pi * (tip_diameter_meters / 2)**2  # Area in square meters
-    pressure_tip_psi = peak_total_force / (tip_area_m2 * 6894.76)  # Pressure in PSI, converting from Pascals
-    st.write(f"**Pressure on the Compaction Pin Tip**: {pressure_tip_psi:.2f} PSI")
+    # Calculating Pressure on the Compaction Pin Tip (corrected method)
+    tip_diameter_inches = tip_diameter_thou * 0.001  # Convert thou to inches
+    tip_area_in2 = np.pi * (tip_diameter_inches / 2)**2  # Area in square inches
+    peak_total_force_lbs = peak_total_force * 0.2248  # Convert Newtons to pounds
+    pressure_tip_psi_corrected = peak_total_force_lbs / tip_area_in2  # Pressure in PSI
+    st.write(f"**Pressure on the Compaction Pin Tip**: {pressure_tip_psi_corrected:.2f} PSI")
 
     # Plotting
     metrics = ['Fitted Compaction (mm)', 'Fitted Velocity (mm/ms)', 'Fitted Acceleration (mm/ms^2)', 'Fitted Inertial Force (N)']
