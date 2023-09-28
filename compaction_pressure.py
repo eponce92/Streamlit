@@ -6,15 +6,23 @@ import plotly.express as px
 
 
 def polynomial_fit_data(data, degree=40):
-    # Fit the polynomial to the data in the focused range
-    focused_data = data[(data['Total Time (ms)'] >= 1550) & (data['Total Time (ms)'] <= 2000)]
+    """Fit a polynomial to the data within the focused range and replace the original compaction values."""
+    focus_indices = (data['Total Time (ms)'] >= 1550) & (data['Total Time (ms)'] <= 2000)
+    focused_data = data[focus_indices]
+    
     coefficients = np.polyfit(focused_data['Total Time (ms)'], focused_data['Compaction (mm)'], degree)
     poly = np.poly1d(coefficients)
     
     # Replace the compaction values in the focused range with the polynomial-fitted values
-    data.loc[(data['Total Time (ms)'] >= 1550) & (data['Total Time (ms)'] <= 2000), 'Compaction (mm)'] = poly(focused_data['Total Time (ms)'])
+    data.loc[focus_indices, 'Compaction (mm)'] = poly(focused_data['Total Time (ms)'])
+    
+    # Compute velocity and acceleration directly from the polynomial-fitted compaction data
+    data['Velocity (mm/ms)'] = data['Compaction (mm)'].diff() / data['Total Time (ms)'].diff()
+    data['Smoothed Velocity (mm/ms)'] = data['Velocity (mm/ms)'].rolling(window=5).mean()
+    data['Smoothed Acceleration (mm/ms^2)'] = data['Smoothed Velocity (mm/ms)'].diff() / data['Total Time (ms)'].diff()
     
     return data
+
 
 def modified_process_data(data, pressure, bore_size, mass, tip_diameter):
     """Process the uploaded data and compute required metrics."""
