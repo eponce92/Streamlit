@@ -72,7 +72,10 @@ if uploaded_file:
     st.write(f"**Pressure on the Compaction Pin Tip**: {pressure_tip_psi_corrected:.2f} PSI")
 
     
-    # Plotting
+    # Determine the common Y-axis limits
+    all_values = np.concatenate([focused_data[metric].values for metric in metrics])
+
+    # Check for NaN or Inf values in your data
     if np.any(np.isnan(all_values)) or np.any(np.isinf(all_values)):
         st.write("Error: The data contains NaN or Inf values. Please check the input data or computations.")
         st.stop()
