@@ -54,7 +54,8 @@ def modified_process_data(data, pressure, bore_size, mass, tip_diameter):
     max_force_lbs = max_force * 0.2248  # Force in lbs
     pressure_tip_psi = max_force_lbs / (tip_area_mm2 / 645.16)  # Pressure in PSI
 
-    return data, F_pneumatic, pressure_tip_psi
+    return data, F_pneumatic, pressure_tip_psi, max_force
+
 
 
 
@@ -137,7 +138,8 @@ if uploaded_file:
     tip_diameter = st.sidebar.number_input("Compactor Pin Diameter (thou)", min_value=0.0, value=25.0, step=0.1) * 0.0254  # in meters
 
     # Process data and calculate forces
-    data, F_pneumatic, pressure_tip_psi = modified_process_data(data, pressure, bore_size, mass, tip_diameter)
+    data, F_pneumatic, pressure_tip_psi, max_force = modified_process_data(data, pressure, bore_size, mass, tip_diameter)
+
 
 
 
