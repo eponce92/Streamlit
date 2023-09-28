@@ -74,8 +74,8 @@ if uploaded_file:
     
     # Plotting
     if np.any(np.isnan(all_values)) or np.any(np.isinf(all_values)):
-    st.write("Error: The data contains NaN or Inf values. Please check the input data or computations.")
-    st.stop()
+        st.write("Error: The data contains NaN or Inf values. Please check the input data or computations.")
+        st.stop()
 
     metrics = ['Fitted Compaction (mm)', 'Fitted Velocity (mm/ms)', 'Fitted Acceleration (mm/ms^2)', 'Fitted Inertial Force (N)']
     titles = ['Fitted Compaction (Distance) vs Time', 'Fitted Velocity vs Time', 'Fitted Acceleration vs Time', 'Fitted Inertial Force vs Time']
