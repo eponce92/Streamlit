@@ -171,6 +171,7 @@ if uploaded_file:
     fig3 = px.line(data, x='Total Time (ms)', y='Total Force (N)', title='Total Force vs Time', range_x=[1550, 2000])
     
     # Find the time corresponding to the max_force within the 1950ms to 2000ms range
+    peak_range = data[(data['Total Time (ms)'] >= 1950) & (data['Total Time (ms)'] <= 2000)]
     max_force_time = peak_range['Total Time (ms)'][peak_range['Total Force (N)'].idxmax()]
     
     # Annotate the peak total force in the range 1950ms to 2000ms
