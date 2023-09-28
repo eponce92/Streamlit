@@ -66,18 +66,30 @@ if uploaded_file:
     pressure_tip_psi_corrected = peak_total_force_lbs / tip_area_in2  # Pressure in PSI
     st.write(f"**Pressure on the Compaction Pin Tip**: {pressure_tip_psi_corrected:.2f} PSI")
 
-    # Plotting
-    metrics = ['Fitted Compaction (mm)', 'Fitted Velocity (mm/ms)', 'Fitted Acceleration (mm/ms^2)', 'Fitted Inertial Force (N)']
-    titles = ['Fitted Compaction (Distance) vs Time', 'Fitted Velocity vs Time', 'Fitted Acceleration vs Time', 'Fitted Inertial Force vs Time']
-    
-    for metric, title in zip(metrics, titles):
-        st.subheader(title)
-        fig, ax = plt.subplots(figsize=(15, 6))
-        ax.plot(focused_data['Milisecond'], focused_data[metric])
-        ax.grid(True)
-        ax.set_xlabel('Milisecond')
-        ax.set_ylabel(metric)
-        st.pyplot(fig)
+   # Plotting
+metrics = ['Fitted Compaction (mm)', 'Fitted Velocity (mm/ms)', 'Fitted Acceleration (mm/ms^2)', 'Fitted Inertial Force (N)']
+titles = ['Fitted Compaction (Distance) vs Time', 'Fitted Velocity vs Time', 'Fitted Acceleration vs Time', 'Fitted Inertial Force vs Time']
+colors = ['blue', 'green', 'red', 'purple']  # Different colors for each graph
+
+for metric, title, color in zip(metrics, titles, colors):
+    st.subheader(title)
+    fig, ax = plt.subplots(figsize=(15, 6))
+    ax.plot(focused_data['Milisecond'], focused_data[metric], color=color)
+    ax.axhline(0, color='gray', linewidth=0.5)  # Color the X-axis (where Y=0) in gray
+    ax.grid(True)
+    ax.set_xlabel('Milisecond')
+    ax.set_ylabel(metric)
+
+    # Adding a label for the peak force in the last graph
+    if metric == 'Fitted Inertial Force (N)':
+        peak_force = focused_data[metric].max()
+        peak_time = focused_data['Milisecond'][focused_data[metric].idxmax()]
+        ax.annotate(f'Peak: {peak_force:.2f} N', 
+                    xy=(peak_time, peak_force), 
+                    xytext=(peak_time-100, peak_force+5),  # Adjusting text position for better visibility
+                    arrowprops=dict(facecolor='black', arrowstyle='->'))
+
+    st.pyplot(fig)
 
 else:
     st.write("Please upload an Excel file to proceed.")
