@@ -5,23 +5,42 @@ import math
 import plotly.express as px
 
 
-def polynomial_fit_data(data, degree=40):
-    """Fit a polynomial to the data within the focused range and replace the original compaction values."""
-    focus_indices = (data['Total Time (ms)'] >= 1550) & (data['Total Time (ms)'] <= 2000)
-    focused_data = data[focus_indices]
+def process_data_within_range(data, pressure, bore_size, mass, tip_diameter, degree=40):
+    """Process the data within the specified time range and compute required metrics."""
     
+    # Select data within the desired range
+    focused_data = data[(data['Total Time (ms)'] >= 1550) & (data['Total Time (ms)'] <= 2000)].copy()
+    
+    # Apply polynomial fit
     coefficients = np.polyfit(focused_data['Total Time (ms)'], focused_data['Compaction (mm)'], degree)
     poly = np.poly1d(coefficients)
+    focused_data['Fitted Compaction (mm)'] = poly(focused_data['Total Time (ms)'])
     
-    # Replace the compaction values in the focused range with the polynomial-fitted values
-    data.loc[focus_indices, 'Compaction (mm)'] = poly(focused_data['Total Time (ms)'])
+    # Compute velocity and acceleration from the fitted compaction data
+    focused_data['Velocity (mm/ms)'] = focused_data['Fitted Compaction (mm)'].diff() / focused_data['Total Time (ms)'].diff()
+    focused_data['Smoothed Velocity (mm/ms)'] = focused_data['Velocity (mm/ms)'].rolling(window=5).mean()
+    focused_data['Smoothed Acceleration (mm/ms^2)'] = focused_data['Smoothed Velocity (mm/ms)'].diff() / focused_data['Total Time (ms)'].diff()
     
-    # Compute velocity and acceleration directly from the polynomial-fitted compaction data
-    data['Velocity (mm/ms)'] = data['Compaction (mm)'].diff() / data['Total Time (ms)'].diff()
-    data['Smoothed Velocity (mm/ms)'] = data['Velocity (mm/ms)'].rolling(window=5).mean()
-    data['Smoothed Acceleration (mm/ms^2)'] = data['Smoothed Velocity (mm/ms)'].diff() / data['Total Time (ms)'].diff()
+    # Calculate forces
+    P = pressure * 6894.76  # Pressure in Pascals (from psi to Pa)
+    r = bore_size / 2  # Radius in meters
+    A = math.pi * r**2  # Area of the piston
+    F_pneumatic = P * A  # Pneumatic force
     
-    return data
+    # Calculate inertial force for each time point
+    focused_data['Inertial Force (N)'] = mass * focused_data['Smoothed Acceleration (mm/ms^2)'] * 1000  # Convert mm/ms^2 to m/s^2
+    
+    # Total force = constant pneumatic force + variable inertial force
+    focused_data['Total Force (N)'] = F_pneumatic + focused_data['Inertial Force (N)']
+    
+    max_force = focused_data['Total Force (N)'].max()
+    
+    # Calculate pressure on the tip
+    tip_area_mm2 = math.pi * (tip_diameter / 2)**2  # Area in mm^2
+    max_force_lbs = max_force * 0.2248  # Force in lbs
+    pressure_tip_psi = max_force_lbs / (tip_area_mm2 / 645.16)  # Pressure in PSI
+
+    return focused_data, F_pneumatic, pressure_tip_psi, max_force
 
 
 def modified_process_data(data, pressure, bore_size, mass, tip_diameter):
@@ -137,8 +156,8 @@ if uploaded_file:
     mass = st.sidebar.number_input("Mass of the tool (kg)", min_value=0.0, value=0.5, step=0.01)
     tip_diameter = st.sidebar.number_input("Compactor Pin Diameter (thou)", min_value=0.0, value=25.0, step=0.1) * 0.0254  # in meters
 
-    # Process data and calculate forces
-    data, F_pneumatic, pressure_tip_psi, max_force = modified_process_data(data, pressure, bore_size, mass, tip_diameter)
+     # Process data and calculate forces
+    focused_data, F_pneumatic, pressure_tip_psi, max_force = process_data_within_range(data, pressure, bore_size, mass, tip_diameter)
 
 
 
