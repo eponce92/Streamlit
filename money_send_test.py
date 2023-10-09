@@ -13,7 +13,7 @@ df = conn.read(
     usecols=[0, 1],  # Usar solo las dos primeras columnas
 )
 
-# Elimina cualquier fila que pueda estar completamente vacía para asegurarse de que se añade al final de los datos existentes
+# Elimina cualquier fila que pueda estar completamente vacía
 df.dropna(how='all', inplace=True)
 
 # Muestra el DataFrame actual en Streamlit
@@ -34,14 +34,15 @@ with st.form(key='new_entry_form'):
             'Names': [new_name],
             'Ages': [new_age]
         })
-        
-        # Usando pandas.concat para añadir la nueva entrada
-        df = pd.concat([df, new_entry], ignore_index=True)
 
-        # Actualiza la hoja de Google Sheets con el nuevo DataFrame
+        # Añade la nueva entrada y actualiza la hoja
+        df = pd.concat([df, new_entry], ignore_index=True)
         conn.update(
             worksheet="Sheet1",
             data=df
         )
+
+        st.cache_data.clear()  # Limpia el caché de datos
+        st.experimental_rerun()  # Recarga la app
 
         st.success("Entrada añadida con éxito!")
