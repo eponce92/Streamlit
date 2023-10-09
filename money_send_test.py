@@ -1,58 +1,18 @@
-# Importar las bibliotecas necesarias
 import streamlit as st
+from streamlit_gsheets import GSheetsConnection
 
-def calculate_tax(items):
-    """Calculate the subtotal, tax, and total for the provided shopping cart items."""
-    subtotal = sum(item['price'] for item in items)
-    tax = 0.15 * subtotal
-    total = subtotal + tax
-    return subtotal, tax, total
+st.title("Visualización de Google Sheets")
 
-# Define la aplicación Streamlit
-def main():
-    st.title("Calculadora de Impuestos para el Carrito de Compras")
+# Crea la conexión a GSheets
+conn = st.experimental_connection("gsheets", type=GSheetsConnection)
 
-    # Crear dos columnas: col1 para los inputs y col2 para los resultados
-    col1, col2 = st.columns(2)
+# Lee la hoja de cálculo de Google como un DataFrame
+# Asumiendo que la hoja en la que estás interesado se llama "Sheet1" 
+# (esto es solo un nombre predeterminado, reemplázalo si tu hoja tiene un nombre diferente)
+df = conn.read(
+    worksheet="Sheet1",  
+    usecols=[0, 1],  # Usar solo las dos primeras columnas
+)
 
-    with col1:
-        # Número de artículos en el carrito
-        n_items = st.number_input("¿Cuántos artículos hay en tu carrito?", min_value=1, max_value=10, value=1, step=1)
-        cart_items = []
-
-        for i in range(n_items):
-            st.subheader(f"Artículo {i + 1}")
-            description = st.text_input(f"Descripción del artículo {i + 1}", "")
-            price = st.number_input(f"Precio del artículo {i + 1} ($)", min_value=0.01, value=0.01, step=0.01)
-            cart_items.append({"description": description, "price": price})
-
-    if st.button("Calcular"):
-        subtotal, tax, total = calculate_tax(cart_items)
-        with col2:
-            st.write(f"Subtotal: ${subtotal:.2f}")
-            st.write(f"Impuesto (15%): ${tax:.2f}")
-            st.write(f"Total: ${total:.2f}")
-    else:
-        with col2:
-            st.write("Tus resultados aparecerán aquí.")
-
-    st.write("#### Mostrar contenido de Google Sheet")
-    
-    with st.echo():
-        from streamlit_gsheets import GSheetsConnection
-    
-        # Crea la conexión a GSheets
-        conn = st.experimental_connection("gsheets", type=GSheetsConnection)
-    
-        # Lee la hoja de cálculo de Google como un DataFrame
-        # Asumiendo que la hoja en la que estás interesado se llama "Sheet1" 
-        # (esto es solo un nombre predeterminado, reemplázalo si tu hoja tiene un nombre diferente)
-        df = conn.read(
-            worksheet="Sheet1",  
-        )
-    
-        # Muestra el DataFrame en Streamlit
-        st.dataframe(df)
-
-if __name__ == "__main__":
-    main()
+# Muestra el DataFrame en Streamlit
+st.dataframe(df)
