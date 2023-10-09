@@ -9,7 +9,7 @@ conn = st.experimental_connection("gsheets", type=GSheetsConnection)
 
 # Lee la hoja de cálculo de Google como un DataFrame
 df = conn.read(
-    worksheet="Sheet1",  
+    worksheet="Sheet1",
     usecols=[0, 1],  # Usar solo las dos primeras columnas
 )
 
@@ -31,7 +31,9 @@ with st.form(key='new_entry_form'):
             'Names': [new_name],
             'Ages': [new_age]
         })
-        df = df.append(new_entry, ignore_index=True)
+        
+        # Usando pandas.concat en lugar de df.append
+        df = pd.concat([df, new_entry], ignore_index=True)
 
         # Actualiza la hoja de Google Sheets con el nuevo DataFrame
         conn.update(
