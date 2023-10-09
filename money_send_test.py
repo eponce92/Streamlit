@@ -26,12 +26,12 @@ def main():
             price = st.number_input(f"Precio del artículo {i + 1} ($)", min_value=0.01, value=0.01, step=0.01)
             cart_items.append({"description": description, "price": price})
 
-        if st.button("Calcular"):
-            subtotal, tax, total = calculate_tax(cart_items)
-            with col2:
-                st.write(f"Subtotal: ${subtotal:.2f}")
-                st.write(f"Impuesto (15%): ${tax:.2f}")
-                st.write(f"Total: ${total:.2f}")
+    if st.button("Calcular"):
+        subtotal, tax, total = calculate_tax(cart_items)
+        with col2:
+            st.write(f"Subtotal: ${subtotal:.2f}")
+            st.write(f"Impuesto (15%): ${tax:.2f}")
+            st.write(f"Total: ${total:.2f}")
     else:
         with col2:
             st.write("Tus resultados aparecerán aquí.")
