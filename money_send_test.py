@@ -36,9 +36,11 @@ with st.form(key='new_entry_form'):
         df.dropna(how='all', inplace=True)
         df = pd.concat([df, new_entry], ignore_index=True)
 
-        # Limpia la hoja completamente y escribe el DataFrame actualizado
+        # Limpia la hoja completamente
         conn.clear(worksheet="Sheet1")
-        conn.create(
+
+        # Actualiza la hoja con el DataFrame actualizado
+        conn.update(
             worksheet="Sheet1",
             data=df
         )
