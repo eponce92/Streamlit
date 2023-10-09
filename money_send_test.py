@@ -13,7 +13,7 @@ def main():
     st.title("Calculadora de Impuestos para el Carrito de Compras")
 
     # Crear dos columnas: col1 para los inputs y col2 para los resultados
-    col1, col2 = st.beta_columns(2)
+    col1, col2 = st.columns(2)
 
     with col1:
         # Número de artículos en el carrito
