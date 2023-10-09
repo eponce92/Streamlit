@@ -13,9 +13,6 @@ df = conn.read(
     usecols=[0, 1],  # Usar solo las dos primeras columnas
 )
 
-# Elimina cualquier fila que pueda estar completamente vacía
-df.dropna(how='all', inplace=True)
-
 # Muestra el DataFrame actual en Streamlit
 st.subheader("Contenido actual de la hoja:")
 st.dataframe(df)
@@ -35,14 +32,19 @@ with st.form(key='new_entry_form'):
             'Ages': [new_age]
         })
 
+        # Relee la hoja para asegurarnos de trabajar con la versión más reciente
+        df_current = conn.read(
+            worksheet="Sheet1",
+            usecols=[0, 1]
+        )
+        df_current.dropna(how='all', inplace=True)
+
         # Añade la nueva entrada y actualiza la hoja
-        df = pd.concat([df, new_entry], ignore_index=True)
+        df_updated = pd.concat([df_current, new_entry], ignore_index=True)
         conn.update(
             worksheet="Sheet1",
-            data=df
+            data=df_updated
         )
 
-        st.cache_data.clear()  # Limpia el caché de datos
-        st.experimental_rerun()  # Recarga la app
-
         st.success("Entrada añadida con éxito!")
+        st.experimental_rerun()  # Recarga la app
