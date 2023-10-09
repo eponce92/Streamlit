@@ -36,5 +36,23 @@ def main():
         with col2:
             st.write("Tus resultados aparecerán aquí.")
 
+    st.write("#### Mostrar contenido de Google Sheet")
+    
+    with st.echo():
+        from streamlit_gsheets import GSheetsConnection
+    
+        # Crea la conexión a GSheets
+        conn = st.experimental_connection("gsheets", type=GSheetsConnection)
+    
+        # Lee la hoja de cálculo de Google como un DataFrame
+        # Asumiendo que la hoja en la que estás interesado se llama "Sheet1" 
+        # (esto es solo un nombre predeterminado, reemplázalo si tu hoja tiene un nombre diferente)
+        df = conn.read(
+            worksheet="Sheet1",  
+        )
+    
+        # Muestra el DataFrame en Streamlit
+        st.dataframe(df)
+
 if __name__ == "__main__":
     main()
