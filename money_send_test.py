@@ -10,7 +10,7 @@ conn = st.experimental_connection("gsheets", type=GSheetsConnection)
 # Lee la hoja de cálculo de Google como un DataFrame
 df = conn.read(
     worksheet="Sheet1",
-    usecols=[0, 1],  # Usar solo las dos primeras columnas
+    usecols=[0, 1]  # Usar solo las dos primeras columnas
 )
 
 # Muestra el DataFrame actual en Streamlit
@@ -32,11 +32,13 @@ with st.form(key='new_entry_form'):
             'Ages': [new_age]
         })
 
-        # Añade la nueva entrada al DataFrame
+        # Elimina las filas vacías y añade la nueva entrada al DataFrame
+        df.dropna(how='all', inplace=True)
         df = pd.concat([df, new_entry], ignore_index=True)
 
-        # Actualiza la hoja de Google Sheets con el nuevo DataFrame
-        conn.update(
+        # Limpia la hoja completamente y escribe el DataFrame actualizado
+        conn.clear(worksheet="Sheet1")
+        conn.create(
             worksheet="Sheet1",
             data=df
         )
