@@ -10,7 +10,6 @@ conn = st.experimental_connection("gsheets", type=GSheetsConnection)
 # Read the current data from the Google Sheet
 df = conn.read(
     worksheet="Sheet1",
-    usecols=[0, 1]  # Assuming data is stored in the first two columns
 )
 
 # Display current data to the user
@@ -24,26 +23,12 @@ price = st.number_input("Price", min_value=0.0, step=0.01)
 
 # Button to add the new entry to the Google Sheet
 if st.button("Add Entry"):
-    new_entry = pd.DataFrame({
-        'Article Name': [article_name],
-        'Price': [price]
-    })
+    # Access the raw gspread worksheet
+    spreadsheet = conn.client._open_spreadsheet()
+    worksheet = spreadsheet.worksheet("Sheet1")
 
-    # Re-read the Google Sheet to ensure we're working with the most recent version
-    df_current = conn.read(
-        worksheet="Sheet1"
-    )
-    df_current.dropna(how='all', inplace=True)
-
-    # Add the new entry
-    df_updated = pd.concat([df_current, new_entry], ignore_index=True)
-    
-    # Clear the worksheet before updating with new data
-    conn.clear(worksheet="Sheet1")
-    
-    # Push the updated DataFrame to the Google Sheet
-    conn.update(worksheet="Sheet1", data=df_updated)  
+    # Append the new data
+    worksheet.append_row([article_name, price])
 
     st.success("Entry Added Successfully!")
     st.experimental_rerun()  # Reload the app to display the updated data
-
