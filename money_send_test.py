@@ -1,6 +1,8 @@
 import streamlit as st
 from streamlit_gsheets import GSheetsConnection
 import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 st.title("Article Price Database")
 
@@ -46,3 +48,11 @@ df_updated = conn.read(
 # Display the updated data to the user
 st.subheader("Current Database")
 st.dataframe(df_updated)
+
+# Plotting the data
+st.subheader("Article Price Visualization")
+plt.figure(figsize=(12, 6))
+sns.barplot(data=df_updated, x='Article Name', y='Price', palette="viridis")
+plt.xticks(rotation=45, ha="right")
+plt.tight_layout()
+st.pyplot()
