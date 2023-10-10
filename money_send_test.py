@@ -19,12 +19,12 @@ if df.empty:
     # Access the raw gspread worksheet
     spreadsheet = conn.client._open_spreadsheet()
     worksheet = spreadsheet.worksheet("Sheet1")
-    worksheet.append_row(["Article Name", "Price"])
+    worksheet.append_row(["Article", "Price"])
     st.experimental_rerun()  # Reload the app immediately after adding headers
 
 # User input for new entries
 st.subheader("Add a New Entry")
-article_name = st.text_input("Article Name")
+article_name = st.text_input("Article")
 price = st.number_input("Price", min_value=0.0, step=0.01)
 
 # Button to add the new entry to the Google Sheet
@@ -52,7 +52,7 @@ st.dataframe(df_updated)
 # Plotting the data
 st.subheader("Article Price Visualization")
 plt.figure(figsize=(12, 6))
-sns.barplot(data=df_updated, x='Article Name', y='Price', palette="viridis")
+sns.barplot(data=df_updated, x='Article', y='Price', palette="viridis")
 plt.xticks(rotation=45, ha="right")
 plt.tight_layout()
 st.pyplot()
