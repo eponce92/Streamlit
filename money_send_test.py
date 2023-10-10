@@ -36,14 +36,15 @@ if st.button("Add Entry"):
     )
     df_current.dropna(how='all', inplace=True)
 
-    # Add the new entry and update the Google Sheet
+    # Add the new entry
     df_updated = pd.concat([df_current, new_entry], ignore_index=True)
     
     # Clear the worksheet before updating with new data
     conn.clear(worksheet="Sheet1")
     
     # Push the updated DataFrame to the Google Sheet
-    conn.create(worksheet="Sheet1", data=df_updated)
+    conn.update(worksheet="Sheet1", data=df_updated)  # Use `update` method instead of `create`
 
     st.success("Entry Added Successfully!")
     st.experimental_rerun()  # Reload the app to display the updated data
+
