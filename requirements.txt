@@ -11,7 +11,7 @@ youtube_dl
 streamlit-extras
 xlsxwriter
 st-gsheets-connection
-
+pandasql
 
 
 
