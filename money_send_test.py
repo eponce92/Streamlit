@@ -1,7 +1,8 @@
 import streamlit as st
 from streamlit_gsheets import GSheetsConnection
 import pandas as pd
-import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Agg')  # Set the backend of matplotlib to 'Agg'
 import seaborn as sns
 
 st.title("Article Price Database")
