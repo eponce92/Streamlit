@@ -35,6 +35,7 @@ if st.button("Add Entry"):
     worksheet.append_row([article_name, price])
 
     st.success("Entry Added Successfully!")
+    st.cache_data.clear()  # Clearing the cache
     st.experimental_rerun()  # Reload the app after adding the entry
 
 # Re-fetch the data to display in Streamlit
