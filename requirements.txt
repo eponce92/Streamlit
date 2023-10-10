@@ -12,6 +12,8 @@ streamlit-extras
 xlsxwriter
 st-gsheets-connection
 pandasql
+seaborn
+matplotlib
 
 
 
