@@ -12,9 +12,11 @@ df = conn.read(
     worksheet="Sheet1",
 )
 
-# Display current data to the user
-st.subheader("Current Database")
-st.dataframe(df)
+# If the sheet is empty, add headers
+if df.empty:
+    spreadsheet = conn.client._open_spreadsheet()
+    worksheet = spreadsheet.worksheet("Sheet1")
+    worksheet.append_row(["Article Name", "Price"])
 
 # User input for new entries
 st.subheader("Add a New Entry")
@@ -32,3 +34,12 @@ if st.button("Add Entry"):
 
     st.success("Entry Added Successfully!")
     st.experimental_rerun()  # Reload the app to display the updated data
+
+# Re-fetch the data from the Google Sheet to update the Streamlit table
+df_updated = conn.read(
+    worksheet="Sheet1",
+)
+
+# Display the updated data to the user
+st.subheader("Current Database")
+st.dataframe(df_updated)
