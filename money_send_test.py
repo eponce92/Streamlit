@@ -42,8 +42,8 @@ if st.button("Add Entry"):
     # Clear the worksheet before updating with new data
     conn.clear(worksheet="Sheet1")
     
-    # Push the updated DataFrame to the Google Sheet
-    conn.update(worksheet="Sheet1", data=df_updated)  # Use `update` method instead of `create`
+    # Push the updated DataFrame to the Google Sheet starting from the correct columns (A and B)
+    conn.update(worksheet="Sheet1", data=df_updated, start='A1')  # Explicitly specify start column and row
 
     st.success("Entry Added Successfully!")
     st.experimental_rerun()  # Reload the app to display the updated data
