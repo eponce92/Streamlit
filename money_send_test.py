@@ -31,8 +31,7 @@ if st.button("Add Entry"):
 
     # Re-read the Google Sheet to ensure we're working with the most recent version
     df_current = conn.read(
-        worksheet="Sheet1",
-        usecols=[0, 1]
+        worksheet="Sheet1"
     )
     df_current.dropna(how='all', inplace=True)
 
@@ -42,8 +41,8 @@ if st.button("Add Entry"):
     # Clear the worksheet before updating with new data
     conn.clear(worksheet="Sheet1")
     
-    # Push the updated DataFrame to the Google Sheet starting from the correct columns (A and B)
-    conn.update(worksheet="Sheet1", data=df_updated, start='A1')  # Explicitly specify start column and row
+    # Push the updated DataFrame to the Google Sheet
+    conn.update(worksheet="Sheet1", data=df_updated)  
 
     st.success("Entry Added Successfully!")
     st.experimental_rerun()  # Reload the app to display the updated data
