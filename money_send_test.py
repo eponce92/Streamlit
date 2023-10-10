@@ -2,6 +2,7 @@ import streamlit as st
 from streamlit_gsheets import GSheetsConnection
 import pandas as pd
 import matplotlib
+import matplotlib.pyplot as plt
 matplotlib.use('Agg')  # Set the backend of matplotlib to 'Agg'
 import seaborn as sns
 
