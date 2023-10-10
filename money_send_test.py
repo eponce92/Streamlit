@@ -14,9 +14,11 @@ df = conn.read(
 
 # If the sheet is empty, add headers
 if df.empty:
+    # Access the raw gspread worksheet
     spreadsheet = conn.client._open_spreadsheet()
     worksheet = spreadsheet.worksheet("Sheet1")
     worksheet.append_row(["Article Name", "Price"])
+    st.experimental_rerun()  # Reload the app immediately after adding headers
 
 # User input for new entries
 st.subheader("Add a New Entry")
@@ -25,17 +27,17 @@ price = st.number_input("Price", min_value=0.0, step=0.01)
 
 # Button to add the new entry to the Google Sheet
 if st.button("Add Entry"):
-    # Access the raw gspread worksheet
+    # Access the raw gspread worksheet again
     spreadsheet = conn.client._open_spreadsheet()
     worksheet = spreadsheet.worksheet("Sheet1")
-
+    
     # Append the new data
     worksheet.append_row([article_name, price])
 
     st.success("Entry Added Successfully!")
-    st.experimental_rerun()  # Reload the app to display the updated data
+    st.experimental_rerun()  # Reload the app after adding the entry
 
-# Re-fetch the data from the Google Sheet to update the Streamlit table
+# Re-fetch the data to display in Streamlit
 df_updated = conn.read(
     worksheet="Sheet1",
 )
