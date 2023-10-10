@@ -52,7 +52,7 @@ st.dataframe(df_updated)
 # Plotting the data
 st.subheader("Article Price Visualization")
 plt.figure(figsize=(12, 6))
-sns.barplot(data=df_updated, x='Article', y='Price', palette="viridis")
+sns.barplot(data=df_updated, x='Article', y='Price', hue='Article', palette="viridis", legend=False)
 plt.xticks(rotation=45, ha="right")
 plt.tight_layout()
 st.pyplot()
