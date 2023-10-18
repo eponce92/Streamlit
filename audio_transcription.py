@@ -38,10 +38,9 @@ def main():
         layout="centered"
     )
 
-    
-    # Use the image as part of the title
+    # Title using github image
     st.markdown(
-        f'<h1 class="streamlit-header"><img src="https://raw.githubusercontent.com/eponce92/Streamlit/main/audio-transcript-icon.png" style="height:50px;margin-right:10px;">Audio Transcriber</h1>',
+        f'<h1 class="streamlit-header">Audio Transcriber <img src="https://raw.githubusercontent.com/eponce92/Streamlit/main/audio-transcript-icon.png" style="height:60px;margin-left:10px;"></h1>',
         unsafe_allow_html=True
     )
 
