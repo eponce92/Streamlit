@@ -41,13 +41,14 @@ def main():
     # Use a different image as part of the title
     st.markdown(
         f'''
-        <h1 class="streamlit-header">Audio Transcriber 
-            <img src="https://raw.githubusercontent.com/eponce92/Streamlit/main/audio-transctipt-ilustration.png" style="height:auto;width:260px;float:right;">
-        </h1>
+        <div style="display: flex; align-items: center;">
+            <h1 class="streamlit-header" style="margin:0;">Audio Transcriber</h1>
+            <img src="https://raw.githubusercontent.com/eponce92/Streamlit/main/audio-transctipt-ilustration.png" style="height:auto;width:260px;margin-left: 10px;">
+        </div>
         ''',
         unsafe_allow_html=True
     )
-    
+
 
     # Description
     st.write("""
