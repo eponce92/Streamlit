@@ -45,8 +45,10 @@ def main():
             layout="centered"
         )
     
-    if 'authenticated_user' not in st.session_state:
-        st.session_state.authenticated_user = None
+
+    if 'button_clicked' not in st.session_state:
+        st.session_state.button_clicked = False
+
 
 
     # Login Sidebar
@@ -105,8 +107,14 @@ def main():
         if 'messages' not in st.session_state:
             st.session_state['messages'] = [{"role": "system", "content": "Use this audio transcription as context to chat with the user. The user might ask you to summarize or questions about the content of the transcription and you should answer based on this information."}]
     
-           # Button to start transcription
+
+
+        # Change button state on click
         if st.button("Transcribe"):
+            st.session_state.button_clicked = not st.session_state.button_clicked
+        
+        # Perform action based on button state
+        if st.session_state.button_clicked:
             with st.spinner("Transcribing..."):  # Added spinner
                 try:
                     if not openai_api_key or (not youtube_url and not uploaded_file):
