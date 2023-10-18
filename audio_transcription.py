@@ -116,10 +116,12 @@ def main():
 
 
         
-        # Perform action based on button state
-        if st.session_state.get('authenticated_user'):
+        if st.button('Transcribe'):
+            st.session_state.button_clicked = True
+        
+        if st.session_state.get('authenticated_user') and st.session_state.button_clicked:
+            with st.spinner("Transcribing..."):
 
-            with st.spinner("Transcribing..."):  # Added spinner
                 try:
                     if not openai_api_key or (not youtube_url and not uploaded_file):
                         st.warning("Please fill in all required fields.")
@@ -153,8 +155,12 @@ def main():
                                 ):
                                     st.code(transcription)
                         
-                            # Add transcription to message history
-                            st.session_state['messages'].append({"role": "assistant", "content": f"Transcription: {transcription}"})
+
+
+                            # Add transcription to message history only if it's not already present
+                            if {"role": "assistant", "content": f"Transcription: {transcription}"} not in st.session_state['messages']:
+                                st.session_state['messages'].append({"role": "assistant", "content": f"Transcription: {transcription}"})
+
                             
                         except Exception as e:
                             st.error(f"An error occurred: {e}")
