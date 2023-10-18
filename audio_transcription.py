@@ -38,6 +38,13 @@ def continue_chat(api_key, messages, model):
     return response['choices'][0]['message']['content']
 
 def main():
+    # Set the page config at the beginning of your script
+    st.set_page_config(
+            page_title="Audio Transcriber GPT",
+            page_icon="https://raw.githubusercontent.com/eponce92/Streamlit/main/audio-transcript-icon.png",  # Direct link to your favicon image
+            layout="centered"
+        )
+    
     authenticated_user = None
     
     st.sidebar.header("Login")
@@ -53,12 +60,7 @@ def main():
 
 
     if authenticated_user:
-        # Set the page config at the beginning of your script
-        st.set_page_config(
-            page_title="Audio Transcriber GPT",
-            page_icon="https://raw.githubusercontent.com/eponce92/Streamlit/main/audio-transcript-icon.png",  # Direct link to your favicon image
-            layout="centered"
-        )
+
         
         # Use a different image as part of the title
         st.markdown(
