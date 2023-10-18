@@ -60,8 +60,7 @@ def main():
         else:
             try:
                 if youtube_url:
-                    # Update the session state with the new YouTube video embed URL
-                    st.session_state['youtube_video_embed_url'] = f"https://www.youtube.com/embed/{YouTube(youtube_url).video_id}"
+
                     # Download the video and extract audio for transcription
                     audio_file_path = download_audio(youtube_url)
                     
