@@ -110,11 +110,15 @@ def main():
 
 
         # Change button state on click
-        if st.button("Transcribe"):
-            st.session_state.button_clicked = not st.session_state.button_clicked
+        if 'button_clicked' not in st.session_state:
+            st.session_state.button_clicked = False
+        
+        if 'authenticated_user' not in st.session_state:
+            st.session_state.authenticated_user = None
         
         # Perform action based on button state
-        if st.session_state.button_clicked:
+        if st.session_state.get('authenticated_user'):
+
             with st.spinner("Transcribing..."):  # Added spinner
                 try:
                     if not openai_api_key or (not youtube_url and not uploaded_file):
