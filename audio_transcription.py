@@ -55,7 +55,7 @@ def main():
     password_input = st.sidebar.text_input("Password:", type="password")
 
     if st.sidebar.button("Login"):
-    authenticated_user = validate_user(username_input, password_input)
+        authenticated_user = validate_user(username_input, password_input)
     if authenticated_user is not None:
         st.sidebar.success(f"Logged in as {authenticated_user}")
         st.session_state.authenticated_user = authenticated_user
