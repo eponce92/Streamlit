@@ -88,10 +88,7 @@ def main():
 
                     # Download the video and extract audio for transcription
                     audio_file_path = download_audio(youtube_url)
-                    
-                    # Display the YouTube video if a URL is provided
-                    video_embed_url = f"https://www.youtube.com/embed/{YouTube(youtube_url).video_id}"
-                    st.video(video_embed_url)  # Add this line to display the video player
+                    st.session_state['youtube_video_embed_url'] = f"https://www.youtube.com/embed/{YouTube(youtube_url).video_id}"
                     
                 else:
                     # Use the uploaded audio file for transcription
@@ -155,9 +152,9 @@ def main():
             except Exception as e:
                 st.error(f"An error occurred: {e}")
 
-    # Display video if available in session state
-    if st.session_state['youtube_video_embed_url']:
-        st.video(st.session_state['youtube_video_embed_url'])
+        # Display video if available in session state
+        if st.session_state['youtube_video_embed_url']:
+            st.video(st.session_state['youtube_video_embed_url'])
 
 if __name__ == "__main__":
     main()
