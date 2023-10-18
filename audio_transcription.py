@@ -40,7 +40,11 @@ def main():
     
     # Use a different image as part of the title
     st.markdown(
-        f'<h1 class="streamlit-header">Audio Transcriber GPT <img src="https://raw.githubusercontent.com/eponce92/Streamlit/main/audio-transctipt-ilustration.png" style="height:200px;margin-left:20px;"></h1>',
+        f'''
+        <h1 class="streamlit-header">Audio Transcriber 
+            <img src="https://raw.githubusercontent.com/eponce92/Streamlit/main/audio-transctipt-ilustration.png" style="height:auto;width:260px;float:right;">
+        </h1>
+        ''',
         unsafe_allow_html=True
     )
     
