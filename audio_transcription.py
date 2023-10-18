@@ -33,6 +33,10 @@ def continue_chat(api_key, messages, model):
 def main():
     st.title("Audio Transcriber 🎙️")
 
+    # Initialize session state
+    if 'youtube_video_embed_url' not in st.session_state:
+        st.session_state['youtube_video_embed_url'] = None
+
     # Dropdown for GPT model selection
     gpt_model = st.selectbox(
         "Select GPT model:",
@@ -56,6 +60,8 @@ def main():
         else:
             try:
                 if youtube_url:
+                    # Update the session state with the new YouTube video embed URL
+                    st.session_state['youtube_video_embed_url'] = f"https://www.youtube.com/embed/{YouTube(youtube_url).video_id}"
                     # Download the video and extract audio for transcription
                     audio_file_path = download_audio(youtube_url)
                     
@@ -124,6 +130,10 @@ def main():
 
             except Exception as e:
                 st.error(f"An error occurred: {e}")
+
+    # Display video if available in session state
+    if st.session_state['youtube_video_embed_url']:
+        st.video(st.session_state['youtube_video_embed_url'])
 
 if __name__ == "__main__":
     main()
