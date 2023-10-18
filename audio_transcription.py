@@ -48,6 +48,11 @@ def main():
 
     if 'button_clicked' not in st.session_state:
         st.session_state.button_clicked = False
+    
+    # Add this line to initialize authenticated_user
+    if 'authenticated_user' not in st.session_state:
+        st.session_state.authenticated_user = None
+
 
 
 
@@ -109,12 +114,7 @@ def main():
     
 
 
-        # Change button state on click
-        if 'button_clicked' not in st.session_state:
-            st.session_state.button_clicked = False
-        
-        if 'authenticated_user' not in st.session_state:
-            st.session_state.authenticated_user = None
+
         
         # Perform action based on button state
         if st.session_state.get('authenticated_user'):
