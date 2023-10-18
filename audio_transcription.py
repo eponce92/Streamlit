@@ -162,8 +162,8 @@ def main():
                         
                     except Exception as e:
                         st.error(f"An error occurred: {e}")
-        except Exception as e:
-            st.error(f"An error occurred: {e}")
+            except Exception as e:
+                st.error(f"An error occurred: {e}")
     
         # Chat Interface
         if 'messages' in st.session_state and len(st.session_state['messages']) > 1:
