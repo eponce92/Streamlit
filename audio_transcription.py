@@ -33,7 +33,7 @@ def continue_chat(api_key, messages, model):
 def main():
     # Set the page config at the beginning of your script
     st.set_page_config(
-        page_title="Audio Transcriber",
+        page_title="Audio Transcriber GPT",
         page_icon="https://raw.githubusercontent.com/eponce92/Streamlit/main/audio-transcript-icon.png",  # Direct link to your favicon image
         layout="centered"
     )
