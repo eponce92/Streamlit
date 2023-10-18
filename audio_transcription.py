@@ -40,7 +40,7 @@ def main():
 
     # Title using github image
     st.markdown(
-        f'<h1 class="streamlit-header">Audio Transcriber <img src="https://raw.githubusercontent.com/eponce92/Streamlit/main/audio-transcript-icon.png" style="height:150px;margin-left:10px;"></h1>',
+        f'<h1 class="streamlit-header">Audio Transcriber <img src="https://raw.githubusercontent.com/eponce92/Streamlit/main/audio-transcript-ilustration.png" style="height:150px;margin-left:10px;"></h1>',
         unsafe_allow_html=True
     )
 
