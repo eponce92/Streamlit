@@ -56,11 +56,12 @@ def main():
 
     if st.sidebar.button("Login"):
         authenticated_user = validate_user(username_input, password_input)
-    if authenticated_user is not None:
-        st.sidebar.success(f"Logged in as {authenticated_user}")
-        st.session_state.authenticated_user = authenticated_user
-    else:
-        st.sidebar.error("Invalid username or password")
+        if authenticated_user is not None:
+            st.sidebar.success(f"Logged in as {authenticated_user}")
+            st.session_state.authenticated_user = authenticated_user
+        else:
+            st.sidebar.error("Invalid username or password")
+
 
 
 
