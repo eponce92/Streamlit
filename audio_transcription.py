@@ -105,47 +105,51 @@ def main():
         if 'messages' not in st.session_state:
             st.session_state['messages'] = [{"role": "system", "content": "Use this audio transcription as context to chat with the user. The user might ask you to summarize or questions about the content of the transcription and you should answer based on this information."}]
     
-       # Button to start transcription
+           # Button to start transcription
         if st.button("Transcribe"):
-            try:
-                if not openai_api_key or (not youtube_url and not uploaded_file):
-                    st.warning("Please fill in all required fields.")
-                else:
-                    try:
-                        if youtube_url:
-        
-                            # Download the video and extract audio for transcription
-                            audio_file_path = download_audio(youtube_url)
-                            st.session_state['youtube_video_embed_url'] = f"https://www.youtube.com/embed/{YouTube(youtube_url).video_id}"
+            with st.spinner("Transcribing..."):  # Added spinner
+                try:
+                    if not openai_api_key or (not youtube_url and not uploaded_file):
+                        st.warning("Please fill in all required fields.")
+                    else:
+                        try:
+                            st.info("Preparing to download and transcribe audio...")  # Added info
+                            if youtube_url:
+                                # Download the video and extract audio for transcription
+                                audio_file_path = download_audio(youtube_url)
+                                st.session_state['youtube_video_embed_url'] = f"https://www.youtube.com/embed/{YouTube(youtube_url).video_id}"
                             
-                        else:
-                            # Use the uploaded audio file for transcription
-                            audio_file_path = uploaded_file.name
-                            with open(audio_file_path, "wb") as f:
-                                f.write(uploaded_file.read())
-            
-                        # Proceed with transcription
-                        transcription = whisper_transcribe(audio_file_path, openai_api_key)
+                            else:
+                                # Use the uploaded audio file for transcription
+                                audio_file_path = uploaded_file.name
+                                with open(audio_file_path, "wb") as f:
+                                    f.write(uploaded_file.read())
                         
-                        # Show transcription
-                        with st.expander("Show Transcription"):
-                            with stylable_container(
-                                "codeblock",
-                                """
-                                code {
-                                    white-space: pre-wrap !important;
-                                }
-                                """,
-                            ):
-                                st.code(transcription)
+                            st.info("Performing transcription...")  # Added info
+                            # Proceed with transcription
+                            transcription = whisper_transcribe(audio_file_path, openai_api_key)
+                            
+                            # Show transcription
+                            with st.expander("Show Transcription"):
+                                with stylable_container(
+                                    "codeblock",
+                                    """
+                                    code {
+                                        white-space: pre-wrap !important;
+                                    }
+                                    """,
+                                ):
+                                    st.code(transcription)
                         
-                        # Add transcription to message history
-                        st.session_state['messages'].append({"role": "assistant", "content": f"Transcription: {transcription}"})
-                        
-                    except Exception as e:
-                        st.error(f"An error occurred: {e}")
-            except Exception as e:
-                st.error(f"An error occurred: {e}")
+                            # Add transcription to message history
+                            st.session_state['messages'].append({"role": "assistant", "content": f"Transcription: {transcription}"})
+                            
+                        except Exception as e:
+                            st.error(f"An error occurred: {e}")
+                except Exception as e:
+                    st.error(f"An error occurred: {e}")
+
+        
     
         # Chat Interface
         if 'messages' in st.session_state and len(st.session_state['messages']) > 1:
@@ -176,7 +180,7 @@ def main():
                         st.write(gpt_response)
     
                     # Force a rerun to update the chat interface
-                    st.experimental_rerun()
+                    st.rerun()
     
                 except Exception as e:
                     st.error(f"An error occurred: {e}")
