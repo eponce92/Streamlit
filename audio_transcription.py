@@ -33,6 +33,14 @@ def continue_chat(api_key, messages, model):
 def main():
     st.title("Audio Transcriber 🎙️")
 
+    # Description
+    st.write("""
+    Welcome to the Audio Transcriber app! This app allows you to:
+    - Transcribe audio files you upload.
+    - Transcribe the audio from YouTube videos via URL.
+    - Engage in a chat with a GPT-based assistant to discuss the transcribed content.
+    """)
+
     # Initialize session state
     if 'youtube_video_embed_url' not in st.session_state:
         st.session_state['youtube_video_embed_url'] = None
