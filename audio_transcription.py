@@ -125,43 +125,45 @@ def main():
     
        # Button to start transcription
         if st.button("Transcribe"):
-            if not openai_api_key or (not youtube_url and not uploaded_file):
-                st.warning("Please fill in all required fields.")
-            else:
-                try:
-                    if youtube_url:
-    
-                        # Download the video and extract audio for transcription
-                        audio_file_path = download_audio(youtube_url)
-                        st.session_state['youtube_video_embed_url'] = f"https://www.youtube.com/embed/{YouTube(youtube_url).video_id}"
-                        
-                    else:
-                        # Use the uploaded audio file for transcription
-                        audio_file_path = uploaded_file.name
-                        with open(audio_file_path, "wb") as f:
-                            f.write(uploaded_file.read())
+            try:
+                if not openai_api_key or (not youtube_url and not uploaded_file):
+                    st.warning("Please fill in all required fields.")
+                else:
+                    try:
+                        if youtube_url:
         
-                    # Proceed with transcription
-                    transcription = whisper_transcribe(audio_file_path, openai_api_key)
-                    
-                    # Show transcription
-                    with st.expander("Show Transcription"):
-                        with stylable_container(
-                            "codeblock",
-                            """
-                            code {
-                                white-space: pre-wrap !important;
-                            }
-                            """,
-                        ):
-                            st.code(transcription)
-                    
-                    # Add transcription to message history
-                    st.session_state['messages'].append({"role": "assistant", "content": f"Transcription: {transcription}"})
-                    
-                except Exception as e:
-                    st.error(f"An error occurred: {e}")
-    
+                            # Download the video and extract audio for transcription
+                            audio_file_path = download_audio(youtube_url)
+                            st.session_state['youtube_video_embed_url'] = f"https://www.youtube.com/embed/{YouTube(youtube_url).video_id}"
+                            
+                        else:
+                            # Use the uploaded audio file for transcription
+                            audio_file_path = uploaded_file.name
+                            with open(audio_file_path, "wb") as f:
+                                f.write(uploaded_file.read())
+            
+                        # Proceed with transcription
+                        transcription = whisper_transcribe(audio_file_path, openai_api_key)
+                        
+                        # Show transcription
+                        with st.expander("Show Transcription"):
+                            with stylable_container(
+                                "codeblock",
+                                """
+                                code {
+                                    white-space: pre-wrap !important;
+                                }
+                                """,
+                            ):
+                                st.code(transcription)
+                        
+                        # Add transcription to message history
+                        st.session_state['messages'].append({"role": "assistant", "content": f"Transcription: {transcription}"})
+                        
+                    except Exception as e:
+                        st.error(f"An error occurred: {e}")
+        except Exception as e:
+            st.error(f"An error occurred: {e}")
     
         # Chat Interface
         if 'messages' in st.session_state and len(st.session_state['messages']) > 1:
