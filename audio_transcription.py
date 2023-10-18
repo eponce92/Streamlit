@@ -34,7 +34,7 @@ def main():
     # Set the page config at the beginning of your script
     st.set_page_config(
         page_title="Audio Transcriber GPT",
-        page_icon="https://raw.githubusercontent.com/eponce92/Streamlit/main/audio-transcript-icon.png",  # Direct link to your favicon image
+        page_icon="https://github.com/eponce92/Streamlit/blob/main/audio-transctipt-ilustration.png",  # Direct link to your favicon image
         layout="centered"
     )
 
