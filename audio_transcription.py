@@ -33,14 +33,14 @@ def continue_chat(api_key, messages, model):
 def main():
     # Set the page config at the beginning of your script
     st.set_page_config(
-        page_title="Audio Transcriber GPT",
-        page_icon="https://github.com/eponce92/Streamlit/blob/main/audio-transcript-icon.png",  # Direct link to your favicon image
+        page_title="Audio Transcriber",
+        page_icon="https://raw.githubusercontent.com/eponce92/Streamlit/main/audio-transcript-icon.png",  # Direct link to your favicon image
         layout="centered"
     )
-
-    # Title using github image
+    
+    # Use the image as part of the title
     st.markdown(
-        f'<h1 class="streamlit-header">Audio Transcriber <img src="https://github.com/eponce92/Streamlit/blob/main/audio-transctipt-ilustration.png" style="height:150px;margin-left:10px;"></h1>',
+        f'<h1 class="streamlit-header">Audio Transcriber <img src="https://raw.githubusercontent.com/eponce92/Streamlit/main/audio-transcript-icon.png" style="height:60px;margin-left:10px;"></h1>',
         unsafe_allow_html=True
     )
 
