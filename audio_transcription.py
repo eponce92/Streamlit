@@ -52,11 +52,33 @@ def main():
 
     # Description
     st.write("""
-    Welcome to the Audio Transcriber app! This app allows you to:
-    - Transcribe audio files you upload.
-    - Transcribe the audio from YouTube videos via URL.
-    - Engage in a chat with a GPT-based assistant to discuss the transcribed content.
+    ## Welcome to the Audio Transcriber App! 
+
+    **What can this app do?**
+
+    1. **Transcribe Audio Files**: Upload an audio file and get its transcription in real-time. The supported formats are MP3, WAV, and WebM.
+    
+    2. **Transcribe YouTube Videos**: Paste the URL of a YouTube video and the app will download the audio and transcribe it for you.
+    
+    3. **Interactive Chat**: Once your audio is transcribed, you can have an interactive chat with a GPT-based assistant. You can ask the assistant to summarize the transcription, answer questions about it, or even perform text-based analyses.
+
+    **How to Use**
+
+    1. **Select a GPT Model**: Choose from several GPT models available in the dropdown menu. The capabilities and accuracies may vary.
+    
+    2. **Enter OpenAI API Key**: You'll need a valid API key from OpenAI to access the transcription and chat functionalities.
+    
+    3. **Provide Audio**: Either paste a YouTube video URL or upload an audio file from your device.
+    
+    4. **Click Transcribe**: Hit the transcribe button and wait for your transcription to be generated. It will appear in a code block, and the assistant will also announce its availability.
+    
+    5. **Chat with the Assistant**: After transcription, you can chat with the GPT-based assistant for further insights and clarifications about the transcribed content.
+    
+    **Note**: Transcriptions are powered by OpenAI's Whisper ASR system, and the chat is powered by the selected GPT model. API costs may apply.
+
+    Happy Transcribing!
     """)
+
 
     # Initialize session state
     if 'youtube_video_embed_url' not in st.session_state:
