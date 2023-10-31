@@ -249,16 +249,30 @@ def main():
     
 
 
-                    # Initialize flag
-                    if 'should_rerun' not in st.session_state:
-                        st.session_state.should_rerun = True
+
+                    # Initialize last_user_input
+                    if 'last_user_input' not in st.session_state:
+                        st.session_state.last_user_input = None
                     
-                    # Force a rerun to update the chat interface
-                    if user_input and st.session_state.should_rerun:
-                        st.session_state.should_rerun = False  # Reset the flag
+                    # User input
+                    user_input = st.chat_input("Type your message")
+                    
+                    if user_input and user_input != st.session_state.last_user_input:
+                        # Add user message to message history
+                        st.session_state['messages'].append({"role": "user", "content": user_input})
+                        st.session_state.last_user_input = user_input  # Update last_user_input
+                    
+                        # Get GPT response
+                        gpt_response = continue_chat(openai_api_key, st.session_state['messages'], gpt_model)
+                    
+                        # Add GPT message to message history
+                        st.session_state['messages'].append({"role": "assistant", "content": gpt_response})
+                    
+                        with st.chat_message("assistant"):
+                            st.write(gpt_response)
+                    
+                        # Force a rerun to update the chat interface
                         st.rerun()
-                    else:
-                        st.session_state.should_rerun = True  # Reset the flag
 
 
                     
