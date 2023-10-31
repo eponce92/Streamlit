@@ -53,31 +53,7 @@ def main():
     if 'authenticated_user' not in st.session_state:
         st.session_state.authenticated_user = None
 
-
-
-
-    # Login Sidebar
-    st.sidebar.header("Login")
-    username_input = st.sidebar.text_input("Username:")
-    password_input = st.sidebar.text_input("Password:", type="password")
-
-    if st.sidebar.button("Login"):
-        authenticated_user = validate_user(username_input, password_input)
-        if authenticated_user is not None:
-            st.sidebar.success(f"Logged in as {authenticated_user}")
-            st.session_state.authenticated_user = authenticated_user
-        else:
-            st.sidebar.error("Invalid username or password")
-
-
-
-
-
-    if st.session_state.authenticated_user:
-
-
-        
-        # Use a different image as part of the title
+    # Use a different image as part of the title
         st.markdown(
             f'''
             <div style="display: flex; align-items: center;">
@@ -110,7 +86,26 @@ def main():
         )
 
 
-    
+    # Login Sidebar
+    st.sidebar.header("Login")
+    username_input = st.sidebar.text_input("Username:")
+    password_input = st.sidebar.text_input("Password:", type="password")
+
+    if st.sidebar.button("Login"):
+        authenticated_user = validate_user(username_input, password_input)
+        if authenticated_user is not None:
+            st.sidebar.success(f"Logged in as {authenticated_user}")
+            st.session_state.authenticated_user = authenticated_user
+        else:
+            st.sidebar.error("Invalid username or password")
+
+
+
+
+
+    if st.session_state.authenticated_user:
+       
+            
     
         # Initialize session state
         if 'youtube_video_embed_url' not in st.session_state:
