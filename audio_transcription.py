@@ -160,9 +160,11 @@ def main():
 
 
 
+        if 'transcribe_button' not in st.session_state:
+            st.session_state.transcribe_button = False
         
-        if st.button('Transcribe'):
-            st.session_state.button_clicked = True
+        st.session_state.transcribe_button = st.button('Transcribe')
+       
         
         if st.session_state.get('authenticated_user') and st.session_state.button_clicked:
             with st.spinner("Transcribing..."):
@@ -216,6 +218,7 @@ def main():
     
         # Chat Interface
         if 'messages' in st.session_state and len(st.session_state['messages']) > 1:
+        
             st.write("## Continue Chatting with GPT")
     
             # Display previous messages
@@ -243,7 +246,10 @@ def main():
                         st.write(gpt_response)
     
                     # Force a rerun to update the chat interface
-                    st.rerun()
+                    if user_input:  # Only rerun if the user has actually input something
+                        st.rerun()
+
+                    
     
                 except Exception as e:
                     st.error(f"An error occurred: {e}")
