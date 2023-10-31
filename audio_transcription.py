@@ -247,9 +247,19 @@ def main():
                     with st.chat_message("assistant"):
                         st.write(gpt_response)
     
+
+
+                    # Initialize flag
+                    if 'should_rerun' not in st.session_state:
+                        st.session_state.should_rerun = True
+                    
                     # Force a rerun to update the chat interface
-                    if user_input:  # Only rerun if the user has actually input something
+                    if user_input and st.session_state.should_rerun:
+                        st.session_state.should_rerun = False  # Reset the flag
                         st.rerun()
+                    else:
+                        st.session_state.should_rerun = True  # Reset the flag
+
 
                     
     
