@@ -159,12 +159,10 @@ def main():
     
 
 
-
-        if 'transcribe_button' not in st.session_state:
-            st.session_state.transcribe_button = False
-        
-        st.session_state.transcribe_button = st.button('Transcribe')
-       
+        if st.button('Transcribe'):
+            st.session_state.transcribe_button = True
+            
+           
         
         if st.session_state.get('authenticated_user') and st.session_state.transcribe_button:
 
