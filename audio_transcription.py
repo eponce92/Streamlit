@@ -57,7 +57,7 @@ def main():
         st.markdown(
             f'''
             <div style="display: flex; align-items: center;">
-                <h1 class="streamlit-header" style="margin:0;">Audio Transcriber GPT</h1>
+                <h1 class="streamlit-header" style="margin:0;">Chat with your video </h1>
                 <img src="https://raw.githubusercontent.com/eponce92/Streamlit/main/audio-transctipt-ilustration.png" style="height:auto;width:260px;margin-left: 10px;">
             </div>
             ''',
