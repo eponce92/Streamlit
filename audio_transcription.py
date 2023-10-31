@@ -90,6 +90,25 @@ def main():
     
     
         # Description
+        st.markdown(
+            """
+            ## What does this app do? 🤔
+            - This app lets you transcribe audio from a YouTube video or an uploaded audio file using GPT (Generative Pre-trained Transformer) models.
+            - Once transcribed, you can interact with the GPT model to ask questions, summarize the content, or discuss it in a chat format.
+            
+            ## How to Use 🛠️
+            1. **Log in**: Use the sidebar to login. You'll need a valid username and password.
+            2. **Select a GPT model**: Choose the GPT model you'd like to use from the dropdown.
+            3. **Provide Audio**: 
+                - **Option A**: Paste a YouTube video URL.
+                - **Option B**: Upload an audio file.
+            4. **Transcribe**: Click the 'Transcribe' button. 
+            5. **Chat**: Use the chat box at the bottom to ask questions or discuss the content with the GPT model.
+            
+            ---
+            """
+        )
+
 
     
     
