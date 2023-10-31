@@ -164,7 +164,8 @@ def main():
             
            
         
-        if st.session_state.get('authenticated_user') and st.session_state.transcribe_button:
+        if st.session_state.get('authenticated_user') and st.session_state.get('transcribe_button', False):
+
 
         
             with st.spinner("Transcribing..."):
