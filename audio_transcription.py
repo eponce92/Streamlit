@@ -229,50 +229,35 @@ def main():
                 content = message["content"]
                 with st.chat_message(role):
                     st.write(content)
-    
+                    
+            # Initialize session state for chat if it doesn't exist
+            if 'messages' not in st.session_state:
+                st.session_state['messages'] = []
+            
+            # Initialize last_user_input if it doesn't exist
+            if 'last_user_input' not in st.session_state:
+                st.session_state.last_user_input = None
+            
             # User input
-            user_input = st.chat_input("Type your message")
-    
-            if user_input:
-                try:
-                    # Add user message to message history
-                    st.session_state['messages'].append({"role": "user", "content": user_input})
-    
-                    # Get GPT response
-                    gpt_response = continue_chat(openai_api_key, st.session_state['messages'], gpt_model)
-    
-                    # Add GPT message to message history
-                    st.session_state['messages'].append({"role": "assistant", "content": gpt_response})
-    
-                    with st.chat_message("assistant"):
-                        st.write(gpt_response)
-    
+            user_input = st.chat_input("Type your message", key="unique_key_for_chat_input")
+            
+            if user_input and user_input != st.session_state.last_user_input:
+                # Add user message to message history
+                st.session_state['messages'].append({"role": "user", "content": user_input})
+                st.session_state.last_user_input = user_input  # Update last_user_input
+            
+                # Get GPT response
+                gpt_response = continue_chat(openai_api_key, st.session_state['messages'], gpt_model)
+            
+                # Add GPT message to message history
+                st.session_state['messages'].append({"role": "assistant", "content": gpt_response})
+            
+                with st.chat_message("assistant"):
+                    st.write(gpt_response)
+            
+                # Force a rerun to update the chat interface
+                st.rerun()
 
-
-
-                    # Initialize last_user_input
-                    if 'last_user_input' not in st.session_state:
-                        st.session_state.last_user_input = None
-                    
-                    # User input
-                    user_input = st.chat_input("Type your message")
-                    
-                    if user_input and user_input != st.session_state.last_user_input:
-                        # Add user message to message history
-                        st.session_state['messages'].append({"role": "user", "content": user_input})
-                        st.session_state.last_user_input = user_input  # Update last_user_input
-                    
-                        # Get GPT response
-                        gpt_response = continue_chat(openai_api_key, st.session_state['messages'], gpt_model)
-                    
-                        # Add GPT message to message history
-                        st.session_state['messages'].append({"role": "assistant", "content": gpt_response})
-                    
-                        with st.chat_message("assistant"):
-                            st.write(gpt_response)
-                    
-                        # Force a rerun to update the chat interface
-                        st.rerun()
 
 
                     
