@@ -257,11 +257,7 @@ def main():
             
                 # Force a rerun to update the chat interface
                 st.rerun()
-
-
-
                     
-    
                 except Exception as e:
                     st.error(f"An error occurred: {e}")
     
