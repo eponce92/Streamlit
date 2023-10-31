@@ -258,8 +258,7 @@ def main():
                 # Force a rerun to update the chat interface
                 st.rerun()
                     
-                except Exception as e:
-                    st.error(f"An error occurred: {e}")
+              
     
             # Display video if available in session state
             if st.session_state['youtube_video_embed_url']:
