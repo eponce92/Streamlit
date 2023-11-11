@@ -31,7 +31,7 @@ def whisper_transcribe(audio_file_path, api_key):
             file=audio_file,
             response_format="text"
         )
-    return transcript.text
+    return transcript
     
 # Function to continue the chat conversation
 def continue_chat(api_key, messages, model):
