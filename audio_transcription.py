@@ -24,24 +24,24 @@ def download_audio(youtube_url):
 
 # Function to transcribe audio using Whisper API
 def whisper_transcribe(audio_file_path, api_key):
-    client = OpenAI(api_key=api_key)
+    openai.api_key = api_key
     with open(audio_file_path, "rb") as audio_file:
-        transcript = client.audio.transcriptions.create(
+        transcript = openai.Audio.create_transcription(
             model="whisper-1", 
-            file=audio_file,
-            response_format="text"
+            audio=audio_file
         )
     return transcript['data']['text']
 
     
 # Function to continue the chat conversation
 def continue_chat(api_key, messages, model):
-    client = openai.OpenAI(api_key=api_key)
-    response = client.chat.completions.create(
+    openai.api_key = api_key
+    response = openai.ChatCompletion.create(
         model=model,
         messages=messages
     )
     return response.choices[0].message.content
+
 
 def main():
     # Set the page config at the beginning of your script
