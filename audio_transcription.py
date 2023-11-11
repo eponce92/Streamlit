@@ -142,12 +142,13 @@ def main():
         if 'youtube_video_embed_url' not in st.session_state:
             st.session_state['youtube_video_embed_url'] = None
     
+       
         # Dropdown for GPT model selection
         gpt_model = st.selectbox(
             "Select GPT model:",
-            ("gpt-3.5-turbo", "gpt-3.5-turbo-16k", "gpt-4", "gpt-4-32k")
+            ("gpt-4-1106-preview", "gpt-4-vision-preview", "gpt-4-32k", "gpt-3.5-turbo-1106")
         )
-    
+
         openai_api_key = st.secrets["api_key"]
     
         # YouTube URL or Upload File
