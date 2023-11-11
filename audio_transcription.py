@@ -1,5 +1,7 @@
 import streamlit as st
 import openai
+from openai.openai_object import OpenAI
+
 from pytube import YouTube  # You can also use youtube_dl
 import re
 from streamlit_extras.stylable_container import stylable_container  # Import stylable_container
