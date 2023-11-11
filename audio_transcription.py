@@ -24,9 +24,9 @@ def download_audio(youtube_url):
 
 # Function to transcribe audio using Whisper API
 def whisper_transcribe(audio_file_path, api_key):
-    openai.api_key = api_key
+    client = openai.OpenAI(api_key=api_key)
     with open(audio_file_path, "rb") as audio_file:
-        transcript = openai.Audio.create_transcription(
+        transcript = client.audio.transcriptions.create(
             model="whisper-1", 
             file=audio_file
         )
