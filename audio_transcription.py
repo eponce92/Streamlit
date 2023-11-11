@@ -34,13 +34,15 @@ def whisper_transcribe(audio_file_path, api_key):
     return transcript
     
 # Function to continue the chat conversation
+
 def continue_chat(api_key, messages, model):
-    openai.api_key = api_key
-    response = openai.ChatCompletion.create(
+    client = openai.OpenAI(api_key=api_key)
+    response = client.chat.completions.create(
         model=model,
         messages=messages
     )
     return response.choices[0].message.content
+
 
 
 def main():
