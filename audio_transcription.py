@@ -1,6 +1,5 @@
 import streamlit as st
 import openai
-from openai.openai_object import OpenAI
 
 from pytube import YouTube  # You can also use youtube_dl
 import re
@@ -24,16 +23,17 @@ def download_audio(youtube_url):
     return audio_file_path
 
 # Function to transcribe audio using Whisper API
+
 def whisper_transcribe(audio_file_path, api_key):
-    client = OpenAI(api_key=api_key)
+    openai.api_key = api_key
     with open(audio_file_path, "rb") as audio_file:
-        transcript = client.audio.transcriptions.create(
+        transcript = openai.Audio.transcriptions.create(
             model="whisper-1", 
             file=audio_file,
             response_format="text"
         )
     return transcript['text']
-
+    
 # Function to continue the chat conversation
 def continue_chat(api_key, messages, model):
     openai.api_key = api_key
