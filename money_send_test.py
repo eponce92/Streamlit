@@ -39,7 +39,6 @@ if st.button("Add Entry"):
     worksheet.append_row([article_name, price])
 
     st.success("Entry Added Successfully!")
-    st.cache_data.clear()  # Clearing the cache
     st.experimental_rerun()  # Reload the app after adding the entry
 
 # Re-fetch the data to display in Streamlit
@@ -51,13 +50,20 @@ df_updated = conn.read(
 st.subheader("Current Database")
 st.dataframe(df_updated)
 
-# ... [rest of the code]
-
 # Plotting the data
 st.subheader("Article Price Visualization")
 
-fig, ax = plt.subplots(figsize=(12, 6))
-sns.barplot(data=df_updated, x='Article', y='Price', hue='Article', palette="viridis", ax=ax, legend=False)
-ax.set_xticklabels(ax.get_xticklabels(), rotation=45, ha="right")
-plt.tight_layout()
-st.pyplot(fig)
+# Check if the DataFrame is not empty before plotting
+if not df_updated.empty:
+    # Create a bar plot
+    fig, ax = plt.subplots(figsize=(12, 6))
+    sns.barplot(data=df_updated, x='Article', y='Price', hue='Article', palette="viridis", ax=ax)
+    ax.set_xticklabels(ax.get_xticklabels(), rotation=45, horizontalalignment='right')
+    ax.legend(title='Articles')
+    plt.tight_layout()
+
+    # Display the plot in Streamlit
+    st.pyplot(fig)
+else:
+    # Message to display if there is no data to plot
+    st.write("No data available for visualization.")
